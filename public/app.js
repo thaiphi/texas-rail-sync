@@ -158,10 +158,10 @@ function updateVersionSelection(){
 }
 async function refreshVersions(){
  const ticket=registryRequest.begin();
- try{const response=await fetch('/api/versions');if(!response.ok)throw Error('Version registry unavailable');const registry=await response.json();if(!registryRequest.isCurrent(ticket))return;availableVersions=registry.versions;
+ try{const response=await fetch('/api/versions');const type=response.headers?.get?.('content-type')??'unavailable';if(!response.ok||!type.includes('application/json'))console.warn('Dataset registry response could not be verified',{status:response.status,contentType:type});if(!response.ok)throw Error('Version registry unavailable');const registry=await response.json();if(!registryRequest.isCurrent(ticket))return;availableVersions=registry.versions;
  updateVersionSelection();
  $('library-status').textContent=`${availableVersions.length} preserved public versions. Source identity is shown only after version verification.`;renderLibrary();void verifyLibrary();
- }catch{if(!registryRequest.isCurrent(ticket))return;$('library-status').textContent=availableVersions.length?'Version registry unavailable. Previously verified versions remain available below; additional versions cannot be listed. Reload to retry.':'Version registry unavailable. Retry by reloading; no verified versions are available.';renderLibrary();updateVersionSelection();$('version-selection').disabled=!availableVersions.length;}
+ }catch{if(!registryRequest.isCurrent(ticket))return;console.warn('Dataset registry request failed; unverified versions remain unavailable.');$('library-status').textContent=availableVersions.length?'Version registry unavailable. Previously verified versions remain available below; additional versions cannot be listed. Reload to retry.':'Version registry unavailable. Retry by reloading; no verified versions are available.';renderLibrary();updateVersionSelection();$('version-selection').disabled=!availableVersions.length;}
 }
 async function openDataset(id){
  resetAnalytics();

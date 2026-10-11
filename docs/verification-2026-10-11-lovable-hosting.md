@@ -63,3 +63,30 @@ User policy confirmed: public dataset browsing, sign-in required to collect. The
 - Actual Deno and imported starter Vitest checks: **UNRUN**, unavailable tooling / standing instruction. Orchestrator gate for starter tests: `node node_modules/vitest/vitest.mjs run`.
 
 No further backend or preview release was performed after these failed/unverified gates. Screenshots include [remote library failure](screenshots-2026-10-11-hosting/datasets-lovable-preview.png) and [live-backed local narrow history](screenshots-2026-10-11-hosting/history-narrow-local-live-backend.png). The remote failure screenshot is explicitly not successful browsing evidence.
+
+## Resumption: portable test gate and preview diagnostics
+
+On the owner's request to fix the blockers now, the long isolated runner was also tried with serial test execution. Temporary publication rename EPERM persisted, so parallel execution alone is not the cause. A shorter isolated root under `tmp/v-*`, with the same source code, default parallel execution and all tests, passed186/186. This supports a workspace-path-dependent Windows limitation; it does not prove which Windows component causes it. No ACL, security setting, permission or application publication logic was changed.
+
+Added portable `scripts/check-isolated.mjs`, which copies the same application/test/source inputs into a fresh short directory, includes the actual Supabase entrypoint, runs every production `.test.mjs`, preserves the full log, and propagates the child exit status. It does not run live collection or overwrite working datasets. Invocation: `node scripts/check-isolated.mjs`.
+
+- Short proof run `tmp/v-0A4qtD`:186/186 PASS.
+- Portable runner `tmp/v-PUVKxE`:186/186 PASS.
+- After preview diagnostics, `tmp/v-Hmksal`:186/186 PASS.
+- Vite production build PASS; TypeScript PASS; public/app.js syntax PASS; new runner default ESLint PASS.
+- Preservation probe:166 protected Explorer files and14 consumer evidence/pin files unchanged.
+- Fresh public Supabase probes: versions200/3; runs200/29/zero unavailable.
+
+The first diagnostic trial failed UI regression tests because their lightweight response mocks lack Headers. Optional header inspection corrected the diagnostic without weakening those tests; the complete rerun passed. Only HTTP status/content-type and a generic failure message are logged; response bodies, credentials and tokens are not logged. The user-visible selection/error behavior is unchanged. Remote diagnostics are not yet observed.
+
+Lovable MCP now reports an expired/revoked authorization grant. The old connection uses a stdio mcp-remote bridge, so `codex mcp login lovable` alone cannot reconnect it. CLI help confirmed the direct connection syntax: `codex mcp add lovable --url https://mcp.lovable.dev --oauth-resource https://mcp.lovable.dev`, then `codex mcp login lovable`. The owner's terminal lacks codex on PATH; the verified installed executable is `C:/Users/thai.phi/AppData/Local/OpenAI/Codex/bin/9691020b546a15b2/codex.exe`. The owner is handling normal browser authorization. No credentials or global connection settings were modified by the implementer.
+
+Actual authenticated remote browsing, Deno tooling and starter Vitest remain unverified. The previous compact-file formatting lint result remains a failure; successful new-runner lint does not erase it. Read-only preview diagnosis is still open, and hosted collection/sign-in remain unfinished.
+
+### Further evidence: blockers remain open
+
+The earlier short-path success did not establish root cause. Another short parallel run (`tmp/v-myBqhR`) failed when `validation.test.mjs` enumerated a run directory before the CLI tests wrote its record. `run-events.test.mjs` invokes export CLI into the shared copied run root; `saveRun` creates the directory before writing `record.json`. The portable runner now uses sequential test files, retaining every test and their explicit intra-test concurrency assertions. It also checks the canonical root and rejects linked tmp/inputs before copying.
+
+The final short sequential application run (`tmp/v-Zz7OIR`) still failed183/186,3 EPERM errors in bounded collection. A disposable-copy diagnostic probe (`tmp/p-LMtaD5`) retried failed renames after one second and still failed184/186 with EPERM on both retries. The probe is not application code or an acceptance result; no production retry was added. Thus neither short paths, file serialization nor a brief wait solves the publication error reliably. Cause remains unproven. Earlier186/186 successes remain recorded, but **stable full-suite acceptance is blocked**. No permissions were changed or tests disabled.
+
+The owner's terminal could not locate codex through PATH. Using the verified full executable path configured native transport, but login failed: `Protected resource metadata missing required resource field`. Instructions were supplied to restore the existing mcp-remote bridge and back up only Lovable's expired token before normal browser authorization. The implementer did not alter credentials or connection settings. MCP access and actual authenticated preview diagnosis remain pending; main has not been updated with this diagnosis candidate.
