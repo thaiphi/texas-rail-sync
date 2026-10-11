@@ -1,0 +1,281 @@
+[
+  {
+    "check": "Recorded failure synchronizes map/details/counts/log",
+    "result": "PASS",
+    "evidence": {
+      "counts": [
+        "—",
+        "—",
+        "—",
+        "—"
+      ],
+      "error": "MANIFEST_PIN_MISMATCH: Preserved manifest does not match the requested SHA256 pin.",
+      "eventRows": 4,
+      "states": [
+        "failed",
+        "skipped",
+        "skipped"
+      ],
+      "status": "failed"
+    }
+  },
+  {
+    "check": "Historical run and skipped node preserve unavailable evidence; keyboard tabs work",
+    "result": "PASS",
+    "evidence": {
+      "counts": [
+        "—",
+        "—",
+        "—",
+        "—"
+      ],
+      "downloadHidden": true,
+      "log": "Execution events unavailableThis preserved artifact has source evidence, but no original acquisition run log.",
+      "states": [
+        "unrecorded",
+        "unrecorded",
+        "unrecorded"
+      ]
+    }
+  },
+  {
+    "check": "Successful run and keyboard node selection",
+    "result": "PASS",
+    "evidence": {
+      "counts": [
+        "5",
+        "28",
+        "0",
+        "7"
+      ],
+      "events": 6,
+      "overflow": false,
+      "selected": "Normalize, link & validate",
+      "states": [
+        "succeeded",
+        "succeeded",
+        "succeeded"
+      ],
+      "viewport": [
+        1206,
+        1399
+      ]
+    }
+  },
+  {
+    "check": "Search by UIC; keyboard selection of an unacquired history",
+    "result": "PASS",
+    "evidence": {
+      "count": "Showing 1 of 5 records",
+      "history": "No history acquired for this inventory recordThis artifact queried monthly history for UIC 000020838 only. An empty view does not indicate zero injection or a missing report.",
+      "title": "UIC 000022085"
+    }
+  },
+  {
+    "check": "Empty filter clears selected well/report/source details",
+    "result": "PASS",
+    "evidence": {
+      "count": "Showing 0 of 5 records",
+      "details": "",
+      "source": "",
+      "table": "No acquired records match these filters. Clear filters to see the full inventory."
+    }
+  },
+  {
+    "check": "County/operator filters and selected February report preserve recorded/calculated values",
+    "result": "PASS",
+    "evidence": {
+      "filter": "Showing 1 of 5 records",
+      "report": "Liquid (reported)17,927 bblGas (reported)0 MCFAverage pressure900 psiMaximum pressure900 psiCalendar-day rate618.17 bbl/daySource report ID3775426",
+      "selected": "2024-02 · report 3775426"
+    }
+  },
+  {
+    "check": "Keyboard table scrolling and all retained report rows",
+    "result": "FAIL",
+    "evidence": {
+      "documentOverflow": false,
+      "inventoryLeft": 0,
+      "monthlyTop": 4,
+      "rows": 28
+    }
+  },
+  {
+    "check": "Keyboard scrolling after browser rendering settled",
+    "result": "PASS",
+    "evidence": {
+      "documentOverflow": false,
+      "inventoryLeft": 40,
+      "monthlyTop": 40,
+      "rows": 28
+    }
+  },
+  {
+    "check": "Monthly table selection synchronizes report inspector",
+    "result": "PASS",
+    "evidence": {
+      "report": "Liquid (reported)4,799 bblGas (reported)0 MCFAverage pressure900 psiMaximum pressure900 psiCalendar-day rate159.97 bbl/daySource report ID3775452",
+      "selected": "2026-04 · report 3775452"
+    }
+  },
+  {
+    "check": "390×844 records layout contains table overflow and shows derived linked UIC count",
+    "result": "PASS",
+    "evidence": {
+      "clientWidth": 375,
+      "documentWidth": 375,
+      "inventoryWidth": 334,
+      "linkedUIC": "1",
+      "tableWidth": 990,
+      "viewport": [
+        390,
+        844
+      ]
+    }
+  },
+  {
+    "check": "Mobile workflow stage selection and real output references",
+    "result": "PASS",
+    "evidence": {
+      "downloadLinks": 13,
+      "nodes": 3,
+      "outputs": 13,
+      "overflow": false,
+      "selected": "Versioned dataset export",
+      "viewport": [
+        390,
+        844
+      ]
+    }
+  },
+  {
+    "check": "TEST-ONLY HTTP failure after a successful run clears all four connected surfaces",
+    "result": "PASS",
+    "evidence": {
+      "counts": "",
+      "details": "",
+      "downloadHidden": true,
+      "error": "The selected run is unavailable or invalid. Choose another invocation or the historical artifact. No previous run evidence is displayed.",
+      "log": "",
+      "nodes": 0
+    }
+  },
+  {
+    "check": "TEST-ONLY mismatching pin fails closed for data, filters and dataset downloads",
+    "result": "PASS",
+    "evidence": {
+      "counts": [
+        "—",
+        "—",
+        "—"
+      ],
+      "downloadLinks": 0,
+      "message": "Could not load the pinned artifact: Pinned artifact hash mismatch. Dataset counts, record details and dataset downloads remain unavailable. Restore the complete pinned version to continue.",
+      "record": "Dataset unavailable",
+      "searchDisabled": true,
+      "versionDisabled": true
+    }
+  },
+  {
+    "check": "Mobile node selection reveals inspector; all navigation destinations fit",
+    "result": "PASS",
+    "evidence": {
+      "focused": "node-title",
+      "inspectorTop": 12.197916984558104,
+      "navScroll": 375,
+      "navWidth": 375,
+      "overflow": false
+    }
+  },
+  {
+    "check": "Mobile well selection reveals details below persistent navigation",
+    "result": "PASS",
+    "evidence": {
+      "focused": "well-name",
+      "navTop": 0,
+      "overflow": false,
+      "top": 111.82292175292967
+    },
+    "note": "Initial 90px-top assertion was too strict at the end of a short page; inspector is visible at 112px, below the 58px navigation."
+  },
+  {
+    "check": "Keyboard skip link preserves active records view",
+    "result": "PASS",
+    "evidence": {
+      "focused": "main",
+      "recordsVisible": true,
+      "route": "#records"
+    }
+  },
+  {
+    "check": "Mobile export/version/provenance view",
+    "result": "PASS",
+    "evidence": {
+      "downloads": [
+        "/artifacts/rrc-2026-10-09-uic000020838-v1/inventory.csv?download=1",
+        "/artifacts/rrc-2026-10-09-uic000020838-v1/injection_monthly.csv?download=1",
+        "/artifacts/rrc-2026-10-09-uic000020838-v1/manifest.json?download=1",
+        "/artifacts/rrc-2026-10-09-uic000020838-v1/quality_report.json?download=1",
+        "/artifacts/rrc-2026-10-09-uic000020838-v1/data_dictionary.json?download=1",
+        "/artifacts/rrc-2026-10-09-uic000020838-v1/normalized.json?download=1"
+      ],
+      "overflow": false,
+      "sources": 7,
+      "version": "rrc-2026-10-09-uic000020838-v1",
+      "viewport": [
+        390,
+        844
+      ],
+      "warning": "Provenance defect remains unresolvedThe exporter can lose a fixture marker during offline re-export. A successful run alone does not establish public provenance. This view only presents the independently pinned public slice; marked test fixtures are excluded from recorded history."
+    }
+  },
+  {
+    "check": "Export history selects corresponding run without changing dataset version",
+    "result": "PASS",
+    "evidence": {
+      "route": "#workflow",
+      "run": "dc99b8e9-aa1c-429a-ac6e-cf24f8d47d0a",
+      "status": "failed",
+      "version": "rrc-2026-10-09-uic000020838-v1"
+    }
+  },
+  {
+    "check": "Source ledger and quality navigation retain original URLs, counts and quarantine disclosure",
+    "result": "PASS",
+    "evidence": {
+      "focused": "quality-title",
+      "quality": "Monthly rows: 28 raw = 28 accepted + 0 quarantined + 0 excluded. Quarantine reasons stay with the retained rows.",
+      "quarantine": "No monthly rows are quarantined or excluded in this pinned slice. This does not certify every validation rule or other dataset versions.",
+      "sourceCount": 7
+    }
+  },
+  {
+    "check": "Browser-saved CSV matches pinned bytes",
+    "result": "PASS",
+    "evidence": {
+      "bytes": 5513,
+      "sha256": "1831e77daa33af7bcb49ee62d36d170c40031e2603b1e0015ae20144fe94f3a3",
+      "file": "downloaded-injection_monthly.csv"
+    }
+  },
+  {
+    "check": "Browser-saved failed run JSON matches the selected invocation",
+    "result": "PASS",
+    "evidence": {
+      "runId": "dc99b8e9-aa1c-429a-ac6e-cf24f8d47d0a",
+      "status": "failed",
+      "events": 4,
+      "file": "downloaded-failed-run.json"
+    },
+    "note": "Browser download confirmation took approximately 558 seconds despite the requested short timeout."
+  },
+  {
+    "check": "No editor or collection trigger controls",
+    "result": "PASS",
+    "evidence": {
+      "consoleView": "succeeded",
+      "editableNodes": 0,
+      "triggerButtons": []
+    }
+  }
+]

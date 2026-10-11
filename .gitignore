@@ -1,0 +1,32 @@
+# Dependencies and generated local verification output
+/node_modules/
+/output/
+/tmp/
+/coverage/
+/.cache/
+# Unreviewed acquisition scratch; curated raw/ and artifacts/ stay versionable
+/raw-refresh-*/
+# Local Graphify graphs and staged source copies
+.graphify-local/
+graphify-out/
+# Local environments, credentials and private key material
+.env
+.env.*
+.aws/
+.ssh/
+.credentials/
+credentials.json
+secrets.json
+*.pem
+*.key
+*.p12
+*.pfx
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.log
+# Editor and operating-system clutter
+.DS_Store
+Thumbs.db
+# Keep raw/, artifacts/, source-proof records, scripts, tests and public assets.

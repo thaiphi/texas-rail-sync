@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "runId": "502ec096-35e9-41d1-a2f5-3e126d8824ba",
+  "mode": "live_collection",
+  "testFixture": false,
+  "status": "succeeded",
+  "targets": [
+    "https://data.texas.gov/api/views/givw-z9t4.json",
+    "https://data.texas.gov/api/views/qq2j-f2zm.json",
+    "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000056484%27&%24limit=25&%24order=uic_number%2Capi_no",
+    "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000056484%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-05-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+    "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+    "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+    "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html"
+  ],
+  "scope": {
+    "queryVersion": 2,
+    "monthlyUic": "000056484",
+    "startMonth": "2024-01",
+    "endMonth": "2026-04",
+    "monthlyStart": "2024-01-01T00:00:00",
+    "monthlyEndExclusive": "2026-05-01T00:00:00",
+    "inventoryLimit": 25,
+    "monthlyLimit": 1000
+  }
+}

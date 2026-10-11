@@ -1,0 +1,127 @@
+{
+  "checkedAt": "2026-10-10T00:11:30.833Z",
+  "preservedFiles": 56,
+  "changedPreservedFiles": 0,
+  "baseline": [
+    {
+      "file": "index.html",
+      "matched": true
+    },
+    {
+      "file": "app.js",
+      "matched": true
+    },
+    {
+      "file": "style.css",
+      "matched": true
+    },
+    {
+      "file": "workflow-ui.js",
+      "matched": true
+    }
+  ],
+  "files": [
+    {
+      "file": "public/index.html",
+      "sha256": "7823ad1a9d3c6faa8b7e96b979131ca5f75a40c32d445a453b688a3fcc6f7e51"
+    },
+    {
+      "file": "public/style.css",
+      "sha256": "f18d5be73e654898ab03f9642e829a0015cda257c8a6bb3b22a41bb40dc43d90"
+    },
+    {
+      "file": "public/app.js",
+      "sha256": "dd1f557a939e766d102c3c0eee81bdef7767784d46fed93d4fc481f57c938797"
+    },
+    {
+      "file": "public/workflow-ui.js",
+      "sha256": "501191bff0ba370cf9ee26d93667179cdf152fe688eb9b1d415e420eab30c47b"
+    },
+    {
+      "file": "public/inspection.js",
+      "sha256": "2a4fae0e85f9623b781c84fed795e443e73ee0645147ed9c1bde98670fb3b6f8"
+    },
+    {
+      "file": "public/presentation.js",
+      "sha256": "ada8fb71ced1da4aa9bc62f1c5ce41335285c137078923c132bb180450e754c7"
+    },
+    {
+      "file": "test/presentation.test.mjs",
+      "sha256": "a0b5c8eb41fa0a1f4d6cd58ab96c3c30cc6bbab58d774d057c153103edd743bd"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "before-desktop.jpg",
+      "width": 1521,
+      "height": 1014
+    },
+    {
+      "file": "empty-records-desktop.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "file": "exports-desktop.jpg",
+      "width": 1521,
+      "height": 1014
+    },
+    {
+      "file": "exports-mobile.jpg",
+      "width": 374,
+      "height": 2746
+    },
+    {
+      "file": "failed-run-desktop.jpg",
+      "width": 1521,
+      "height": 1014
+    },
+    {
+      "file": "node-detail-mobile.jpg",
+      "width": 375,
+      "height": 812
+    },
+    {
+      "file": "records-desktop.jpg",
+      "width": 1521,
+      "height": 1014
+    },
+    {
+      "file": "records-mobile.jpg",
+      "width": 374,
+      "height": 2206
+    },
+    {
+      "file": "test-only-pin-failure.jpg",
+      "width": 1521,
+      "height": 1014
+    },
+    {
+      "file": "test-only-unavailable-run.jpg",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "file": "workflow-desktop.jpg",
+      "width": 1521,
+      "height": 1014
+    },
+    {
+      "file": "workflow-mobile.jpg",
+      "width": 374,
+      "height": 2246
+    }
+  ],
+  "automatedTests": {
+    "passed": 38,
+    "failed": 0,
+    "location": "tmp/ui-verification/snapshot",
+    "scope": "Final JavaScript; sandbox attempt had 13 environmental failures before approved local reruns"
+  },
+  "syntaxFiles": 6,
+  "downloadedCsv": {
+    "bytes": 5513,
+    "sha256": "1831e77daa33af7bcb49ee62d36d170c40031e2603b1e0015ae20144fe94f3a3"
+  },
+  "knownProvenanceDefect": "unresolved"
+}

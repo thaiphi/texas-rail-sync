@@ -1,0 +1,17 @@
+# Inspection design
+
+## October 10 navigation redesign
+
+The four supplied layout references are implemented as four global activities (Find & collect, My datasets, Collection history, Help) and six tabs inside an explicitly opened dataset (Overview, Records, Data quality, Sources, Downloads, Collection details). Global screens hide the dataset workspace. Workspace routes include the immutable version identity; opening a version does not repin it or adopt it in Analytics. Well/report, historical run and current collection request remain separate selections.
+
+The navy rail, blue active states, light workspace, system sans typography and master/detail records layout follow the references. Source-specific controls missing from the pictures remain accessible: county/operator/search filters, complete inventory columns, separate gas/average and maximum pressure values, report selection, expandable tables, quality reconciliation/dictionary, original source files and all four stage evidence panels. The server exposes terminal run records, so collection progress states the current request and waits for actual completion instead of animating invented stages. Human-readable timestamps use the browser timezone; downloaded evidence retains UTC.
+
+Responsive CSS stacks panels and contains table/graph scrolling. Current narrow-screen acceptance is reported separately and is not inferred from CSS. See the [preservation matrix](docs/feature-preservation-2026-10-10.md), [redesign verification](docs/verification-2026-10-10-navigation-redesign.md) and [screenshots](docs/screenshots-2026-10-10-navigation-redesign.md). The historical design/checkpoint below remains a record of the original layout.
+
+Palette: ink `#142b43`, RRC-inspired header blue `#173d60`, data blue `#267fb8`, muted text `#53677c`, background `#f5f8fc`, source-rule border `#d5e0eb`. Segoe UI supplies familiar Windows data-application typography; numerical columns use tabular figures.
+
+Layout: left-aligned source inventory sits beside the selected record, its authorized constraints, monthly volume chart and numeric observation table. The lower evidence ledger mirrors the same artifact hierarchy. The chart is the single visual emphasis; the rest is restrained inspection chrome. The narrow layout stacks inventory above details and retains horizontal table scrolling.
+
+The plan was reviewed against the bounded data task: no decorative maps, status animation, derived pressure/capacity plots, invented images or generic decorative telemetry. Source field names/units and no-history states receive visual priority. Controls have visible keyboard focus, semantic labels and a text table equivalent to the chart. Desktop browser inspection confirmed legible values and search/selection behavior; responsive CSS exists, with viewport validation recorded separately in GATES.md.
+
+The collection evidence section adds a connected fixed sequence of actual instrumented stages, with text states as well as color and a separate external consumer boundary. Node selection opens a bounded, keyboard-scrollable evidence panel; history selection never changes the pinned data below. On narrow screens the sequence stacks vertically with connectors and no page overflow. A full inventory table uses the same filters as the quick selection list; whole-snapshot download scope remains visible. Missing chart values show n/a with no bar, while zero is a baseline mark. Current mobile/keyboard checks and unresolved delivery evidence are in `docs/verification-2026-10-09-core.md`.

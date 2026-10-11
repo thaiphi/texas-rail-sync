@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "row_grain": {
+    "inventory": "one retained official source inventory row",
+    "injection_monthly": "one retained official source monthly row, including conflicts/revisions"
+  },
+  "missing_value": "CSV empty cell / JSON null for absent numbers. Zero remains zero. String identifier absence is empty string.",
+  "pressure_basis": "Reported injection pressure, psi as named by RRC manual pp.40–41 (PDF pp.41–42). No datum conversion, BHP, reservoir pressure, or injectivity claim.",
+  "annulus": "Not available in ODP dataset qq2j-f2zm; no annulus columns are generated.",
+  "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+  "units_source": {
+    "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+    "pdf_pages": [
+      18,
+      41,
+      42
+    ],
+    "note": "Official UIC manual defines liquid barrels, gas MCF, monthly average/maximum psi; public UIC query help names permit limits PSI and BBLS/day."
+  },
+  "fields": {
+    "source_record_key": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Snapshot plus 1-based raw inventory ordinal; never shortened API"
+    },
+    "uic_number": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original nine-character UIC parent/control ID; preserves leading zeros"
+    },
+    "api_no": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original API_NO exactly as source supplies it (eight digits here); never used as join key"
+    },
+    "operator_number": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source operator_number; identifier values preserved as strings"
+    },
+    "district_code": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source district_code; identifier values preserved as strings"
+    },
+    "lease_number": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source lease_number; identifier values preserved as strings"
+    },
+    "lease_name": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source lease_name; identifier values preserved as strings"
+    },
+    "well_no_display": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source well_no_display; identifier values preserved as strings"
+    },
+    "county": {
+      "units": "name",
+      "status": "calculated",
+      "definition": "Reeves only for source API county prefix 389; other county codes are labeled without inferring an unverified county name."
+    },
+    "county_basis": {
+      "units": "text",
+      "status": "calculated",
+      "definition": "Explicit origin of county label"
+    },
+    "injection_type_code": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source injection_type_code; identifier values preserved as strings"
+    },
+    "permit_liquid_pressure_limit_psi": {
+      "units": "psi",
+      "status": "public reported",
+      "definition": "ODP max_liq_inj_pressure; regulatory authorized maximum, not sustainable capacity"
+    },
+    "permit_liquid_volume_limit_bpd": {
+      "units": "bbl/day",
+      "status": "public reported",
+      "definition": "ODP bbl_vol_inj; authorized maximum liquid volume, not sustainable capacity"
+    },
+    "permitted_top_depth_ft": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "ODP top_inj_zone; permitted injection interval top"
+    },
+    "permitted_bottom_depth_ft": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "ODP bot_inj_zone; permitted injection interval bottom"
+    },
+    "w14_number": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source w14_number; identifier values preserved as strings"
+    },
+    "w14_date": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source w14_date; identifier values preserved as strings"
+    },
+    "permit_canceled_date": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source permit_canceled_date; identifier values preserved as strings"
+    },
+    "plugged_date": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source plugged_date; identifier values preserved as strings"
+    },
+    "source_snapshot_id": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Dataset ID plus raw response SHA256 prefix"
+    },
+    "quality_flags": {
+      "units": "list",
+      "status": "calculated",
+      "definition": "Pipe-delimited issues; issues may overlap"
+    },
+    "source_row_key": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Snapshot plus 1-based raw monthly ordinal; preserves duplicate source IDs"
+    },
+    "parent_key": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Unique UIC inventory source_record_key if and only if exact string UIC matches one retained parent"
+    },
+    "parent_join_status": {
+      "units": "enum",
+      "status": "calculated",
+      "definition": "matched / unmatched / ambiguous"
+    },
+    "source_report_id": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original ODP monthly id, retained without assuming global uniqueness"
+    },
+    "reporting_year": {
+      "units": "year",
+      "status": "calculated",
+      "definition": "Year extracted from source formatted_date"
+    },
+    "reporting_month": {
+      "units": "month",
+      "status": "calculated",
+      "definition": "Month extracted from source formatted_date"
+    },
+    "period_start": {
+      "units": "date",
+      "status": "calculated",
+      "definition": "Calendar month start from formatted_date; not a daily observation"
+    },
+    "injected_liquid_bbl": {
+      "units": "bbl/month",
+      "status": "public reported",
+      "definition": "ODP vol_liq, monthly total liquid volume"
+    },
+    "injected_gas_mcf": {
+      "units": "MCF/month",
+      "status": "public reported",
+      "definition": "ODP vol_gas, monthly total gas volume"
+    },
+    "reported_avg_injection_pressure_psi": {
+      "units": "psi",
+      "status": "public reported",
+      "definition": "ODP inj_press_avg; separate reported average injection pressure"
+    },
+    "reported_max_injection_pressure_psi": {
+      "units": "psi",
+      "status": "public reported",
+      "definition": "ODP inj_press_max; separate reported maximum injection pressure"
+    },
+    "calendar_days": {
+      "units": "days",
+      "status": "calculated",
+      "definition": "Actual Gregorian days in reporting month"
+    },
+    "calculated_calendar_day_avg_bpd": {
+      "units": "bbl/day",
+      "status": "calculated",
+      "definition": "injected_liquid_bbl / calendar_days; not measured daily operating rate or operating-day rate"
+    },
+    "most_recent_record": {
+      "units": "source code",
+      "status": "public reported",
+      "definition": "Original ODP flag; meaning not documented by metadata, no revision-selection inference"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "lookupId": "2bbd2bb8-77a7-455d-a6bd-24e4e29055c4",
+  "request": {
+    "kind": "uic",
+    "value": "000056484"
+  },
+  "testFixture": false,
+  "status": "ready",
+  "files": {
+    "lookup-metadata.json": "d7ae5a78b74565635763d2779258cf33a17c95373cf26384662596788932698e",
+    "lookup-metadata.source.json": "ac9cd436bf0c030d81be3b69701e0385ad6d977f59d99ca1cd600a8095ae3ff9",
+    "lookup-inventory.json": "7aac5037f7cbab0f5abad79b26938fbc7e33eaba97c3df394982f1875ffb8f47",
+    "lookup-inventory.source.json": "c28a7df4a9e826e7679d231eae2920795140fb0e8718b451b76983e2de02d140"
+  }
+}

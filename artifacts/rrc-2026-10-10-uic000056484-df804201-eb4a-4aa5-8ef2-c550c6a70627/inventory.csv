@@ -1,0 +1,2 @@
+source_record_key,uic_number,api_no,operator_number,district_code,lease_number,lease_name,well_no_display,county,county_basis,injection_type_code,permit_liquid_pressure_limit_psi,permit_liquid_volume_limit_bpd,permitted_top_depth_ft,permitted_bottom_depth_ft,w14_number,w14_date,permit_canceled_date,plugged_date,source_snapshot_id,quality_flags
+rrc:uic:givw-z9t4:7aac5037f7cbab0f:1,000056484,38931500,462980,08,28240,SAND BEND,2D,Reeves,API county code 389; not independent location verification,1,1500,1200,3028,3118,5258,1985-06-12,,,givw-z9t4:7aac5037f7cbab0f,

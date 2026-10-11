@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "runId": "25b8b071-85d8-4994-ac30-1783ff4783d6",
+  "mode": "offline_replay",
+  "testFixture": false,
+  "pipelineVersion": "rrc-collection-v1",
+  "dataSchemaVersion": 1,
+  "transformationVersion": "rrc-odp-v1.0.0",
+  "startedAt": "2026-10-09T20:31:12.076Z",
+  "endedAt": "2026-10-09T20:31:12.080Z",
+  "status": "failed",
+  "events": [
+    {
+      "runId": "25b8b071-85d8-4994-ac30-1783ff4783d6",
+      "stage": "load",
+      "stageId": "25b8b071-85d8-4994-ac30-1783ff4783d6:load",
+      "eventId": "25b8b071-85d8-4994-ac30-1783ff4783d6:1",
+      "timestamp": "2026-10-09T20:31:12.078Z",
+      "status": "running",
+      "evidence": null
+    },
+    {
+      "runId": "25b8b071-85d8-4994-ac30-1783ff4783d6",
+      "stage": "load",
+      "stageId": "25b8b071-85d8-4994-ac30-1783ff4783d6:load",
+      "eventId": "25b8b071-85d8-4994-ac30-1783ff4783d6:2",
+      "timestamp": "2026-10-09T20:31:12.080Z",
+      "status": "failed",
+      "evidence": {
+        "artifactId": "rrc-2026-10-09-uic000020838-v1",
+        "sourceDirectory": "raw",
+        "expectedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "actualManifestSha256": "3a523cadca4c7a35d667ccd53629d63e5afc6de382be670cba1d61743baef61f"
+      },
+      "error": {
+        "code": "MANIFEST_PIN_MISMATCH",
+        "message": "Preserved manifest does not match the requested SHA256 pin."
+      }
+    },
+    {
+      "runId": "25b8b071-85d8-4994-ac30-1783ff4783d6",
+      "stage": "normalize-qc",
+      "stageId": "25b8b071-85d8-4994-ac30-1783ff4783d6:normalize-qc",
+      "eventId": "25b8b071-85d8-4994-ac30-1783ff4783d6:3",
+      "timestamp": "2026-10-09T20:31:12.080Z",
+      "status": "skipped",
+      "evidence": {
+        "reason": "upstream_failed",
+        "failedStage": "load"
+      }
+    },
+    {
+      "runId": "25b8b071-85d8-4994-ac30-1783ff4783d6",
+      "stage": "export",
+      "stageId": "25b8b071-85d8-4994-ac30-1783ff4783d6:export",
+      "eventId": "25b8b071-85d8-4994-ac30-1783ff4783d6:4",
+      "timestamp": "2026-10-09T20:31:12.080Z",
+      "status": "skipped",
+      "evidence": {
+        "reason": "upstream_failed",
+        "failedStage": "load"
+      }
+    }
+  ]
+}

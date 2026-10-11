@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {normalize,numberField,csv,sha256} from '../src/normalize.mjs';
+const ids={inventory:'i',monthly:'m'};
+const parent={uic_number:'000000040',api_no:'00100001',operator_number:'000001',lease_number:'00001',max_liq_inj_pressure:'0',bbl_vol_inj:'0',top_inj_zone:'0',bot_inj_zone:'0'};
+const child={id:'0007',uic_no:'000000040',formatted_date:'2024-02-01T00:00:00.000',vol_liq:'29',vol_gas:'0',inj_press_avg:'0',inj_press_max:'10'};
+test('identity strings and leap-year volume arithmetic survive normalization',()=>{const n=normalize([parent],[child],ids);assert.equal(n.inventory[0].api_no,'00100001');assert.equal(n.monthly[0].source_report_id,'0007');assert.equal(n.monthly[0].calendar_days,29);assert.equal(n.monthly[0].calculated_calendar_day_avg_bpd,1);assert.equal(n.monthly[0].reported_avg_injection_pressure_psi,0);assert.equal(n.quality.parent_join.matched,1);});
+test('missing, zero and parsing failure remain distinct',()=>{const f=[];assert.equal(numberField('0',f,'a'),0);assert.equal(numberField('',f,'b'),null);assert.equal(numberField('abc',f,'c'),null);assert.deepEqual(f,['missing:b','parse_failure:c']);});
+test('duplicate parents and monthly revisions quarantine without dropping rows',()=>{const n=normalize([parent,parent],[child,child],ids);assert.equal(n.monthly.length,2);assert.notEqual(n.monthly[0].source_row_key,n.monthly[1].source_row_key);assert.equal(n.monthly[0].parent_key,'');assert.equal(n.quality.parent_join.ambiguous,2);assert.equal(n.quality.monthly.quarantined,2);assert.equal(n.quality.inventory.quarantined,2);});
+test('unmatched parent, malformed month and negative quantity are retained and quarantined',()=>{const n=normalize([],[{...child,formatted_date:'2024-13-01T00:00:00.000',vol_liq:'-1'}],ids);assert.equal(n.quality.parent_join.unmatched,1);assert.equal(n.monthly[0].calendar_days,null);assert.equal(n.monthly[0].calculated_calendar_day_avg_bpd,null);assert.equal(n.quality.monthly.quarantined,1);});
+test('CSV quotes original lease names and preserves empty numeric values',()=>assert.equal(csv([{name:'A, "B"',n:null}],['name','n']),'name,n\n"A, ""B""",\n'));
+test('pinned REAL source anchor reconciliation and counts',async()=>{
+ const inv=JSON.parse(await readFile(new URL('../raw/candidate-inventory.json',import.meta.url)));
+ const raw=JSON.parse(await readFile(new URL('../raw/candidate-monthly.json',import.meta.url)));
+ const n=normalize(inv,raw,ids);
+ assert.equal(inv.length,5);assert.equal(raw.length,28);assert.equal(n.quality.monthly.accepted,28);assert.equal(n.quality.parent_join.matched,28);
+ const p=n.inventory.find(r=>r.uic_number==='000020838');assert.equal(p.api_no,'38910201');assert.equal(p.well_no_display,'5D');assert.equal(p.lease_name,'TREES, J. C. ESTATE, ET AL -A-');assert.equal(p.permit_liquid_pressure_limit_psi,2600);
+ assert.deepEqual(n.monthly.filter(r=>r.reporting_year===2024).map(r=>r.injected_liquid_bbl),[17173,17927,17989,15119,22427,23579,24010,15980,15820,16072,16108,19670]);
+ assert.equal(n.monthly[0].reported_avg_injection_pressure_psi,900);assert.equal(n.monthly[0].reported_max_injection_pressure_psi,900);assert.equal(n.monthly[1].calendar_days,29);assert.equal(n.monthly[27].injected_liquid_bbl,4799);assert.equal(n.monthly[27].period_start,'2026-04-01');
+ assert.ok(n.monthly.every(r=>r.parent_key===p.source_record_key));
+});
+test('artifact contents match manifest SHA256 and raw source snapshots',async()=>{
+ const base=new URL('../artifacts/rrc-2026-10-09-uic000020838-v1/',import.meta.url);const m=JSON.parse(await readFile(new URL('manifest.json',base)));
+ for(const [name,info] of Object.entries(m.files))assert.equal(sha256(await readFile(new URL(name,base))),info.sha256,name);
+ for(const source of m.sources)assert.equal(sha256(await readFile(new URL(source.raw_file,base))),source.sha256,source.name);
+ const n=JSON.parse(await readFile(new URL('normalized.json',base)));
+ const payload={schemaVersion:n.schemaVersion,artifactId:n.artifactId,inventory:n.inventory,injectionMonthly:n.injectionMonthly,qualityReport:n.qualityReport,dataDictionary:n.dataDictionary};
+ assert.equal(sha256(JSON.stringify(payload)),m.normalized_payload_sha256);
+ assert.deepEqual(n.manifest,m);
+});

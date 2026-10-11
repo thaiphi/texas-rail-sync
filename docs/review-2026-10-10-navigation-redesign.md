@@ -1,0 +1,98 @@
+# Navigation redesign — independent preimplementation audit
+
+2026-10-10, 14:47–14:53 UTC checkpoint. Reviewer: independent Astra/high; production and sibling code read-only. Scope: RRC-03/04/05/06/09/10 and the proposed global Find / Datasets / Collection history / Help plus dataset Overview / Records / Quality / Sources / Downloads / Collection details. This is preimplementation advice, not approval of a redesigned application. Main owns the feature matrix and implementation scope. No production, source evidence, artifacts, pins, runs or sibling files were edited.
+
+## Existing capability and proposed placement
+
+| Proposed area | Actual capability and source evidence | Missing behavior or constraint |
+|---|---|---|
+| Global Find | Exact UIC or supported eight-digit source API lookup, explicit candidate radio selection, then bounded month collection: `public/collection.js:9–33`; actual handlers `scripts/serve.mjs:52–71`. | Not county-wide/operator-name source search. Local Records search is a different operation. Identifier edits invalidate lookup selection; one collection at a time; preserve explicit identity and 1–36 month bounds. |
+| Global Datasets | Public version registry and explicit verified selection: `public/app.js:85–108`, `scripts/serve.mjs:34–46`. | Currently a selector in Exports, not a dataset catalogue. A dataset is an immutable artifact version, not a run or well. Derive cards from actual registry/verified metadata; do not manufacture observation totals, coverage, status or download readiness from registry entries alone. |
+| Global Collection history | Validated actual terminal invocation list and JSON details: `public/workflow-ui.js:52–68`, `scripts/serve.mjs:83–90`. | Includes failed runs and repeated replays. Fixtures remain excluded. No live event stream, retry, delete, schedule or background progress API. Counts/times unavailable on historical evidence stay unavailable. |
+| Global Help | Existing inline constraints, glossary/dictionary and source links. | A dedicated screen is new content. It should explain lookup vs local filtering, dataset vs run, units, missing data, source limits and supported handoff; no invented portfolio or Analytics destination URL. |
+| Workspace Overview | Verified artifact identity, scope, counts, hashes and readiness already available in `public/app.js:62–63,77–83`. | New overview layout/state is required. Retrieval date is not latest reporting month or current operation; a publication success is not Analytics adoption. |
+| Workspace Records | County/operator/text filters, inventory table, exact selected well, detailed monthly reports, source/QC facts: `public/app.js:23–58`; `public/presentation.js:13–16`. | Sorting is absent: filtering preserves source order. Fixed liquid-volume chart only; controls must be implemented or omitted. No editable records or subset export. |
+| Workspace Quality | Monthly disposition counts, reasons, complete quality JSON and dictionary: `public/app.js:70–74`; `public/presentation.js:33–35`. | Human-readable quarantine table currently includes monthly rows only. Inventory dispositions need their own presentation if the new screen claims dataset-wide quality; `src/normalize.mjs` already produces inventory QC evidence. Issue counts overlap and are not row totals. Accepted rows can have missing-value flags. |
+| Workspace Sources | Manifest source URLs, original raw files, retrieval times, byte counts, hashes and evidence downloads: `public/app.js:67–69`. | Present immutable retained sources and declared query limits, not a source management/editor UI or independent source-truth certification. |
+| Workspace Downloads | Six contract CSV/JSON files, evidence files, publication pins and complete version TAR: `public/app.js:64–68`; verified archive handler `scripts/serve.mjs:77–80`. | Downloads cover the whole selected version regardless of filters. CSV alone omits evidence needed for trusted Analytics ingestion; no XLSX, chart export or PDF export in Explorer. |
+| Workspace Collection details | Fixed three-stage map, real event chronology, stage input/output hashes/counts/errors, raw JSON and log download: `public/workflow-ui.js:23–49`. | Selected run is currently independent of selected version. Failed runs may have no artifact; successful replays may share one artifact. Correlate explicitly or disclose independence; never populate run facts from the current dataset. |
+
+Current route structure has only workflow, records and exports views. Sources and Quality hashes scroll into Exports (`public/app.js:11–20`). The proposed structure therefore needs real routing and state work, not just sidebar relabeling.
+
+## Controls verified rather than assumed
+
+- **Report selection exists:** dropdown and detailed monthly table buttons select by `source_row_key`; details and `aria-pressed` update together (`public/app.js:23–29,39–42`). Preserve exact source-row identity even when reports share a month. Do not reduce selection to month alone or silently select a preferred revision.
+- **Sorting does not exist:** inventory filtering is a plain `.filter`, and current headers have no sort handlers (`public/presentation.js:13–16`, `public/index.html:28`). If added, keep record selection keyed by identity and missing values distinct from zero; do not mutate normalized source order/data.
+- **Chart controls do not exist:** `public/inspection.js:3–15` renders static monthly liquid bars with missing/zero distinctions and accessible titles. There is no metric selector, date range, zoom, chart-click selection or chart export. Additional metrics require truthful units and no synthetic zero interpolation; calculated calendar rate is not an observed daily rate. Reported psi is not BHP; permit maxima are constraints.
+- **Analytics upload exists, but is a separate boundary:** browser accepts CSV/XLSX up to 10 MiB (`../swd-injection-analytics/web/index.html:39`, `web/import-file.mjs:108–113`) and requires mapping to produced-water history, producer schedule or constant-J injector fields (`src/importProfile.ts:11–15`). User content assertions remain unverified (`src/importProfile.ts:17–20`). H-10 injection observations are explicitly not produced-water history or calibrated injector inputs (`web/import-ui.mjs:17–24`). Do not advertise mapping an Explorer CSV as trusted public-history import or capacity calibration.
+- **Trusted Explorer handoff is a complete-directory CLI import:** `../swd-injection-analytics/scripts/import-explorer.mjs:3–8`; verifier checks source/export hashes, bytes, normalized manifest, CSV parity and quality/dictionary parity (`scripts/artifact-files.mjs:23–44`). Public browser history loads the separately curated copied artifact/pin (`web/app.mjs:210–225`), not uploaded TAR or CSV. Public trends are enabled from that verified pinned artifact (`web/import-ui.mjs:38,146`). Consumer rejects unresolved/empty history (`src/publicArtifact.ts:17–25,58`). Offer the complete bundle with accurate instructions, not an invented one-click import or acknowledgement.
+
+## Important design gates before acceptance
+
+1. **Dataset state must fail closed.** Current version changes clear prior evidence before verification and use a request ticket (`public/app.js:94–108`). Every new overview/count/status/download node must participate in the clear/disable lifecycle (`public/dataset-state.js:1–3`); otherwise a failed new version could leave a credible old summary in the new workspace. Registry refresh must preserve an in-flight explicit selection.
+2. **Dataset/run association must be explicit.** Global history can open any run, including failures. A dataset Collection details page must show the associated invocation or explicitly identify the independently selected run (`public/workflow-ui.js:63–68`, `public/presentation.js:26–31`). Do not assume one-to-one, infer missing timestamps, or turn the external Analytics node green from successful export.
+3. **Quality/import labels must reflect actual evidence.** Inventory and monthly quarantine both matter. Zero monthly quarantine is not all-record clean; incomplete exported artifacts can remain inspectable without meeting Analytics' stricter import contract (`public/presentation.js:33–35`; sibling `src/publicArtifact.ts:17–25,58`). Source verification is not source measurement accuracy. Downloads should expose whole-artifact handoff distinctly from generic CSV reuse.
+
+## Checks and limits
+
+PASS: `node --test test/inspection.test.mjs test/presentation.test.mjs test/dataset-state.test.mjs test/version-race.test.mjs` — 9/9. Log: `tmp/navigation-review/preimplementation-focused.txt`. These check zero/missing display, filtering and selection evidence, per-run facts, safe links, dataset reset and version-refresh race. They do not establish a future layout works.
+
+Read-only source/handler audit completed across current browser modules, loopback endpoints, owning AGENTS/README/SPEC/SOURCE_PROOF/GATES/requirements, shared delegation workflow and actual Analytics ingestion modules. Preliminary searches guessed nonexistent `src/service.mjs`, `src/versions.mjs` and sibling `src/App.tsx`; file inventory identified actual implementations, which were then read. A cross-repository search used the wrong working directory and was corrected; those discovery errors were not tests or passing evidence.
+
+Declined/unverified: attached reference pixels were not available in this delegated context; screen/control mapping uses Main's named screens, so no visual fidelity claim. No new layout exists to inspect in-browser at this checkpoint. No live lookup/collection, history mutation, version publication, Analytics import/repin, full-suite replay, download save, mobile/keyboard audit, deployment, GIS/statewide/scheduled refresh, editing/QC resolution, chart export or new backend behavior was attempted. Browser and full preserved-data gates belong after implementation. Existing tests above were run read-only; all writes are this report and reviewer scratch.
+
+Verdict: bounded preimplementation audit complete. Existing capabilities support the proposed navigation with state/routing changes; chart controls and sorting are new behavior, report selection already exists, and Analytics handoff must distinguish generic upload from verified artifact adoption. Final independent review is still required after source freeze. Reviewer slot may be released.
+
+## Independent final review — opened 15:10 UTC
+
+The four actual reference images are now available and were each inspected through `view_image`: `1-Photo-1.jpg` through `4-Photo-4.jpg` under the supplied attachment directory. This supersedes the preimplementation image-access limitation. Also read Main's complete `docs/feature-preservation-2026-10-10.md`, current browser modules/handlers/tests and all ten initial desktop captures under `tmp/navigation-redesign-2026-10-10/screenshots/`.
+
+The implementation follows the intended global Find / Datasets / History / Help rail and six-tab dataset workspace, with source-derived identities instead of illustrative examples. The retained full inventory, county/operator filters, report selector/table, liquid/gas/separate pressure/rate facts, raw source ledger, QC/dictionary evidence and stage inspector tabs remain reachable. Expanded inventory QC and unmatched monthly evidence improve the original presentation. No new metric/sort/chart controls are promised. Directory-based Analytics adoption instructions correctly replace the reference's unsupported generic import implication. Initial screenshots predate the corrected brand font/rail sizing and quality download label; final visual judgment awaits replacement captures. Narrow viewport evidence is not accepted merely from a requested viewport size.
+
+### Important finding N1 — background completion changes a bookmarked history run
+
+At initial freeze, `public/workflow-ui.js:80` (`refresh(selectId)` completion selection branch; exact line can shift after repair) replaces the current history selection with a just-completed collection. `public/app.js` supplies that ID through its `mountCollection` `onRun` callback. Start a request, inspect historical run A while waiting, then let run B finish: the displayed selector/evidence become B while the URL remains `#history/A`. This violates separate current-request and explicitly selected historical-run state and makes refreshing the bookmark display different evidence.
+
+Independent unchanged production-code reproduction: `node tmp/navigation-review/history-race.mjs` **FAIL**. Original run A `1e6243d3-91f6-408d-ab61-f97770920ade`; completed B `2012fe57-a89b-45f9-8249-3f598d2e27ea`; actual hash A, selector and rendered run metadata B. Log `tmp/navigation-review/history-race-before.txt`. The script reads retained records without writes and drives the production workflow module with a minimal DOM/fetch fixture. Desired behavior: background list refresh preserves an explicitly inspected run; the new result remains independently reachable.
+
+### Important finding N2 — unavailable workspace retains previous-version auxiliary links
+
+Main found the browser symptom; independent source execution confirms it. `public/index.html:12` (Export dataset) and `:16` (Inspect version & provenance) are rewritten to the last verified version by `public/app.js`'s `displayDataset` loop but are absent from `public/dataset-state.js` reset. After opening A and failing verification of B, both still route to A's Downloads. Actual record/count/download evidence clears correctly; clicking the auxiliary link would reopen A rather than reveal unverified B. Nevertheless these controls belong to the requested workspace and must not silently switch back to A.
+
+Independent production-code reproduction: `node tmp/navigation-review/auxiliary-links.mjs` **FAIL**. Route `#dataset/requested-b/records`, error `Selected hash mismatch`, both hrefs still `#dataset/rrc-2026-10-09-uic000020838-v1/downloads`. Log `tmp/navigation-review/auxiliary-links-before.txt`. Desired behavior: remove/disable these links until verification, or bind them to the requested version with normal fail-closed loading. Both controls require coverage, including the narrow-layout export action.
+
+### Independently checked saved outputs
+
+`node tmp/navigation-review/download-review.mjs` **PASS**. Saved monthly CSV equals the selected SAND BEND artifact (3,248 bytes); complete TAR has exactly all 28 artifact files with matching bytes and no duplicate/missing members; downloaded run JSON deep-equals its original retained record and links to the same artifact. TAR SHA256 `377721ac93c47313a9f5b58df2f581c9133cf9920ef74e390fef88392dbf6b9d`. Output `tmp/navigation-review/download-review.json`. Main performed browser clicks; this reviewer independently checked their saved results. No import or repin was performed.
+
+Findings sent promptly to Main; repairs belong solely to the original implementer. Final acceptance is pending these repairs, frozen hash/suite checks and genuine final visual evidence.
+
+### Refrozen repairs and independent gates — 15:17 UTC
+
+- **N1 resolved / PASS.** `public/workflow-ui.js:73` now refreshes history without choosing the completed run; `public/app.js:160` calls that nonselecting refresh. The unchanged `node tmp/navigation-review/history-race.mjs` now retains run A in the selector, rendered evidence and bookmark after B completes. Evidence `history-race-after.txt`.
+- **N2 resolved / PASS.** `public/app.js:21,33,134` binds auxiliary workspace routes to the currently requested version before verification. The unchanged `node tmp/navigation-review/auxiliary-links.mjs` now returns both hrefs as `#dataset/requested-b/downloads` under the failed B workspace, with record/download evidence still cleared. Evidence `auxiliary-links-after.txt`.
+- **N3 minor visual finding repaired in source.** Old desktop Records screenshots showed decorative icons overlapping counts because newer generic metric padding overrode icon spacing (`public/style.css:4,20`). The implementer removed those decorative icons at `public/style.css:28`. Final screenshot confirmation pending below.
+
+Frozen implementation ledger: `tmp/navigation-redesign-2026-10-10/implementation-freeze.json`, SHA256 **ca5ebb277287f8b2f1b305b8b42e33046e87037bda1a2408db4a2fc7dd09e440**. Its 11 changed paths match the original files. Independent evidence `tmp/navigation-review/final-host-evidence.json` records hashes for **all 47 files** across `public/`, `src/`, `scripts/` and `test/`, including new files, and confirms a byte-identical isolated copy. Key repaired-source hashes:
+
+| File | SHA256 |
+|---|---|
+| `public/app.js` | `77696df72b25f16e65339f3a35a334abd9f6dbecc460693265a2a95df2afc98f` |
+| `public/workflow-ui.js` | `88973daa8d15854bdbfe62464c073c62d0959f61619d680be27e2ce0d952318c` |
+| `public/style.css` | `bc35b145adad65beaf22749671afccfdd7d042694499052e0064be6af2195576` |
+
+Exact independent gate outcomes:
+
+| Command | Result |
+|---|---|
+| `node tmp/navigation-review/final-gates.mjs initial` | STOPPED at freeze-hash mismatch during authorized repair (`public/app.js` changed from `685b10…` to `77696d…`). No suite was run or accepted from moving source. |
+| `node tmp/navigation-review/final-gates.mjs final` | Sandbox suite **FAILED: 81 passed / 37 failed** with known `EPERM realpath`/environment restrictions. Complete suite could not run successfully in sandbox; log `final-suite.txt`. Ten public module syntax checks and source/preservation checks passed. |
+| `node tmp/navigation-review/final-gates.mjs final-host` | Ordinary auto-reviewed host execution **PASS 118/118**, zero failures/skips. Ten `node --check` public-module checks pass. No security settings changed. Full stdout `final-host-suite.txt`; exact expanded `node --test` command and all hashes retained in `final-host-evidence.json`. |
+| `node tmp/navigation-review/history-race.mjs` | Initial FAIL, unchanged assertion PASS after repair. |
+| `node tmp/navigation-review/auxiliary-links.mjs` | Initial FAIL, unchanged assertion PASS after repair. |
+| `node tmp/navigation-review/contract-review.mjs` | PASS: all three versions independently rebuilt byte-for-byte (13/27/27 builder files); actual Analytics verifier accepted them (11/33/33 checks); all 29 original run records valid and nonfixture. No publication/import writes. |
+| `node tmp/navigation-review/download-review.mjs` | PASS: saved CSV, full 28-file TAR membership/content and original run JSON equality, as above. |
+
+The full gate verifies **166 original protected files and complete membership**, plus **14 consumer files**, against Main's pre-navigation baseline before and after execution. Tests write only into `tmp/navigation-review/final-host-snapshot`; original raw/artifacts/runs/lookups/collected sources/pins remain unchanged. The full source set also remains unchanged after testing. No backend/normalization/validation/consumer contract change was found. Initial sandbox failure tail identifies `EPERM: operation not permitted, realpath .../final-snapshot/tmp/versioning-.../raw`, `realBounded (src/pipeline.mjs:12)`, `exportArtifact (src/pipeline.mjs:49)`, `test/versioning.test.mjs:62`, code `EPERM`, syscall `realpath`; it is not counted as a pass or concealed by the host result.
+
+Requirement assessment at this checkpoint: RRC-03/04 identity/QC retention PASS in code and tests; RRC-05 export/consumer preservation PASS; RRC-09/10 recorded-stage/run truth and separate collection state PASS after N1; RRC-06 navigation/state tests PASS after N2, with final desktop/narrow visual review still pending. This is bounded navigation acceptance, not closure of every PRD requirement.
