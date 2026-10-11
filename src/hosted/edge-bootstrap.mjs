@@ -36,11 +36,21 @@ async function authUser(response){
  return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
 
+/**
+ * @typedef {Object} HostedEdgeOptions
+ * @property {(name: string) => string | undefined} getEnv Server environment reader.
+ * @property {typeof fetch} [fetchImpl] Injected Web Fetch implementation.
+ * @property {typeof createSupabaseArchiveTransport} [createTransport] Archive transport factory.
+ */
+
 /** One instance per Edge isolate. createTransport is an optional test seam; the
  * production entrypoint supplies only server environment access. No chunk cache
  * or user/session cache is retained, and a failed initialization can be retried.
+ * @param {HostedEdgeOptions} options
+ * @returns {(request: Request) => Promise<Response>}
  */
-export function createHostedEdgeHandler({getEnv,fetchImpl=fetch,createTransport=createSupabaseArchiveTransport}={}){
+export function createHostedEdgeHandler(options){
+ const {getEnv,fetchImpl=fetch,createTransport=createSupabaseArchiveTransport}=options??{};
  if(typeof getEnv!=='function'||typeof fetchImpl!=='function'||typeof createTransport!=='function')throw unavailable();
  let initialization=null;
  function readHandler(){

@@ -38,3 +38,28 @@ Hosted collection needs durable lookup/source/run storage and atomic version pub
 Hosted sign-in UI, authenticated collection, current-request execution and result publication are not implemented. Direct Analytics browser transfer remains for the configured local apps; hosted users can download complete versions. The existing quarantine receiver eligibility and history-persistence error-masking gaps remain open. These gates authorize read-only preview verification, not full project acceptance or production publication.
 
 Screenshot: [live-backed local Records](screenshots-2026-10-11-hosting/records-local-live-backend.png).
+
+## Remote preview checkpoint
+
+GitHub main received hosting commit `373bd83`; Lovable rebuilt it and added its own lockfile in `6418884`. The remote preview displays the preserved Explorer interface, but its dataset library reports **Version registry unavailable**. This is a failed remote acceptance check, not evidence of deleted datasets. Direct Supabase checks and live-backed local browsing above remain successful.
+
+Anonymous HTTP probes of the preview root, app.js and API all return401 text/plain Unauthorized. Lovable independently reproduced the same response, including for a nonexistent path, indicating a platform access gate before application routing. These probes cannot establish the response received by an authenticated preview browser. Browser navigation to the preview dataset endpoint was blocked by the client. No access gate, project visibility or publication setting was changed to force a pass.
+
+Lovable's diagnosis is preserved in `.lovable/plan.md` at remote commit `7982af3`. It is awaiting human review of `plan--show` with path `.lovable/plan.md`. No proposed routing remedy has been implemented without confirming the actual authenticated response.
+
+Lovable also found TS2353 in the Edge entrypoint options. Explicit JSDoc now describes the required environment reader and optional typed test seams. A direct installed TypeScript compiler regression checks the actual entrypoint with a Deno ambient stub. Actual Deno tooling is unavailable locally, so this regression does not claim a Deno release check.
+
+User policy confirmed: public dataset browsing, sign-in required to collect. The current hosted implementation is read-only; sign-in and durable collection remain unfinished. Lovable consumed two existing workspace credits for rebuild and diagnosis; no plan upgrade or purchased credits were requested.
+
+### Typing-fix checks
+
+- Independent review: no material findings in the two-file typing/test change.
+- `node --test test/hosted-edge.test.mjs`: **12/12 PASS**, including actual-entrypoint TypeScript positive/negative caller checks.
+- `node node_modules/typescript/bin/tsc --noEmit`: **PASS**.
+- Full isolated rerun `node tmp/navigation-redesign-2026-10-10/suite.mjs hosting-typefix-v3`: **FAILED / environment blocked** on EPERM renaming a temporary bounded-collection artifact. The earlier185/185 result predates this typing-only change and is not substituted for this failed rerun. No permissions were changed. Log: `tmp/navigation-redesign-2026-10-10/hosting-typefix-v3-suite.log`.
+- The already-running worker rerun `hosting-typefix-v2` finished **185/186 PASS,1 FAILED**: another temporary artifact rename EPERM in `acquisition.test.mjs`. Both new regressions passed. No additional retries were requested after this blocker was confirmed.
+- Earlier reruns exposed a hardcoded run-count assumption and a harness omission of the Supabase entrypoint. The test now compares every captured fixture run ID; the isolated runner now copies `supabase/`. Neither failure was suppressed.
+- Default ESLint for the two compact JavaScript files: **FAILED**,187 formatting errors; correctness lint with only the formatter rule disabled passed. Existing compact style was retained to keep this fix narrow.
+- Actual Deno and imported starter Vitest checks: **UNRUN**, unavailable tooling / standing instruction. Orchestrator gate for starter tests: `node node_modules/vitest/vitest.mjs run`.
+
+No further backend or preview release was performed after these failed/unverified gates. Screenshots include [remote library failure](screenshots-2026-10-11-hosting/datasets-lovable-preview.png) and [live-backed local narrow history](screenshots-2026-10-11-hosting/history-narrow-local-live-backend.png). The remote failure screenshot is explicitly not successful browsing evidence.
