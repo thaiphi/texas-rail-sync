@@ -1,5 +1,9 @@
 # Dependencies and generated local verification output
 /node_modules/
+/.output/
+/.wrangler/
+/.tanstack/
+/.nitro/
 /output/
 /tmp/
 /coverage/

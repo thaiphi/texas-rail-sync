@@ -1,0 +1,7 @@
+project_id = "phxiqnsebqaalvkanljb"
+
+[functions.trrc-explorer]
+# Public browsing is user-approved. Write routes validate user JWTs themselves
+# and remain unavailable until durable collection has its own release gates.
+verify_jwt = false
+entrypoint = "./functions/trrc-explorer/index.ts"
