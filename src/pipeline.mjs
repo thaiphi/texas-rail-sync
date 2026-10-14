@@ -1,11 +1,11 @@
 import {readFile,writeFile,mkdir,readdir,rename,rm,open,realpath} from 'node:fs/promises';
+import {Buffer} from 'node:buffer';
 import {resolve,relative,sep,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomUUID} from 'node:crypto';
-import {loadSnapshot,buildArtifact,pinnedArtifactId,snapshotProvenance} from './artifact.mjs';
-import {normalize,sha256} from './normalize.mjs';
-import {createRunRecorder} from './runEvents.mjs';
-import {collectionScope} from './sources.mjs';
+import {loadSnapshot,pinnedArtifactId} from './artifact.mjs';
+import {sha256} from './normalize.mjs';
+import {runExport,exportRecorder} from './exportCore.mjs';
 import {workflowView} from '../public/workflow.js';
 export const repositoryRoot=resolve(fileURLToPath(new URL('../',import.meta.url)));
 function bounded(path){const target=resolve(path),part=relative(repositoryRoot,target);if(part==='..'||part.startsWith('..'+sep)||isAbsolute(part))throw Error('Path must remain inside texas-rrc-explorer');return target;}
@@ -41,52 +41,12 @@ async function publish(files,artifactId,outputRoot){
 export async function exportArtifact({sourceDir=resolve(repositoryRoot,'raw'),artifactId=pinnedArtifactId,outputRoot=resolve(repositoryRoot,'artifacts'),mode='offline_replay',expectedManifestSha256=null,testFixture=false,record=true,runRoot=resolve(repositoryRoot,'runs'),recorder=null,snapshot:providedSnapshot=null}={}){
  let versioned=providedSnapshot?.scope?.queryVersion===2;
  if(!recorder&&!providedSnapshot)try{bounded(sourceDir);versioned=JSON.parse(await readFile(resolve(sourceDir,'acquisition.json'))).scope?.queryVersion===2;}catch{}
- const run=recorder??createRunRecorder({mode,pipelineVersion:versioned?'rrc-collection-v2':'rrc-collection-v1',schemaVersion:1,transformationVersion:versioned?'rrc-odp-v2.0.0':'rrc-odp-v1.0.0',testFixture});
- let result,stage='load',evidence={artifactId,sourceDirectory:relative(repositoryRoot,resolve(sourceDir)).replaceAll('\\','/')};
- try{
-  if(!providedSnapshot||!run.snapshot().events.length)run.start(stage);
-  let snapshot=providedSnapshot;
-  if(!snapshot){bounded(sourceDir);await realBounded(sourceDir);snapshot=await loadSnapshot(sourceDir);}
-  // The caller may restrict a replay to fixture mode, but false/default must
-  // never override source evidence that already identifies fixture responses.
-  if(testFixture)snapshot={...snapshot,testFixture:true,provenance:{classification:'test_fixture',basis:'explicit_test_fixture'}};
-  const provenance=snapshotProvenance(snapshot);
-  run.classifySource(provenance);
-  evidence={...evidence,provenance};
-  if(provenance.classification==='unknown')throw failure('SOURCE_PROVENANCE_UNVERIFIED','Source provenance is unavailable');
-  if(snapshot.provenance?.classification!==provenance.classification)throw failure('SOURCE_PROVENANCE_CONFLICT','Snapshot classification contradicts loaded source evidence');
-  bounded(sourceDir);await realBounded(sourceDir);
-  if(!/^[a-z0-9][a-z0-9._-]{0,127}$/i.test(artifactId)||artifactId==='..')throw failure('SOURCE_INVALID','Invalid artifact identifier');
-  bounded(outputRoot);
-  if(expectedManifestSha256!==null){
-   if(typeof expectedManifestSha256!=='string'||!/^[a-f0-9]{64}$/i.test(expectedManifestSha256))throw failure('SOURCE_INVALID','Invalid requested manifest hash');
-   const bytes=await readFile(resolve(outputRoot,artifactId,'manifest.json'));
-   evidence={...evidence,expectedManifestSha256:expectedManifestSha256.toLowerCase(),actualManifestSha256:sha256(bytes)};
-   if(evidence.expectedManifestSha256!==evidence.actualManifestSha256)throw failure('MANIFEST_PIN_MISMATCH','Requested manifest pin mismatch');
-  }
-  if(run.snapshot().events.filter(event=>event.stage==='load').at(-1)?.status==='running')run.succeed(stage,{...evidence,inputs:snapshot.sources.map(s=>({...s,path:`${evidence.sourceDirectory}/${s.raw_file.slice(8)}`,count:s.kind==='inventory'?snapshot.inventory.length:s.kind==='monthly'?snapshot.monthly.length:null}))});
-  stage='normalize-qc';evidence={provenance:snapshot.provenance,inputs:snapshot.sources.filter(s=>['inventory','monthly'].includes(s.kind)).map(s=>({snapshotId:s.snapshot_id,url:s.url,sha256:s.sha256}))};run.start(stage);
-  const normalized=normalize(snapshot.inventory,snapshot.monthly,snapshot.sourceIds,snapshot.scope??collectionScope);
-  evidence={...evidence,counts:normalized.quality};
-  if(Object.keys(normalized.quality.issue_counts).some(flag=>flag.startsWith('source_scope:')))throw failure('SOURCE_SCOPE_MISMATCH','Source rows contradict the fixed collection query');
-  run.succeed(stage,{...evidence,counts:normalized.quality,outputs:[{name:'normalized inventory',count:normalized.inventory.length,sha256:sha256(JSON.stringify(normalized.inventory))},{name:'normalized monthly',count:normalized.monthly.length,sha256:sha256(JSON.stringify(normalized.monthly))}]});
-  stage='export';evidence={artifactId,provenance:snapshot.provenance,counts:normalized.quality};run.start(stage);
-  const built=await buildArtifact(snapshot,artifactId,normalized);
-  if(snapshot.scope?.queryVersion===2){
-   built.files['version-pins.json']=JSON.stringify({schemaVersion:1,artifactId,path:`/artifacts/${artifactId}/`,manifestSha256:sha256(built.files['manifest.json']),normalizedSha256:sha256(built.files['normalized.json']),classification:snapshot.provenance.classification,realHistoryStatus:built.manifest.real_history_status},null,2)+'\n';
-  }
-  const operation=await publish(built.files,artifactId,outputRoot);
-  const outputs=Object.entries(built.files).map(([name,body])=>({path:relative(repositoryRoot,resolve(outputRoot,artifactId,name)).replaceAll('\\','/'),sha256:sha256(body),bytes:Buffer.byteLength(body),count:name==='inventory.csv'?normalized.inventory.length:name==='injection_monthly.csv'?normalized.monthly.length:null}));
-  run.succeed(stage,{...evidence,operation,inputs:snapshot.sources.map(s=>({snapshotId:s.snapshot_id,url:s.url,sha256:s.sha256})),outputs,realHistoryStatus:built.manifest.real_history_status});
-  result={...built,operation,record:run.snapshot()};
- }catch(error){
-  if(stage==='load'&&error.provenance&&!run.snapshot().endedAt){run.classifySource(error.provenance);evidence={...evidence,provenance:error.provenance};}
-  // Collections may hand off an already successful acquisition stage. Replay
-  // validation failures must retain it, rather than attempt to fail it twice.
-  if(stage==='load'&&run.snapshot().events.filter(event=>event.stage==='load').at(-1)?.status==='succeeded'){stage='normalize-qc';run.start(stage);}
-  if(!run.snapshot().endedAt)run.fail(stage,error,evidence);
-  error.record=run.snapshot();if(record&&!error.record.testFixture)await saveRun(error.record,runRoot);throw error;
- }
- if(record&&!result.record.testFixture)try{await saveRun(result.record,runRoot);}catch(error){error.record=result.record;throw error;}
- return result;
+ const sourceDirectory=relative(repositoryRoot,resolve(sourceDir)).replaceAll('\\','/');
+ const checkSource=async()=>{bounded(sourceDir);await realBounded(sourceDir);};
+ return runExport({run:recorder??exportRecorder({mode,versioned,testFixture}),artifactId,expectedManifestSha256,testFixture,providedSnapshot,
+  sourceEvidence:{sourceDirectory},inputPath:name=>`${sourceDirectory}/${name}`,
+  load:async()=>{await checkSource();return loadSnapshot(sourceDir);},checkSource,checkOutput:()=>{bounded(outputRoot);},
+  readPublished:(id,name)=>readFile(resolve(outputRoot,id,name)),publish:(files,id)=>publish(files,id,outputRoot),
+  outputPath:(id,name)=>relative(repositoryRoot,resolve(outputRoot,id,name)).replaceAll('\\','/'),
+  saveRecord:record?run=>saveRun(run,runRoot):null});
 }

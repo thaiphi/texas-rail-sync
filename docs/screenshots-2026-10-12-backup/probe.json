@@ -1,0 +1,832 @@
+{
+  "origin": "http://127.0.0.1:51425",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "timeZone": "America/Chicago",
+  "checks": [
+    {
+      "name": "Dataset library available",
+      "status": "PASS",
+      "openActions": 3
+    },
+    {
+      "name": "Open original example records",
+      "status": "PASS",
+      "route": "http://127.0.0.1:51425/#dataset/rrc-2026-10-09-uic000020838-v1/records"
+    },
+    {
+      "name": "Empty filter clears selected well/report",
+      "status": "PASS"
+    },
+    {
+      "name": "Keyboard clear restores records",
+      "status": "PASS"
+    },
+    {
+      "name": "Unacquired history distinct from zero",
+      "status": "PASS"
+    },
+    {
+      "name": "Selected monthly report updates details",
+      "status": "PASS"
+    },
+    {
+      "name": "Overview reachable with selected version",
+      "status": "PASS"
+    },
+    {
+      "name": "Data quality reachable with selected version",
+      "status": "PASS"
+    },
+    {
+      "name": "Sources reachable with selected version",
+      "status": "PASS"
+    },
+    {
+      "name": "Downloads reachable with selected version",
+      "status": "PASS"
+    },
+    {
+      "name": "Browser TAR download byte matches immutable version",
+      "status": "PASS",
+      "filename": "rrc-2026-10-09-uic000020838-v1.tar",
+      "bytes": 1325056,
+      "sha256": "492ebaa6b5f7c9353c39416dc72a1cf5180d1e9ba7a3af21d4b063c20e81db8a"
+    },
+    {
+      "name": "Collection details reachable with selected version",
+      "status": "PASS"
+    },
+    {
+      "name": "Failed historical run remains inspectable",
+      "status": "PASS"
+    },
+    {
+      "name": "Global Find excludes unrelated dataset workspace",
+      "status": "PASS"
+    },
+    {
+      "name": "Historical workflow does not appear as new-request progress",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid identifier rejected before collection",
+      "status": "PASS"
+    },
+    {
+      "name": "Narrow records layout contains document overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "Open another immutable version with correct counts",
+      "status": "PASS"
+    },
+    {
+      "name": "Historical navigation preserves opened dataset identity",
+      "status": "PASS"
+    },
+    {
+      "name": "Unavailable version reports error without stale well details",
+      "status": "PASS"
+    },
+    {
+      "name": "Default pin file unchanged",
+      "status": "PASS",
+      "sha256": "2bc9bbbe3738d5de1112c2bfd09a094eade796b4285653e19cdb999bc5d0f727"
+    }
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "datasets-desktop.png",
+    "records-desktop.png",
+    "records-empty-desktop.png",
+    "overview-desktop.png",
+    "quality-desktop.png",
+    "sources-desktop.png",
+    "downloads-desktop.png",
+    "collection-desktop.png",
+    "history-desktop.png",
+    "help-desktop.png",
+    "find-invalid-desktop.png",
+    "find-desktop.png",
+    "records-mobile.png",
+    "find-mobile.png",
+    "version-unavailable-desktop.png"
+  ],
+  "networkErrors": [],
+  "browserVersion": "154.0.8037.98",
+  "snapshot": "Skip to content\nRRC\nExplorer\n⌕\nFind & collect\n▤\nMy datasets\n◷\nCollection history\n?\nHelp\nSWD Intelligence Lab\nIndependent public-data explorer\nTexas RRC Explorer\nBounded public injection records\nTimes shown in America/Chicago\nMy datasets\n\nOpen a preserved version. The default pin stays unchanged.\n\nCollect a new dataset\nExplore the original example\n\nPreserved public records: 5 inventory rows and 28 monthly reports. Monthly history covers UIC 000020838 only; other inventory rows have no acquired history.\n\nOpen example dataset\n\nBrowse the existing evidence without running a collection or changing the default pin.\n\nSearch datasets\n\n3 preserved public versions. Source identity is shown only after version verification.\n\nDataset\tReporting coverage\tQuality\tVersion\tOpen\nTREES, J. C. ESTATE, ET AL -A-\nMonthly scope UIC 000020838 · API 38910201 · 5 inventory rows · 28 monthly report rows (28 distinct months)\n\t2024-01 – 2026-04\t0 quarantined rows\trrc-2026-10-09-uic000020838-v1\nDefault pinned · Opened\n\tOpen dataset\nSAND BEND\nMonthly scope UIC 000056484 · API 38931500 · 1 inventory rows · 16 monthly report rows (16 distinct months)\n\t2024-01 – 2025-04\t0 quarantined rows\trrc-2026-10-10-uic000056484-df804201-eb4a-4aa5-8ef2-c550c6a70627\n\tOpen dataset\nTREES, J. C. ESTATE, ET AL -A-\nMonthly scope UIC 000020838 · API 38910201 · 1 inventory rows · 28 monthly report rows (28 distinct months)\n\t2024-01 – 2026-04\t0 quarantined rows\trrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0\n\tOpen dataset\nDefault pinned: rrc-2026-10-09-uic000020838-v1. Opened: rrc-2026-10-09-uic000020838-v1. Opening a dataset does not change the default pin.\nTexas RRC Explorer · independent public-data inspection\nPublic observations are not a validated capacity estimate.",
+  "controls": [
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Skip to content",
+      "href": "#main",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "RRCExplorer",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "⌕ Find & collect",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "▤ My datasets",
+      "href": "#datasets",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "◷ Collection history",
+      "href": "#history",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "? Help",
+      "href": "#help",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Texas RRC ExplorerBounded public injection records",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Collect a new dataset",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Open example dataset",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/records",
+      "type": null
+    },
+    {
+      "tag": "INPUT",
+      "id": "dataset-search",
+      "text": "",
+      "href": null,
+      "type": "search"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "Open dataset",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "Open dataset",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "Open dataset",
+      "href": null,
+      "type": "button"
+    }
+  ],
+  "recordsSnapshot": "Skip to content\nRRC\nExplorer\n⌕\nFind & collect\n▤\nMy datasets\n◷\nCollection history\n?\nHelp\nSWD Intelligence Lab\nIndependent public-data explorer\nTexas RRC Explorer\nBounded public injection records\nTimes shown in America/Chicago\nMy datasets\nTREES, J. C. ESTATE, ET AL -A- · Well 5D\n\nUIC 000020838 · Source API 38910201 · Reporting coverage 2024-01 – 2026-04\n\nVersion rrc-2026-10-09-uic000020838-v1\nOverview\nRecords\nData quality\nSources\nDownloads\nCollection details\nBrowse injection records\n\nSearch the acquired inventory, then inspect linked monthly reports and source evidence.\n\nSearch records\nCounty\nAll acquired counties\nReeves\nOperator number\nAll acquired operators\n101988\n103834\n524907\n655846\n900329\n5\ninventory records\n1\nlinked UIC\n28\nmonthly observations\nBounded public dataset\n5 inventory records. Monthly query: UIC 000020838, 2024-01-01 onward. verified_bounded_linkage.\nAcquired inventory · source identifiers preserved\nUIC / inspect\tCounty\tOperator\tHistory\tSource API\tPermit volume (bbl/day)\tPermit pressure (psi)\tQuality flags\n000020838\tReeves\t103834\t28 linked reports\t38910201\t14,500\t2,600\tNo flags\n000022085\tReeves\t101988\tHistory not acquired\t38901171\t5,000\t2,200\tNo flags\n000039655\tReeves\t524907\tHistory not acquired\t38930159\t6,000\t1,500\tNo flags\n000039709\tReeves\t655846\tHistory not acquired\t38901128\t15,000\t1,945\tNo flags\n000048561\tReeves\t900329\tHistory not acquired\t38931396\t10,000\t2,500\tNo flags\nShowing 5 of 5 records\nClear filters\n\nAdditional source and permit columns scroll horizontally. County derives from the source API county code.\n\nSnapshot rrc-2026-10-09-uic000020838-v1 · Inspect version & provenance\n\nUIC 000020838\n28 linked reports\n\nTREES, J. C. ESTATE, ET AL -A- · Well 5D\n\nWell identity from inventory record\nSource API\n38910201\nCounty\nReeves\nOperator number\n103834\nWell number\n5D\nPermit pressure\n2,600 psi\nPermit volume\n14,500 bbl/day\nPermitted interval\n5,200–6,100 ft\nW-14 / date\n7412 / 1967-02-13\nReported monthly liquid volume (bbl)\n0\n7,500\n15,000\n22,500\n30,000\n2024-01\n2024-07\n2025-01\n2025-07\n2026-01\n\nReported monthly barrels. Missing volume has no bar; reported zero is marked at the baseline. No daily measurements are created.\n\nSelected monthly report public reported\nReporting month / source report ID\n2024-01 · report 3775425\n2024-02 · report 3775426\n2024-03 · report 3775427\n2024-04 · report 3775428\n2024-05 · report 3775429\n2024-06 · report 3775430\n2024-07 · report 3775431\n2024-08 · report 3775432\n2024-09 · report 3775433\n2024-10 · report 3775434\n2024-11 · report 3775435\n2024-12 · report 3775436\n2025-01 · report 3775437\n2025-02 · report 3775438\n2025-03 · report 3775439\n2025-04 · report 3775440\n2025-05 · report 3775441\n2025-06 · report 3775442\n2025-07 · report 3775443\n2025-08 · report 3775444\n2025-09 · report 3775445\n2025-10 · report 3775446\n2025-11 · report 3775447\n2025-12 · report 3775448\n2026-01 · report 3775449\n2026-02 · report 3775450\n2026-03 · report 3775451\n2026-04 · report 3775452\nLiquid (reported)\n17,173 bbl\nGas (reported)\n0 MCF\nAverage pressure\n900 psi\nMaximum pressure\n900 psi\nCalendar-day rate\n553.97 bbl/day\nSource report ID\n3775425\nLinkage & validation evidence\n\nCalculated rate = reported liquid barrels ÷ calendar days. Pressure is reported injection psi, not bottom-hole pressure.\n\nAll 28 monthly reports · inspect table\nSource & provenance\n\nInventory source ↗ · Monthly source ↗\n\nSnapshot givw-z9t4:2bb2e506dea36872 · API retained as 8 source characters.\n\nRecord identity, flags & source hash\nView source ledger\n↓ Whole-snapshot CSV\nTexas RRC Explorer · independent public-data inspection\nPublic observations are not a validated capacity estimate.",
+  "recordControls": [
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Skip to content",
+      "href": "#main",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "RRCExplorer",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "⌕ Find & collect",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "▤ My datasets",
+      "href": "#datasets",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "◷ Collection history",
+      "href": "#history",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "? Help",
+      "href": "#help",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Texas RRC ExplorerBounded public injection records",
+      "href": "#find",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "My datasets",
+      "href": "#datasets",
+      "type": null
+    },
+    {
+      "tag": "SELECT",
+      "id": "version-selection",
+      "text": "rrc-2026-10-09-uic000020838-v1 · default pinnedrrc-2026-10-10-uic000056484-df804201-eb4a-4",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Overview",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/overview",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Records",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/records",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Data quality",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/quality",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Sources",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/sources",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Downloads",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/downloads",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Collection details",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/collection",
+      "type": null
+    },
+    {
+      "tag": "INPUT",
+      "id": "search",
+      "text": "",
+      "href": null,
+      "type": "search"
+    },
+    {
+      "tag": "SELECT",
+      "id": "county",
+      "text": "All acquired countiesReeves",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "SELECT",
+      "id": "operator",
+      "text": "All acquired operators101988103834524907655846900329",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "000020838",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "000022085",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "000039655",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "000039709",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "000048561",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "clear-filters",
+      "text": "Clear filters",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Inspect version & provenance",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/downloads",
+      "type": null
+    },
+    {
+      "tag": "SELECT",
+      "id": "report-selection",
+      "text": "2024-01 · report 37754252024-02 · report 37754262024-03 · report 37754272024-04 · report 3",
+      "href": null,
+      "type": null
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-01",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-02",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-03",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-04",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-05",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-06",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-07",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-08",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-09",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-10",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-11",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2024-12",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-01",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-02",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-03",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-04",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-05",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-06",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-07",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-08",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-09",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-10",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-11",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2025-12",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2026-01",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2026-02",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2026-03",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "BUTTON",
+      "id": "",
+      "text": "2026-04",
+      "href": null,
+      "type": "button"
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Inventory source ↗",
+      "href": "https://data.texas.gov/resource/givw-z9t4.json?%24where=api_no+like+%27389%25%27+AND+uic_type_injection%3D%271%27+AND+permit_canceled_date+IS+NULL+AND+w3_plugged_date+IS+NULL&%24limit=5&%24order=uic_number",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "Monthly source ↗",
+      "href": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "View source ledger",
+      "href": "#dataset/rrc-2026-10-09-uic000020838-v1/sources",
+      "type": null
+    },
+    {
+      "tag": "A",
+      "id": "",
+      "text": "↓ Whole-snapshot CSV",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/injection_monthly.csv?download=1",
+      "type": null
+    }
+  ],
+  "emptyFilter": {
+    "count": "Showing 0 of 5 records",
+    "well": "No matching records",
+    "reports": 0
+  },
+  "chartControls": [
+    "2024-01",
+    "2024-02",
+    "2024-03",
+    "2024-04",
+    "2024-05",
+    "2024-06",
+    "2024-07",
+    "2024-08",
+    "2024-09",
+    "2024-10",
+    "2024-11",
+    "2024-12",
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04"
+  ],
+  "downloadLinks": [
+    {
+      "text": "↓ Complete version · TAR archiveAll contract files, original sources, selection evidence and publication pins, verified before download.",
+      "href": "/api/versions/rrc-2026-10-09-uic000020838-v1/download"
+    },
+    {
+      "text": "↓ inventory.csv5 inventory records · 1,502 bytes",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/inventory.csv?download=1"
+    },
+    {
+      "text": "↓ injection_monthly.csv28 retained monthly rows · 5,513 bytes",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/injection_monthly.csv?download=1"
+    },
+    {
+      "text": "↓ manifest.jsonSource URLs, versions and hashes",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/manifest.json?download=1"
+    },
+    {
+      "text": "↓ quality_report.jsonDispositions, counts and quality evidence · 3,828 bytes",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/quality_report.json?download=1"
+    },
+    {
+      "text": "↓ data_dictionary.jsonField definitions, units and formulas · 7,359 bytes",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/data_dictionary.json?download=1"
+    },
+    {
+      "text": "↓ normalized.jsonComplete typed artifact for Analytics",
+      "href": "/artifacts/rrc-2026-10-09-uic000020838-v1/normalized.json?download=1"
+    }
+  ],
+  "runOptions": [
+    {
+      "value": "historical",
+      "text": "No invocation selected — execution unrecorded"
+    },
+    {
+      "value": "7e657f64-dbb9-45d5-9fa8-1d1bb45433f0",
+      "text": "Oct 12, 2026, 12:17:18 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+      "text": "Oct 12, 2026, 12:17:18 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "e048201e-d126-428f-b2ed-e967b3009610",
+      "text": "Oct 12, 2026, 12:17:17 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "502ec096-35e9-41d1-a2f5-3e126d8824ba",
+      "text": "Oct 10, 2026, 7:35:21 AM CDT — Official acquisition — succeeded"
+    },
+    {
+      "value": "c24eb125-53eb-42cb-9d5a-d73c5387ce05",
+      "text": "Oct 10, 2026, 12:37:32 AM CDT — Official acquisition — succeeded"
+    },
+    {
+      "value": "4c62874f-07d3-437d-b2fd-3ee5d1518436",
+      "text": "Oct 9, 2026, 3:44:18 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "dc99b8e9-aa1c-429a-ac6e-cf24f8d47d0a",
+      "text": "Oct 9, 2026, 3:44:18 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "b8a20ffb-b5b4-464e-9a2b-3c8e7b7e6bc5",
+      "text": "Oct 9, 2026, 3:44:18 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "f818d34a-cb45-4aa0-9a63-18c74c79fab8",
+      "text": "Oct 9, 2026, 3:41:02 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "56de88c0-5a22-41bd-ad91-fa19af61593b",
+      "text": "Oct 9, 2026, 3:41:02 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "2cfb8803-e284-4b1c-b21a-a6479d1c4cc9",
+      "text": "Oct 9, 2026, 3:41:02 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "533d9707-52f7-488d-9f6c-07b79df842a9",
+      "text": "Oct 9, 2026, 3:38:30 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "2c0ddcde-fd65-4342-bc48-d331fb154fa6",
+      "text": "Oct 9, 2026, 3:38:30 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "e93c398b-bb16-4030-83a1-073c9105294c",
+      "text": "Oct 9, 2026, 3:38:29 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "2aab3d4a-2613-4cfa-b55c-92ae266591f3",
+      "text": "Oct 9, 2026, 3:32:40 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "57261d56-c17c-4ad2-9dd5-9bcfd7cb1d43",
+      "text": "Oct 9, 2026, 3:32:40 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "1e6243d3-91f6-408d-ab61-f97770920ade",
+      "text": "Oct 9, 2026, 3:32:40 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "a89243b6-f220-4a31-9563-ad3ed652f9c9",
+      "text": "Oct 9, 2026, 3:31:12 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "25b8b071-85d8-4994-ac30-1783ff4783d6",
+      "text": "Oct 9, 2026, 3:31:12 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "a9abf87e-861b-46eb-b281-91f4bb7efd82",
+      "text": "Oct 9, 2026, 3:31:11 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "a3a2e660-a56f-4d94-bea5-cfaba7260c7e",
+      "text": "Oct 9, 2026, 3:28:59 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "51290c02-eb90-4428-89a0-707d8f579463",
+      "text": "Oct 9, 2026, 3:28:59 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "eec66be2-7782-46fe-bd3d-b30b3dfd5132",
+      "text": "Oct 9, 2026, 3:28:59 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "e4f501ae-ddcc-4cfe-beed-133c769a447b",
+      "text": "Oct 9, 2026, 3:10:59 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "ecc3a600-3e03-4788-8376-55f4c6f6c007",
+      "text": "Oct 9, 2026, 3:10:59 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "2012fe57-a89b-45f9-8249-3f598d2e27ea",
+      "text": "Oct 9, 2026, 3:10:59 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "416ed197-32d6-4c41-81b8-a1c32c843684",
+      "text": "Oct 9, 2026, 3:09:57 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "9a55dc4f-ed26-4f65-9bda-f28288fe9249",
+      "text": "Oct 9, 2026, 3:09:56 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "9d4e74f0-7ce8-4c19-801b-8ec2576b07ae",
+      "text": "Oct 9, 2026, 3:09:56 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "92477b5b-c7fb-4be4-ba57-3f57a4412c9f",
+      "text": "Oct 9, 2026, 3:08:01 PM CDT — Offline replay — succeeded"
+    },
+    {
+      "value": "4f2a4ea0-ed3c-45cd-a71c-a9d1bdaf166f",
+      "text": "Oct 9, 2026, 3:08:01 PM CDT — Offline replay — failed"
+    },
+    {
+      "value": "5b1459ca-ce24-49af-aa00-302dcd15a386",
+      "text": "Oct 9, 2026, 3:08:01 PM CDT — Offline replay — succeeded"
+    }
+  ],
+  "failedRun": {
+    "runId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+    "status": "failed",
+    "error": ""
+  },
+  "invalidInput": "Enter exactly nine UIC digits; preserve leading zeros.",
+  "mobileLayout": {
+    "viewport": 390,
+    "document": 390
+  }
+}

@@ -44,4 +44,6 @@ export function mountCollection({onRun,onVersions,onOpen,onDownload}){
    $('open-collected').addEventListener('click',()=>onOpen?.(result.artifactId));$('download-collected').addEventListener('click',()=>{step('download');onDownload?.(result.artifactId);});
   }catch(error){step('confirm');status(`Collection unavailable: ${error.message}. Partial source evidence and any recorded failure remain inspectable in Collection history.`);}finally{busy=false;for(const [radio,disabled] of radios)radio.disabled=disabled;$('lookup-submit').disabled=false;$('collect-submit').disabled=!selected;for(const id of ['lookup-kind','lookup-value','start-month','end-month'])$(id).disabled=false;}
  });
+ // Enabled only after every handler above is registered (initial HTML keeps it disabled).
+ $('lookup-submit').disabled=false;
 }

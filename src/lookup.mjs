@@ -1,23 +1,16 @@
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {Buffer} from 'node:buffer';
 import {resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {lookupTarget} from './sources.mjs';
 import {sha256} from './normalize.mjs';
+import {fetchSource} from './sourceFetch.mjs';
+export {fetchSource};
 const failure=(code,message)=>Object.assign(Error(message),{code});
-export async function fetchSource(target,{fetchImpl=fetch,testFixture=false}={}){
- if(fetchImpl!==fetch&&!testFixture)throw failure('SOURCE_INVALID','Injected responses require fixture mode');
- const response=await fetchImpl(target.url,{signal:AbortSignal.timeout(30000),redirect:'error'});
- if(!response.ok)throw failure('HTTP_ERROR','Official source request failed');
- if(Number(response.headers.get('content-length'))>10_000_000)throw failure('SOURCE_LIMIT','Source byte cap exceeded');
- const reader=response.body?.getReader();if(!reader)throw failure('SOURCE_INVALID','Source response body unavailable');
- const chunks=[];let size=0;try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>10_000_000){await reader.cancel();throw failure('SOURCE_LIMIT','Source byte cap exceeded');}chunks.push(Buffer.from(value));}}finally{reader.releaseLock();}
- const body=Buffer.concat(chunks,size),metadata={url:target.url,retrieved_at:new Date().toISOString(),http_status:response.status,last_modified:response.headers.get('last-modified'),etag:response.headers.get('etag'),sha256:sha256(body),bytes:body.length,testFixture};
- return {body,metadata};
-}
 const identityFields=['uic_number','api_no','operator_number','district_code','lease_number','lease_name','well_no_display','w14_number'];
 const candidateFields=[...identityFields,'max_liq_inj_pressure','bbl_vol_inj','top_inj_zone','bot_inj_zone','uic_type_injection','permit_canceled_date','w3_plugged_date'];
 export const sameIdentity=(left,right)=>identityFields.every(key=>left[key]===right[key]);
-function inspectRows(rows,request){
+export function inspectRows(rows,request){
  if(!Array.isArray(rows)||rows.length>25)throw failure('SOURCE_INVALID','Lookup candidate bounds invalid');
  const field=request.kind==='uic'?'uic_number':'api_no';
  if(rows.some(row=>!row||typeof row!=='object'||row[field]!==request.value))throw failure('SOURCE_SCOPE_MISMATCH','Lookup rows contradict the exact identifier predicate');

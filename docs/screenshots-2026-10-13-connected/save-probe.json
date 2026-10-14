@@ -1,0 +1,89 @@
+{
+  "origin": "http://127.0.0.1:49745",
+  "version": "rrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0",
+  "scope": "Native Chrome IndexedDB with public preserved packages, no live collection or deployment",
+  "checks": [
+    {
+      "name": "Lookup stays disabled until its handlers are registered",
+      "status": "PASS"
+    },
+    {
+      "name": "Whole verified version saves to browser",
+      "status": "PASS",
+      "evidence": "Saved in this browser. Browsers may clear saved data; keep a downloaded backup."
+    },
+    {
+      "name": "Identical save never overwrites",
+      "status": "PASS"
+    },
+    {
+      "name": "Reload preserves exact package backup",
+      "status": "PASS",
+      "evidence": {
+        "expectedHash": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8",
+        "actualHash": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8"
+      }
+    },
+    {
+      "name": "Corrupt same-ID bytes refused despite cached checksum",
+      "status": "PASS",
+      "evidence": "Not saved: A different package with this version identity is already saved; nothing was overwritten"
+    },
+    {
+      "name": "Quota refusal leaves no partial dataset",
+      "status": "PASS",
+      "evidence": {
+        "count": 1
+      }
+    },
+    {
+      "name": "Two tabs save one immutable package without overwriting",
+      "status": "PASS",
+      "evidence": [
+        "already_saved",
+        "saved"
+      ]
+    },
+    {
+      "name": "Saved v2 opens during data-service outage",
+      "status": "PASS"
+    },
+    {
+      "name": "Unverified saved copy cannot hand off to Analytics",
+      "status": "PASS"
+    },
+    {
+      "name": "All saved downloads use local owned bytes",
+      "status": "PASS",
+      "evidence": {
+        "count": 29
+      }
+    },
+    {
+      "name": "Original example remains inspectable without live origin proof",
+      "status": "PASS"
+    },
+    {
+      "name": "Saved original example never enables trusted Analytics",
+      "status": "PASS"
+    },
+    {
+      "name": "Stored legacy format cannot claim the live default pin",
+      "status": "PASS"
+    },
+    {
+      "name": "Back-forward cached saved view retains usable download links",
+      "status": "PASS"
+    },
+    {
+      "name": "Default pin unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "No browser script errors",
+      "status": "PASS",
+      "evidence": []
+    }
+  ],
+  "errors": []
+}

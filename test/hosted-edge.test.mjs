@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {createHostedEdgeHandler,HOSTED_SNAPSHOT_ID} from '../src/hosted/edge-bootstrap.mjs';
 import {archiveSha256,ARCHIVE_CHUNK_BYTES} from '../src/hosted/archive-store.mjs';
 const root=new URL('../',import.meta.url),endpoint='https://project.supabase.co',secret='sb_secret_test_private',publishable='sb_publishable_test_public',token='header.payload.signature';
@@ -19,6 +21,37 @@ async function safe(response,status){
  assert.equal(response.status,status);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(response.headers.get('x-content-type-options'),'nosniff');
  const text=await response.text();for(const value of [secret,publishable,token,'upstream private detail'])assert.equal(text.includes(value),false);return text?JSON.parse(text):null;
 }
+
+test('TypeScript Edge entrypoint accepts required environment reader and typed test seams',async()=>{
+ const {default:ts}=await import('typescript'),base=fileURLToPath(root);
+ const caller=resolve(base,'test/hosted-edge-call-check.ts'),globals=resolve(base,'test/hosted-edge-deno-globals.d.ts');
+ const virtual=new Map([
+  [caller,`import {createHostedEdgeHandler} from '../src/hosted/edge-bootstrap.mjs';
+const handler: (request: Request) => Promise<Response> = createHostedEdgeHandler({getEnv: (name: string): string | undefined => undefined});
+createHostedEdgeHandler({getEnv: name => name, fetchImpl: async () => new Response(), createTransport: ({snapshotId}) => ({async loadSnapshot(){return {snapshotId, manifest: [], verifiedAt: '2026-10-11T00:00:00Z'};}, async readChunk(hash: string){return new Uint8Array();}})});
+// @ts-expect-error environment reader is required
+createHostedEdgeHandler({});
+// @ts-expect-error options argument is required
+createHostedEdgeHandler();
+// @ts-expect-error environment values must be strings or undefined
+createHostedEdgeHandler({getEnv: () => 1});
+// @ts-expect-error injected fetch must return a Response
+createHostedEdgeHandler({getEnv: () => undefined, fetchImpl: async () => 1});
+// @ts-expect-error transport must implement the archive read contract
+createHostedEdgeHandler({getEnv: () => undefined, createTransport: () => ({})});
+`],
+  [globals,'declare namespace Deno { namespace env { function get(name: string): string | undefined; } function serve(handler: (request: Request) => Response | Promise<Response>): void; }']
+ ]);
+ const compilerOptions={allowJs:true,checkJs:false,noEmit:true,strict:true,target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.NodeNext,moduleResolution:ts.ModuleResolutionKind.NodeNext,skipLibCheck:true,types:[]};
+ const host=ts.createCompilerHost(compilerOptions),originalRead=host.readFile.bind(host),originalExists=host.fileExists.bind(host),originalGet=host.getSourceFile.bind(host);
+ host.readFile=path=>virtual.get(resolve(path))??originalRead(path);
+ host.fileExists=path=>virtual.has(resolve(path))||originalExists(path);
+ host.getSourceFile=(path,language,onError,create)=>virtual.has(resolve(path))?ts.createSourceFile(path,virtual.get(resolve(path)),language,true):originalGet(path,language,onError,create);
+ const program=ts.createProgram([caller,globals,resolve(base,'supabase/functions/trrc-explorer/index.ts')],compilerOptions,host);
+ const diagnostics=ts.getPreEmitDiagnostics(program);
+ assert.deepEqual(diagnostics.map(diagnostic=>`TS${diagnostic.code}: ${ts.flattenDiagnosticMessageText(diagnostic.messageText,'\n')}`),[]);
+ for(const value of [undefined,null,{}, {getEnv:null}])assert.throws(()=>createHostedEdgeHandler(value),/^Error: Hosted configuration unavailable$/);
+});
 
 test('public GET/HEAD composes pinned archive transport and strips only exact function prefix',async()=>{
  const data=await fixture(),seen=[];let chunks=0;
@@ -96,10 +129,10 @@ test('oversized auth response, including streaming without a length header, is r
   const handler=createHostedEdgeHandler(options({fetchImpl}));await safe(await handler(post('/api/collect','Bearer '+token)),401);
  }
 });
-test('real module composition preserves all archived public versions and 29 actual run summaries',async()=>{
- const paths=['public/artifact-path.json','public/artifact-integrity.json'];
+test('real module composition preserves public versions and captured actual run summaries',async()=>{
+ const paths=['public/artifact-path.json','public/artifact-integrity.json'],runIds=[];
  for(const entry of await readdir(new URL('artifacts/',root),{withFileTypes:true}))if(entry.isDirectory())for(const name of ['manifest.json','normalized.json','version-pins.json']){try{await readFile(new URL(`artifacts/${entry.name}/${name}`,root));paths.push(`artifacts/${entry.name}/${name}`);}catch(error){if(error.code!=='ENOENT')throw error;}}
- for(const entry of await readdir(new URL('runs/',root),{withFileTypes:true}))if(entry.isDirectory())paths.push(`runs/${entry.name}/record.json`);
+ for(const entry of await readdir(new URL('runs/',root),{withFileTypes:true}))if(entry.isDirectory()){paths.push(`runs/${entry.name}/record.json`);runIds.push(entry.name);}
  const manifest=[],chunks=new Map();
  for(const path of paths){const bytes=await readFile(new URL(path,root)),chunkHashes=[];for(let offset=0;offset<bytes.length;offset+=ARCHIVE_CHUNK_BYTES){const chunk=bytes.slice(offset,offset+ARCHIVE_CHUNK_BYTES),hash=await archiveSha256(chunk);chunkHashes.push(hash);chunks.set(hash,chunk);}manifest.push({path,sha256:await archiveSha256(bytes),byteCount:bytes.length,chunkCount:chunkHashes.length,chunkHashes});}
  const handler=createHostedEdgeHandler(options({createTransport:()=>({loadSnapshot:async()=>({snapshotId:HOSTED_SNAPSHOT_ID,verifiedAt:'2026-10-11T05:22:55Z',manifest}),readChunk:async hash=>chunks.get(hash)})}));
@@ -107,6 +140,6 @@ test('real module composition preserves all archived public versions and 29 actu
   const versionResponse=await handler(new Request('https://edge.example'+prefix+'/api/versions'));
   assert.equal(versionResponse.status,200,prefix||'canonical route');
   const versions=await json(versionResponse),runs=await json(await handler(new Request('https://edge.example'+prefix+'/api/runs')));
-  assert.equal(versions.versions.length,3);assert.equal(versions.versions.filter(version=>version.defaultPinned).length,1);assert.equal(runs.runs.length,29);assert.equal(runs.unavailableRecords,0);
+  assert.equal(versions.versions.length,3);assert.equal(versions.versions.filter(version=>version.defaultPinned).length,1);assert.deepEqual(runs.runs.map(run=>run.runId).sort(),[...runIds].sort());assert.equal(runs.unavailableRecords,0);
  }
 });

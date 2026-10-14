@@ -1,0 +1,267 @@
+{
+  "probe": "guest-adapter-parity-2026-10-12",
+  "node": "v24.19.0",
+  "platform": "win32",
+  "artifactSourceSha256": "385eb8a83fb072721847488d2588df448d8349e20d7be06d5e44782eb5a464f1",
+  "gates": {
+    "G0": "PARTIAL PASS - Node parity only; Deno/Edge compatibility untested",
+    "G1": "BLOCKED - no Supabase Edge/Deno runtime; Node metrics are diagnostics, never Edge evidence"
+  },
+  "passed": 25,
+  "failed": 0,
+  "checks": [
+    {
+      "id": "extract-reader-prototype",
+      "pass": true,
+      "detail": {
+        "relativeImports": [
+          "./sources.mjs",
+          "./lookup.mjs",
+          "../public/quality-validation.js",
+          "./normalize.mjs"
+        ],
+        "artifactSourceSha256": "385eb8a83fb072721847488d2588df448d8349e20d7be06d5e44782eb5a464f1"
+      }
+    },
+    {
+      "id": "parity:rrc-2026-10-09-uic000020838-v1",
+      "pass": true,
+      "detail": {
+        "files": 13,
+        "diskOnly": [],
+        "basis": "source_proof_2026_10_09_exact_bytes",
+        "inventoryRows": 5,
+        "monthlyRows": 28,
+        "archiveBytes": 1325056,
+        "archiveSha256": "492ebaa6b5f7c9353c39416dc72a1cf5180d1e9ba7a3af21d4b063c20e81db8a"
+      }
+    },
+    {
+      "id": "parity:rrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0",
+      "pass": true,
+      "detail": {
+        "files": 28,
+        "diskOnly": [],
+        "basis": "recorded_official_acquisition_v2",
+        "inventoryRows": 1,
+        "monthlyRows": 28,
+        "archiveBytes": 1393664,
+        "archiveSha256": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8"
+      }
+    },
+    {
+      "id": "parity:rrc-2026-10-10-uic000056484-df804201-eb4a-4aa5-8ef2-c550c6a70627",
+      "pass": true,
+      "detail": {
+        "files": 28,
+        "diskOnly": [],
+        "basis": "recorded_official_acquisition_v2",
+        "inventoryRows": 1,
+        "monthlyRows": 16,
+        "archiveBytes": 1377280,
+        "archiveSha256": "377721ac93c47313a9f5b58df2f581c9133cf9920ef74e390fef88392dbf6b9d"
+      }
+    },
+    {
+      "id": "node-diagnostic:rrc-2026-10-09-uic000020838-v1",
+      "pass": true,
+      "detail": {
+        "label": "NODE DIAGNOSTIC ONLY - not Supabase Edge evidence (G1 BLOCKED)",
+        "evidenceBytes": 1248652,
+        "archiveBytes": 1325056,
+        "wallMs": 8.2,
+        "cpuUserMs": 16,
+        "cpuSystemMs": 0,
+        "rssDeltaMiB": 12.4,
+        "processMaxRssMiB": 125.2
+      }
+    },
+    {
+      "id": "node-diagnostic:rrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0",
+      "pass": true,
+      "detail": {
+        "label": "NODE DIAGNOSTIC ONLY - not Supabase Edge evidence (G1 BLOCKED)",
+        "evidenceBytes": 1298260,
+        "archiveBytes": 1393664,
+        "wallMs": 14,
+        "cpuUserMs": 15,
+        "cpuSystemMs": 16,
+        "rssDeltaMiB": -53.1,
+        "processMaxRssMiB": 132.4
+      }
+    },
+    {
+      "id": "node-diagnostic:rrc-2026-10-10-uic000056484-df804201-eb4a-4aa5-8ef2-c550c6a70627",
+      "pass": true,
+      "detail": {
+        "label": "NODE DIAGNOSTIC ONLY - not Supabase Edge evidence (G1 BLOCKED)",
+        "evidenceBytes": 1295312,
+        "archiveBytes": 1377280,
+        "wallMs": 11.2,
+        "cpuUserMs": 0,
+        "cpuSystemMs": 0,
+        "rssDeltaMiB": 12,
+        "processMaxRssMiB": 132.4
+      }
+    },
+    {
+      "id": "fixture-missing-source-keeps-fixture",
+      "pass": true,
+      "detail": {
+        "code": "ENOENT",
+        "name": "Error",
+        "provenance": "test_fixture"
+      }
+    },
+    {
+      "id": "fixture-corrupt-marker-keeps-fixture",
+      "pass": true,
+      "detail": {
+        "code": null,
+        "name": "SyntaxError",
+        "provenance": "test_fixture"
+      }
+    },
+    {
+      "id": "mixed-classification-conflict",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_PROVENANCE_CONFLICT",
+        "name": "Error",
+        "provenance": "test_fixture"
+      }
+    },
+    {
+      "id": "corrupted-source-hash",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_HASH_MISMATCH",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "fresh-parent-identity-change",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_INVALID",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "monthly-row-cap",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_ROW_LIMIT",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "selection-ordinal-tamper",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_INVALID",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "selection-lookup-hash-mismatch",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_HASH_MISMATCH",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "acquisition-targets-mismatch",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_INVALID",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "sidecar-host-mismatch",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_INVALID",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "sidecar-query-mismatch",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_INVALID",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "unknown-provenance-loads-unknown-build-refused",
+      "pass": true,
+      "detail": {
+        "basis": "source_classification_unavailable"
+      }
+    },
+    {
+      "id": "source-scope-quarantined-then-refused-at-build",
+      "pass": true,
+      "detail": {
+        "monthlyQuarantined": 1
+      }
+    },
+    {
+      "id": "fixture-quarantine-missing-duplicate-invalid-permit",
+      "pass": true,
+      "detail": {
+        "monthlyQuarantined": 2,
+        "inventoryQuarantined": 1,
+        "issueCounts": {
+          "parse_failure:max_liq_inj_pressure": 1,
+          "missing:vol_liq": 1,
+          "duplicate_or_revision_period": 2,
+          "duplicate_source_report_id": 2
+        }
+      }
+    },
+    {
+      "id": "reader-must-return-bytes",
+      "pass": true,
+      "detail": {
+        "code": "SOURCE_INVALID",
+        "name": "Error",
+        "provenance": null
+      }
+    },
+    {
+      "id": "mutable-reader-alias-isolated",
+      "pass": true
+    },
+    {
+      "id": "forged-cross-brand-and-substituted-snapshots-refused",
+      "pass": true
+    },
+    {
+      "id": "in-process-preservation",
+      "pass": true,
+      "detail": {
+        "watched": [
+          "src",
+          "raw",
+          "public/artifact-integrity.json",
+          "public/artifact-path.json",
+          "artifacts/rrc-2026-10-09-uic000020838-v1",
+          "artifacts/rrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0",
+          "artifacts/rrc-2026-10-10-uic000056484-df804201-eb4a-4aa5-8ef2-c550c6a70627"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "scope": "Actual Node and cached local Edge native fetch; equivalent controlled loopback fixtures, no official fetch, Storage or SQL. Ports/timestamps/wall durations excluded from equality.",
+  "passed": 7,
+  "node": {
+    "scope": "Node native fetch to isolated ephemeral loopback fixtures, no official-source fetch",
+    "results": [
+      {
+        "name": "ok",
+        "ok": true,
+        "body": [
+          0,
+          65,
+          255,
+          10
+        ],
+        "metadata": {
+          "url": "http://127.0.0.1:60063/fixture/ok",
+          "http_status": 200,
+          "last_modified": "Mon, 12 Oct 2026 00:00:00 GMT",
+          "etag": "local-etag",
+          "sha256": "3b7b5c24762be65b2e2cdb1e260f2acc9e6a3006bb53311cffb7ec84be8c6f9b",
+          "bytes": 4,
+          "testFixture": true
+        },
+        "validRetrieval": true,
+        "httpStatus": 200,
+        "wallMs": 17
+      },
+      {
+        "name": "error",
+        "ok": false,
+        "code": "HTTP_ERROR",
+        "errorName": "Error",
+        "httpStatus": 503,
+        "wallMs": 3
+      },
+      {
+        "name": "empty",
+        "ok": false,
+        "code": "SOURCE_INVALID",
+        "errorName": "Error",
+        "httpStatus": 204,
+        "wallMs": 19
+      },
+      {
+        "name": "header-limit",
+        "ok": false,
+        "code": "SOURCE_LIMIT",
+        "errorName": "Error",
+        "httpStatus": 200,
+        "wallMs": 14
+      },
+      {
+        "name": "stream-limit",
+        "ok": false,
+        "code": "SOURCE_LIMIT",
+        "errorName": "Error",
+        "httpStatus": 200,
+        "wallMs": 43
+      },
+      {
+        "name": "redirect",
+        "ok": false,
+        "code": null,
+        "errorName": "TypeError",
+        "httpStatus": null,
+        "wallMs": 4
+      },
+      {
+        "name": "slow",
+        "ok": false,
+        "code": 23,
+        "errorName": "TimeoutError",
+        "httpStatus": null,
+        "wallMs": 30002
+      }
+    ]
+  },
+  "edge": {
+    "scope": "Cached local Edge native fetch, loopback fixture responses only; not hosted or live public collection",
+    "bufferGlobal": "undefined",
+    "results": [
+      {
+        "name": "ok",
+        "ok": true,
+        "body": [
+          0,
+          65,
+          255,
+          10
+        ],
+        "metadata": {
+          "url": "http://127.0.0.1:9000/fixture/ok",
+          "http_status": 200,
+          "last_modified": "Mon, 12 Oct 2026 00:00:00 GMT",
+          "etag": "local-etag",
+          "sha256": "3b7b5c24762be65b2e2cdb1e260f2acc9e6a3006bb53311cffb7ec84be8c6f9b",
+          "bytes": 4,
+          "testFixture": true
+        },
+        "validRetrieval": true,
+        "httpStatus": 200,
+        "wallMs": 9
+      },
+      {
+        "name": "error",
+        "ok": false,
+        "code": "HTTP_ERROR",
+        "errorName": "Error",
+        "httpStatus": 503,
+        "wallMs": 1
+      },
+      {
+        "name": "empty",
+        "ok": false,
+        "code": "SOURCE_INVALID",
+        "errorName": "Error",
+        "httpStatus": 204,
+        "wallMs": 1
+      },
+      {
+        "name": "header-limit",
+        "ok": false,
+        "code": "SOURCE_LIMIT",
+        "errorName": "Error",
+        "httpStatus": 200,
+        "wallMs": 1
+      },
+      {
+        "name": "stream-limit",
+        "ok": false,
+        "code": "SOURCE_LIMIT",
+        "errorName": "Error",
+        "httpStatus": 200,
+        "wallMs": 100
+      },
+      {
+        "name": "redirect",
+        "ok": false,
+        "code": null,
+        "errorName": "TypeError",
+        "httpStatus": null,
+        "wallMs": 2
+      },
+      {
+        "name": "slow",
+        "ok": false,
+        "code": 23,
+        "errorName": "TimeoutError",
+        "httpStatus": null,
+        "wallMs": 30002
+      }
+    ]
+  }
+}

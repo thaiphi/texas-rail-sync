@@ -1,5 +1,20 @@
 # Texas RRC Explorer
 
+## Release status (October 13, 2026)
+
+This is the current state; the dated banners below are historical and superseded where they conflict.
+
+**Delivered:**
+- Local bounded UIC/H-10 collection, normalization/QC, immutable versioned exports and browser inspection (`node scripts/serve.mjs`).
+- Hosted read-only browsing (Lovable preview backed by the private Supabase archive): saved versions, sources, quality reports, recorded runs and byte-identical TAR downloads.
+- Analytics browser handoff.
+
+Default pin SHA-256 `2bc9bbbe3738d5de1112c2bfd09a094eade796b4285653e19cdb999bc5d0f727` and all raw/artifact/run evidence are unchanged.
+
+**Not in this release: hosted guest collection.** The guest backend is built and locally gated: journal/budget SQL drafts pass 22/22 in disposable PostgreSQL, native Storage passes 8/8 and local Edge probes pass. It is **disabled in production**. The SQL drafts are not applied. The Edge entrypoint does not mount guest routes, and the browser has no guest wiring. Open release blockers are listed in [the storage/admission checkpoint](docs/verification-2026-10-13-storage-admission.md#remaining-release-gaps): hosted secret-key/PostgREST behavior, Free-plan headroom, late-write/orphan cleanup, browser integration and an end-to-end walkthrough.
+
+**Earlier resumption (October 11):** Lovable MCP authorization is restored. The [working preview](https://f0e9357f-02d2-4f69-8979-05a2e7bda2b3.lovableproject.com/#datasets) shows all three verified dataset versions; original-example records and29 historical runs were inspected. The older `id-preview` address returned503 with unverified origin. Some full production Node runs passed **186/186**, but the latest unmodified-application run is **183/186 PASS,3 FAILED** on publication renameEPERM. A standalone filesystem probe also reproducedEPERM without importing application code; its responsible Windows/sandbox component remains unknown. `node scripts/check-isolated.mjs` preserves every check in a fresh copy. Protected data/pins remain unchanged. Hosted sign-in/collection and release acceptance remain unfinished. See [runtime options requiring a decision](docs/hosted-collection-options-2026-10-11.md), [hosting verification](docs/verification-2026-10-11-lovable-hosting.md) and the [computer migration handover](docs/HANDOVER-2026-10-11.md); older checkpoint summaries below are historical.
+
 **Lovable browsing integration (October 11):** Lovable's original TanStack hosting configuration now wraps the preserved Explorer interface. Saved public versions, sources, quality reports, recorded runs and downloads use the verified Supabase backend; collection/sign-in remain unavailable in the hosted preview and local collection still works. Build, type-check and changed-file lint pass; full isolated tests pass **185/185**. See [hosting evidence and remaining collection work](docs/verification-2026-10-11-lovable-hosting.md). `build` now builds the website; the previous artifact-export command is preserved as `build:artifact` and `node scripts/export.mjs`.
 
 **Latest hosted-backend checkpoint (October 11):** The private Supabase archive now has a tested read-only adapter for versions, recorded runs, original evidence and byte-identical TAR downloads. The final isolated suite passes **169/169** with normal user access; no filesystem permissions were changed. Independent review found no material defect in this checkpoint. The hosted UI, authorization and live collection are not connected or deployed. See [checkpoint evidence and remaining release work](docs/verification-2026-10-11-hosted-adapter.md). Earlier sandbox failures below are historical.

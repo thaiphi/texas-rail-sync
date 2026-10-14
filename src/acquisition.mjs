@@ -2,18 +2,11 @@ import {mkdir,readFile,writeFile,realpath} from 'node:fs/promises';
 import {resolve,relative,sep,isAbsolute} from 'node:path';
 import {repositoryRoot,exportArtifact,saveRun} from './pipeline.mjs';
 import {loadSnapshot} from './artifact.mjs';
-import {sha256} from './normalize.mjs';
+import {fetchSource} from './sourceFetch.mjs';
 import {createRunRecorder} from './runEvents.mjs';
 import {acquisitionTargets,targetsForScope,collectionScope} from './sources.mjs';
 export {acquisitionTargets} from './sources.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
-async function boundedBytes(response){
- if(Number(response.headers.get('content-length'))>10_000_000)throw failure('SOURCE_LIMIT','Source byte cap exceeded');
- const reader=response.body?.getReader();if(!reader)throw failure('SOURCE_INVALID','Source response has no body');
- const chunks=[];let total=0;
- try{for(;;){const {done,value}=await reader.read();if(done)break;total+=value.length;if(total>10_000_000){await reader.cancel();throw failure('SOURCE_LIMIT','Source byte cap exceeded');}chunks.push(Buffer.from(value));}}finally{reader.releaseLock();}
- return Buffer.concat(chunks,total);
-}
 export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null}={}){
  if(fetchImpl!==fetch&&!testFixture)throw Error('Injected network responses require explicit test-fixture mode');
  const dynamic=scope.queryVersion===2;
@@ -40,9 +33,7 @@ export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=res
   for(const target of targets){
    const request={url:target.url,name:target.name,status:'running'};evidence.requests.push(request);
    try{
-   const response=await fetchImpl(target.url,{signal:AbortSignal.timeout(30000),redirect:'error'});request.httpStatus=response.status;
-   if(!response.ok){request.status='failed';throw failure('HTTP_ERROR','Official source request failed');}
-   const body=await boundedBytes(response),metadata={url:target.url,retrieved_at:new Date().toISOString(),http_status:response.status,last_modified:response.headers.get('last-modified'),etag:response.headers.get('etag'),sha256:sha256(body),bytes:body.length,testFixture};
+   const {body,metadata}=await fetchSource(target,{fetchImpl,testFixture,onResponse:status=>{request.httpStatus=status;}});
    await writeFile(resolve(sourceDir,target.name),body,{flag:'wx'});
    const metadataName=target.name.replace(/\.[^.]+$/,'')+'.source.json';
    await writeFile(resolve(sourceDir,metadataName),JSON.stringify(metadata,null,2)+'\n',{flag:'wx'});

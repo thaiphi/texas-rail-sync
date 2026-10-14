@@ -4,6 +4,7 @@ import {assertQualityReport} from '../public/quality-validation.js';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {isDeepStrictEqual} from 'node:util';
+import {Buffer} from 'node:buffer';
 import {sha256,normalize,csv,inventoryColumns,monthlyColumns} from './normalize.mjs';
 export const pinnedArtifactId='rrc-2026-10-09-uic000020838-v1';
 // Exact seven responses AND seven retrieval sidecars of SOURCE_PROOF.md's
@@ -21,9 +22,19 @@ export function snapshotProvenance(snapshot){
 }
 const copyBodies=bodies=>Object.fromEntries(Object.entries(bodies).map(([name,body])=>[name,Buffer.from(body)]));
 const sameBodies=(actual,expected)=>actual&&isDeepStrictEqual(Object.keys(actual).sort(),Object.keys(expected).sort())&&Object.entries(expected).every(([name,body])=>Buffer.isBuffer(actual[name])&&body.equals(actual[name]));
+// Trusted-server reader; an absent object must reject with code ENOENT.
+async function readCopy(readBytes,name){
+ const body=await readBytes(name);
+ if(!(body instanceof Uint8Array))throw Object.assign(Error('Evidence reader must return bytes'),{code:'SOURCE_INVALID'});
+ return Buffer.from(body);
+}
 export async function loadSnapshot(sourceDir){
+ return loadSnapshotFromReader(name=>readFile(resolve(sourceDir,name)));
+}
+export async function loadSnapshotFromReader(readBytes){
+ if(typeof readBytes!=='function')throw Object.assign(Error('Evidence reader required'),{code:'SOURCE_INVALID'});
  const cache=new Map();
- const read=async name=>{if(!cache.has(name))cache.set(name,readFile(resolve(sourceDir,name)));return cache.get(name);};
+ const read=async name=>{if(!cache.has(name))cache.set(name,readCopy(readBytes,name));return cache.get(name);};
  let acquisition=null,fixtureEvidence=false;
  try{
  const classificationFiles=['acquisition.json','lookup.json','lookup-inventory.source.json','lookup-metadata.source.json',...acquisitionTargets.map(target=>target.name.replace(/\.[^.]+$/,'')+'.source.json')];

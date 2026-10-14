@@ -1,4 +1,5 @@
 import {readFile,lstat,realpath} from 'node:fs/promises';
+import {Buffer} from 'node:buffer';
 import {resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {buildVersionArchiveFromReader} from './archiveBytes.mjs';

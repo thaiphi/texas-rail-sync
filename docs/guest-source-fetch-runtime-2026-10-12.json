@@ -1,0 +1,75 @@
+{
+  "scope": "Two controlled local Edge native-fetch probes; shutdown CPU/memory are not peak RSS or hosted observations",
+  "events": [
+    {
+      "timestamp": "2026-10-13T00:23:46.272Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 86,
+        "memory_used": {
+          "total": 10973153,
+          "heap": 7941352,
+          "external": 3031801,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 10395648,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 10104832,
+              "totalAvailableSize": 261263920,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 20864,
+              "usedHeapSize": 7941352,
+              "mallocedMemory": 278624,
+              "externalMemory": 3031801,
+              "peakMallocedMemory": 4506904
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "b012bc4f-9fe5-460d-928c-8ad925149007",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T00:26:00.944Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 109,
+        "memory_used": {
+          "total": 10967593,
+          "heap": 7935792,
+          "external": 3031801,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 10133504,
+              "totalHeapSizeExecutable": 262144,
+              "totalPhysicalSize": 9654272,
+              "totalAvailableSize": 261199224,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 20864,
+              "usedHeapSize": 7935792,
+              "mallocedMemory": 278624,
+              "externalMemory": 3031801,
+              "peakMallocedMemory": 4728160
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "fbc32d3c-5b96-4207-963b-b681262b64dd",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    }
+  ]
+}
