@@ -1,6 +1,6 @@
 // This fixed public endpoint contains no browser/server credential.
 const backend='https://phxiqnsebqaalvkanljb.supabase.co/functions/v1/trrc-explorer';
-const guestGet=/^\/api\/guest\/(?:history|jobs\/[a-f0-9-]{36}(?:\/archive|\/runs\/[a-f0-9-]{36})?)$/i,guestPost=/^\/api\/guest\/(?:session|lookups|collections|jobs\/[a-f0-9-]{36}\/advance)$/i;
+const guestGet=/^\/api\/guest\/(?:history|jobs\/[a-f0-9-]{36}(?:\/archive|\/runs\/[a-f0-9-]{36})?)$/,guestPost=/^\/api\/guest\/(?:session|lookups|collections|jobs\/[a-f0-9-]{36}\/advance)$/;
 const evidencePath=path=>guestGet.test(path)||guestPost.test(path)||/^\/api\/(?:versions(?:\/[a-z0-9._-]+\/download)?|runs(?:\/[a-f0-9-]{36})?|lookup|collect)$/i.test(path)||/^\/artifacts\/[a-z0-9._-]+\/[a-z0-9_./-]+$/i.test(path)||['/artifact-path.json','/artifact-integrity.json'].includes(path);
 export function createHostingBridge({html,fetchImpl=fetch}){
  if(typeof html!=='string')throw Error('Existing Explorer shell required');

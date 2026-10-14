@@ -42,3 +42,5 @@ Blockers that local work cannot close (report, do not work around):
 - Not authorized by this checkpoint: hosted deployment, migration apply, permission, billing, live collection, guest acceptance.
 
 Bounded checkpoint complete; slot released.
+
+Note 2026-10-14: superseded. Hosted guest routes now mount through `src/hosted/edge-bootstrap.mjs` only when the Edge env `TRRC_GUEST_ENABLED` is `'1'` (or when tests pass an explicit `guest` handler); the "never an environment flag" statement in D-A above no longer describes the code.

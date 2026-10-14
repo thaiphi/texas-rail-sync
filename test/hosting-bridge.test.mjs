@@ -70,6 +70,13 @@ test('hosting bridge keeps guest and bearer credentials on their own routes and 
  assert.equal((await bridge(new Request(site+'/api/guest/session'))).status,405);assert.equal((await bridge(new Request(site+'/api/guest/session',{method:'HEAD'}))).status,405);
  assert.equal(seen.length,count);
 });
+test('hosting bridge treats guest routes case-sensitively so an uppercase path never carries a Guest credential',async()=>{
+ const seen=[];const bridge=createHostingBridge({html:'shell',fetchImpl:async(url,init)=>{seen.push({url,init});return new Response('{}',{status:202,headers:{'content-type':'application/json'}});}});
+ const site='https://site.example',auth={authorization:'Guest '+'a'.repeat(43)};
+ assert.equal(await bridge(new Request(site+'/API/GUEST/HISTORY',{headers:auth})),null);
+ assert.equal(await bridge(new Request(site+'/API/GUEST/LOOKUPS',{method:'POST',headers:{...auth,'content-type':'application/json',origin:site},body:'{}'})),null);
+ assert.equal(seen.length,0);
+});
 test('hosting shell declares guest mode and no longer says collection is unavailable',()=>{
  prepareHosting();const shell=readFileSync(new URL('../tmp/hosting/shell.html',import.meta.url),'utf8');
  assert.match(shell,/<head><meta name="trrc-mode" content="guest">/);assert.doesNotMatch(shell,/not enabled yet/);

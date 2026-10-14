@@ -1,5 +1,5 @@
 // Service-only Supabase transport for the guest journal (RPC) and evidence objects
-// (private Storage bucket). UNVERIFIED AND NOT MOUNTED: index.ts never constructs it.
+// (private Storage bucket). Mounted only by edge-bootstrap.mjs createProductionGuest when TRRC_GUEST_ENABLED is '1'.
 // RPC grants, the Storage request shape for sb_secret keys, availability and quotas
 // remain G2/G3 gates. JSONB reorders object keys; callers compare order-insensitively.
 const fail=(code,message)=>Object.assign(Error(message),{code});
