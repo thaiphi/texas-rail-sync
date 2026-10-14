@@ -5,7 +5,7 @@ import {sha256} from './normalize.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
 // onResponse(status) lets trusted callers record the HTTP status before body checks.
 // timeoutMs defaults to 30000 for acquisition/lookup. A throw before any Response (DNS,
-// connect, TLS) becomes NETWORK_ERROR with the original as cause; timeouts/aborts pass as-is.
+// connect, TLS, or a refused redirect) becomes NETWORK_ERROR with the original as cause; timeouts/aborts pass as-is.
 export async function fetchSource(target,{fetchImpl=fetch,testFixture=false,onResponse=null,timeoutMs=30000}={}){
  if(fetchImpl!==fetch&&!testFixture)throw failure('SOURCE_INVALID','Injected responses require fixture mode');
  let response;try{response=await fetchImpl(target.url,{signal:AbortSignal.timeout(timeoutMs),redirect:'error'});}

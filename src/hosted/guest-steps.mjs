@@ -22,7 +22,7 @@ const jsonBytes=value=>Buffer.from(JSON.stringify(value,null,2)+'\n');
 // The complete versioned evidence set that live preparation and finalization require.
 export const GUEST_EVIDENCE_NAMES=Object.freeze(['acquisition.json','selection.json','lookup.json',...lookupFiles,...targetsForScope().flatMap(target=>[target.name,sidecar(target.name)])].sort());
 const v2Recorder=Object.freeze({pipelineVersion:'rrc-collection-v2',schemaVersion:1,transformationVersion:'rrc-odp-v2.0.0'});
-// Slow official hosts (TLS/response ~30 s+): 90 s fits Edge wall 150 s and leaseMs 180 s; 2 attempts, 30-120 s backoff, laneMs 600 s.
+// Slow official hosts (TLS/response ~30 s+): 90 s per fetch fits Edge wall 150 s and leaseMs 180 s; several slow steps can still hit laneMs 600 s (LANE_DEADLINE).
 export const GUEST_SOURCE_TIMEOUT_MS=90_000;
 const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
 const retryable=error=>error?.code==='HTTP_ERROR'||error?.code==='NETWORK_ERROR'||error?.name==='TimeoutError'||error?.name==='AbortError';
