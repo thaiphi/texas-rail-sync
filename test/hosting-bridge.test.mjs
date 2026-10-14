@@ -4,6 +4,7 @@ import {createHostingBridge} from '../src/hosted/hosting-bridge.mjs';
 import {prepareHosting} from '../scripts/prepare-hosting.mjs';
 import {mkdtemp,mkdir,writeFile,readdir,rm} from 'node:fs/promises';
 import {resolve} from 'node:path';
+import {readFileSync} from 'node:fs';
 test('hosting preparation removes stale generated files and copies only current UI assets',async()=>{
  await mkdir(resolve('tmp'),{recursive:true});
  const root=await mkdtemp(resolve('tmp/hosting-preparation-'));
@@ -41,4 +42,24 @@ test('hosting bridge refuses unexpected encoded bodies and never forwards a stal
  assert.equal(headers.get('accept-encoding'),'identity');assert.equal(response.status,503);
  const plain=createHostingBridge({html:'shell',fetchImpl:async()=>new Response('plain',{headers:{'content-length':'35'}})});
  const streamed=await plain(new Request('https://preview.example/api/versions'));assert.equal(streamed.headers.get('content-length'),null);assert.equal(await streamed.text(),'plain');
+});
+test('hosting bridge forwards guest routes with guest auth, idempotency key and verified origin only',async()=>{
+ const seen=[];const bridge=createHostingBridge({html:'<html><head></head><body></body></html>',fetchImpl:async(url,init)=>{seen.push({url,init});return new Response('{}',{status:202,headers:{'content-type':'application/json'}});}});
+ const token='a'.repeat(43),site='https://site.example';
+ const post=(path,headers={})=>bridge(new Request(site+path,{method:'POST',headers:{'content-type':'application/json',origin:site,authorization:`Guest ${token}`,'idempotency-key':'k'.repeat(20),...headers},body:'{}'}));
+ assert.equal((await post('/api/guest/lookups')).status,202);
+ const forwarded=seen.at(-1).init.headers;
+ assert.equal(forwarded.get('authorization'),`Guest ${token}`);assert.equal(forwarded.get('idempotency-key'),'k'.repeat(20));assert.equal(forwarded.get('origin'),site);
+ assert.match(seen.at(-1).url,/\/functions\/v1\/trrc-explorer\/api\/guest\/lookups$/);
+ assert.equal((await post('/api/guest/lookups',{origin:'https://evil.example'})).status,403);
+ assert.equal((await post('/api/guest/history')).status,405);
+ const get=await bridge(new Request(site+'/api/guest/jobs/'+'0'.repeat(8)+'-0000-0000-0000-'+'0'.repeat(12),{headers:{authorization:`Guest ${token}`}}));
+ assert.equal(get.status,202);assert.equal(seen.at(-1).init.headers.get('authorization'),`Guest ${token}`);
+ await bridge(new Request(site+'/api/guest/history',{headers:{authorization:'Bearer x.y.z'}}));
+ assert.equal(seen.at(-1).init.headers.get('authorization'),null);
+ assert.equal(await bridge(new Request(site+'/api/guest/unknown')),null);
+});
+test('hosting shell declares guest mode and no longer says collection is unavailable',()=>{
+ prepareHosting();const shell=readFileSync(new URL('../tmp/hosting/shell.html',import.meta.url),'utf8');
+ assert.match(shell,/<head><meta name="trrc-mode" content="guest">/);assert.doesNotMatch(shell,/not enabled yet/);
 });
