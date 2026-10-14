@@ -1,0 +1,833 @@
+{
+  "scope": "Local cached Edge guest reference adapters, not hosted/durable/Storage I/O",
+  "image": "public.ecr.aws/supabase/edge-runtime:v1.77.1",
+  "imageId": "sha256:645d0e45446181f3e9d87efeef637b494615f32365befff00e2d2b0fe8535fef",
+  "sourceHashes": {
+    "src/hosted/guest-journal.mjs": "fbb1e3170e794f188a7b3a5eb9e8d9209c2df12f55b0938b15b74672d3293aa6",
+    "src/hosted/guest-admission.mjs": "b0b9f9e40f1a253807949458cae742a3c1fa5898555a14d75a3091dad22f71a5",
+    "src/hosted/evidence-store.mjs": "1bfa82b39090e85461cba430675d4efa30cfd6465df9ce798fb8bafe4baff857",
+    "src/hosted/guest-steps.mjs": "ac6afbc36d3f37fab4a0a895a427f6631c2a167e0832484a43f597319f1fbcf1",
+    "src/hosted/guest-transport.mjs": "f4af99c463f4b351f2e9ccb678d1417b316ef5148347f54dd77d2fdd3911667e",
+    "src/exportCore.mjs": "4ef6f77ce1ea76397124a9c230c5a7a1a911ed2a02592a46cd1b330243214cf5",
+    "public/archive-bytes.js": "5818ccda05ad4c61752be8b4af610d8a14119fa204440f112241f4dcc2624f5b"
+  },
+  "limits": {
+    "cpuHardMs": 2000,
+    "memoryMb": 256,
+    "wallMs": 150000
+  },
+  "cpuControlEnforced": true,
+  "packages": [
+    {
+      "id": "rrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0",
+      "archiveBytes": 1393664,
+      "archiveSha256": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8"
+    },
+    {
+      "id": "rrc-2026-10-10-uic000056484-df804201-eb4a-4aa5-8ef2-c550c6a70627",
+      "archiveBytes": 1377280,
+      "archiveSha256": "377721ac93c47313a9f5b58df2f581c9133cf9920ef74e390fef88392dbf6b9d"
+    }
+  ],
+  "results": [
+    {
+      "caseName": "replay",
+      "index": 0,
+      "scope": "local memory adapters; no Storage/SQL or hosted reachability",
+      "runtime": {
+        "deno": "supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)",
+        "v8": "11.6.189.12",
+        "typescript": "5.1.6"
+      },
+      "bufferGlobal": "undefined",
+      "steps": [
+        {
+          "step": "R0",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 19.12
+        },
+        {
+          "step": "C8",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 97.04
+        },
+        {
+          "step": "C9",
+          "state": "succeeded",
+          "errorCode": null,
+          "wallMs": 68.69
+        }
+      ],
+      "ok": true,
+      "ownerRefused": true,
+      "fetchCalls": 0,
+      "state": "succeeded",
+      "errorCode": null,
+      "archiveBytes": 1393664,
+      "archiveSha256": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8",
+      "mode": "offline_replay",
+      "memorySamples": [
+        {
+          "label": "start",
+          "rss": 0,
+          "heapTotal": 15032320,
+          "heapUsed": 13427264,
+          "external": 3097364
+        },
+        {
+          "label": "R0",
+          "rss": 0,
+          "heapTotal": 16605184,
+          "heapUsed": 13833888,
+          "external": 11494917
+        },
+        {
+          "label": "C8",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14004376,
+          "external": 7055049
+        },
+        {
+          "label": "C9",
+          "rss": 0,
+          "heapTotal": 17653760,
+          "heapUsed": 15396368,
+          "external": 21086813
+        },
+        {
+          "label": "end",
+          "rss": 0,
+          "heapTotal": 17653760,
+          "heapUsed": 15500888,
+          "external": 23902259
+        }
+      ],
+      "workerWallMs": 208.06
+    },
+    {
+      "caseName": "replay",
+      "index": 1,
+      "scope": "local memory adapters; no Storage/SQL or hosted reachability",
+      "runtime": {
+        "deno": "supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)",
+        "v8": "11.6.189.12",
+        "typescript": "5.1.6"
+      },
+      "bufferGlobal": "undefined",
+      "steps": [
+        {
+          "step": "R0",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 5.83
+        },
+        {
+          "step": "C8",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 29.6
+        },
+        {
+          "step": "C9",
+          "state": "succeeded",
+          "errorCode": null,
+          "wallMs": 55.19
+        }
+      ],
+      "ok": true,
+      "ownerRefused": true,
+      "fetchCalls": 0,
+      "state": "succeeded",
+      "errorCode": null,
+      "archiveBytes": 1377280,
+      "archiveSha256": "377721ac93c47313a9f5b58df2f581c9133cf9920ef74e390fef88392dbf6b9d",
+      "mode": "offline_replay",
+      "memorySamples": [
+        {
+          "label": "start",
+          "rss": 0,
+          "heapTotal": 15032320,
+          "heapUsed": 13427264,
+          "external": 3097364
+        },
+        {
+          "label": "R0",
+          "rss": 0,
+          "heapTotal": 16605184,
+          "heapUsed": 13836528,
+          "external": 11489045
+        },
+        {
+          "label": "C8",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14969720,
+          "external": 25528581
+        },
+        {
+          "label": "C9",
+          "rss": 0,
+          "heapTotal": 17915904,
+          "heapUsed": 14784816,
+          "external": 16986208
+        },
+        {
+          "label": "end",
+          "rss": 0,
+          "heapTotal": 17915904,
+          "heapUsed": 14878952,
+          "external": 19766894
+        }
+      ],
+      "workerWallMs": 96.91
+    },
+    {
+      "caseName": "fixture",
+      "index": 0,
+      "scope": "local memory adapters; no Storage/SQL or hosted reachability",
+      "runtime": {
+        "deno": "supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)",
+        "v8": "11.6.189.12",
+        "typescript": "5.1.6"
+      },
+      "bufferGlobal": "undefined",
+      "steps": [
+        {
+          "step": "C0",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 7.35
+        },
+        {
+          "step": "C1",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 1.2
+        },
+        {
+          "step": "C2",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 0.83
+        },
+        {
+          "step": "C3",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 0.72
+        },
+        {
+          "step": "C4",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 0.6
+        },
+        {
+          "step": "C5",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 4
+        },
+        {
+          "step": "C6",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 0.93
+        },
+        {
+          "step": "C7",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 1.17
+        },
+        {
+          "step": "C8",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 34.22
+        },
+        {
+          "step": "C9",
+          "state": "failed",
+          "errorCode": "ARCHIVE_INVALID",
+          "wallMs": 37.18
+        }
+      ],
+      "ok": true,
+      "ownerRefused": true,
+      "fetchCalls": 9,
+      "state": "failed",
+      "errorCode": "ARCHIVE_INVALID",
+      "testFixture": true,
+      "memorySamples": [
+        {
+          "label": "start",
+          "rss": 0,
+          "heapTotal": 15032320,
+          "heapUsed": 13427264,
+          "external": 3097365
+        },
+        {
+          "label": "C0",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14117040,
+          "external": 5046769
+        },
+        {
+          "label": "C1",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14232352,
+          "external": 5573923
+        },
+        {
+          "label": "C2",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14344880,
+          "external": 5751848
+        },
+        {
+          "label": "C3",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14453320,
+          "external": 5764711
+        },
+        {
+          "label": "C4",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14572864,
+          "external": 5826875
+        },
+        {
+          "label": "C5",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14721088,
+          "external": 14454311
+        },
+        {
+          "label": "C6",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14861096,
+          "external": 14851633
+        },
+        {
+          "label": "C7",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14087888,
+          "external": 5946688
+        },
+        {
+          "label": "C8",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14639528,
+          "external": 13657377
+        },
+        {
+          "label": "C9",
+          "rss": 0,
+          "heapTotal": 17915904,
+          "heapUsed": 15143272,
+          "external": 13023574
+        },
+        {
+          "label": "end",
+          "rss": 0,
+          "heapTotal": 17915904,
+          "heapUsed": 15151120,
+          "external": 13023574
+        }
+      ],
+      "workerWallMs": 108.71
+    },
+    {
+      "caseName": "fixture-padded",
+      "index": 0,
+      "scope": "local memory adapters; no Storage/SQL or hosted reachability",
+      "runtime": {
+        "deno": "supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)",
+        "v8": "11.6.189.12",
+        "typescript": "5.1.6"
+      },
+      "bufferGlobal": "undefined",
+      "steps": [
+        {
+          "step": "C0",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 5.48
+        },
+        {
+          "step": "C1",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 1.86
+        },
+        {
+          "step": "C2",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 0.94
+        },
+        {
+          "step": "C3",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 0.81
+        },
+        {
+          "step": "C4",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 74.14
+        },
+        {
+          "step": "C5",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 6.16
+        },
+        {
+          "step": "C6",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 1.1
+        },
+        {
+          "step": "C7",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 1.46
+        },
+        {
+          "step": "C8",
+          "state": "queued",
+          "errorCode": null,
+          "wallMs": 209.39
+        },
+        {
+          "step": "C9",
+          "state": "failed",
+          "errorCode": "ARCHIVE_INVALID",
+          "wallMs": 286.53
+        }
+      ],
+      "ok": true,
+      "ownerRefused": true,
+      "fetchCalls": 9,
+      "state": "failed",
+      "errorCode": "ARCHIVE_INVALID",
+      "testFixture": true,
+      "memorySamples": [
+        {
+          "label": "start",
+          "rss": 0,
+          "heapTotal": 15032320,
+          "heapUsed": 13427304,
+          "external": 3097372
+        },
+        {
+          "label": "C0",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14690160,
+          "external": 11998651
+        },
+        {
+          "label": "C1",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14236928,
+          "external": 12525805
+        },
+        {
+          "label": "C2",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14349376,
+          "external": 12703730
+        },
+        {
+          "label": "C3",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14465576,
+          "external": 12716593
+        },
+        {
+          "label": "C4",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 13950096,
+          "external": 46508319
+        },
+        {
+          "label": "C5",
+          "rss": 0,
+          "heapTotal": 16867328,
+          "heapUsed": 13741800,
+          "external": 55070224
+        },
+        {
+          "label": "C6",
+          "rss": 0,
+          "heapTotal": 16867328,
+          "heapUsed": 13879656,
+          "external": 55467550
+        },
+        {
+          "label": "C7",
+          "rss": 0,
+          "heapTotal": 16867328,
+          "heapUsed": 14019904,
+          "external": 55815662
+        },
+        {
+          "label": "C8",
+          "rss": 0,
+          "heapTotal": 17391616,
+          "heapUsed": 14940976,
+          "external": 59471791
+        },
+        {
+          "label": "C9",
+          "rss": 0,
+          "heapTotal": 17653760,
+          "heapUsed": 15328944,
+          "external": 111194012
+        },
+        {
+          "label": "end",
+          "rss": 0,
+          "heapTotal": 17653760,
+          "heapUsed": 15331088,
+          "external": 111194012
+        }
+      ],
+      "workerWallMs": 629.61
+    },
+    {
+      "caseName": "transport",
+      "index": 0,
+      "scope": "local memory adapters; no Storage/SQL or hosted reachability",
+      "runtime": {
+        "deno": "supabase-edge-runtime-1.77.1 (compatible with Deno v2.1.4)",
+        "v8": "11.6.189.12",
+        "typescript": "5.1.6"
+      },
+      "bufferGlobal": "undefined",
+      "steps": [],
+      "ok": true,
+      "controlledTransportOnly": true,
+      "memorySamples": [
+        {
+          "label": "start",
+          "rss": 0,
+          "heapTotal": 15032320,
+          "heapUsed": 13426448,
+          "external": 3097357
+        },
+        {
+          "label": "transport-end",
+          "rss": 0,
+          "heapTotal": 15032320,
+          "heapUsed": 13579072,
+          "external": 3097782
+        }
+      ],
+      "workerWallMs": 4.26
+    },
+    {
+      "ok": false,
+      "terminated": true,
+      "message": "request has been cancelled by supervisor",
+      "caseName": "cpu-control"
+    }
+  ],
+  "events": [
+    {
+      "timestamp": "2026-10-13T22:30:18.215Z",
+      "event_type": "Boot",
+      "event": {
+        "boot_time": 341
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "439c7f43-6d2e-4766-b66f-22e8d1ed20a1",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:18.447Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 221,
+        "memory_used": {
+          "total": 29438326,
+          "heap": 14078224,
+          "external": 15360102,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 17653760,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 17522688,
+              "totalAvailableSize": 255658856,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21696,
+              "usedHeapSize": 14078224,
+              "mallocedMemory": 278624,
+              "externalMemory": 15360102,
+              "peakMallocedMemory": 1964784
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "439c7f43-6d2e-4766-b66f-22e8d1ed20a1",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:19.465Z",
+      "event_type": "Boot",
+      "event": {
+        "boot_time": 269
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "2cc9aa0b-9048-4bf8-b1b7-ceafd8d21894",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:19.581Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 106,
+        "memory_used": {
+          "total": 34382926,
+          "heap": 14616032,
+          "external": 19766894,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 18178048,
+              "totalHeapSizeExecutable": 786432,
+              "totalPhysicalSize": 17788928,
+              "totalAvailableSize": 255156592,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21696,
+              "usedHeapSize": 14616032,
+              "mallocedMemory": 278624,
+              "externalMemory": 19766894,
+              "peakMallocedMemory": 1964784
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "2cc9aa0b-9048-4bf8-b1b7-ceafd8d21894",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:20.545Z",
+      "event_type": "Boot",
+      "event": {
+        "boot_time": 319
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "47189d7d-b120-41d9-b5c1-a6439d271764",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:20.673Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 119,
+        "memory_used": {
+          "total": 28191686,
+          "heap": 15168112,
+          "external": 13023574,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 17915904,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 17268736,
+              "totalAvailableSize": 255665616,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21984,
+              "usedHeapSize": 15168112,
+              "mallocedMemory": 278624,
+              "externalMemory": 13023574,
+              "peakMallocedMemory": 1964784
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "47189d7d-b120-41d9-b5c1-a6439d271764",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:21.663Z",
+      "event_type": "Boot",
+      "event": {
+        "boot_time": 293
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "241834e5-1f2f-4b7b-9e8f-03d34b07ee39",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:22.313Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 625,
+        "memory_used": {
+          "total": 125777412,
+          "heap": 14583400,
+          "external": 111194012,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 17653760,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 17522688,
+              "totalAvailableSize": 259794552,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21984,
+              "usedHeapSize": 14583400,
+              "mallocedMemory": 278624,
+              "externalMemory": 111194012,
+              "peakMallocedMemory": 1964784
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "241834e5-1f2f-4b7b-9e8f-03d34b07ee39",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:23.325Z",
+      "event_type": "Boot",
+      "event": {
+        "boot_time": 318
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "88b176e9-6e61-441b-86c8-2ab4b5aac14c",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:23.348Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 17,
+        "memory_used": {
+          "total": 16689638,
+          "heap": 13591856,
+          "external": 3097782,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15032320,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 14643200,
+              "totalAvailableSize": 254832352,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21856,
+              "usedHeapSize": 13591856,
+              "mallocedMemory": 295032,
+              "externalMemory": 3097782,
+              "peakMallocedMemory": 1964784
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "88b176e9-6e61-441b-86c8-2ab4b5aac14c",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:24.382Z",
+      "event_type": "Boot",
+      "event": {
+        "boot_time": 333
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "b4ab2cb0-4b40-46f8-a771-2feb9b71689c",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-13T22:30:26.400Z",
+      "event_type": "UncaughtException",
+      "event": {
+        "exception": "event loop error: Uncaught null",
+        "cpu_time_used": 2012
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "b4ab2cb0-4b40-46f8-a771-2feb9b71689c",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    }
+  ]
+}

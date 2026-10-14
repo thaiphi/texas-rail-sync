@@ -1,0 +1,683 @@
+{
+  "shutdownEvents": [
+    {
+      "timestamp": "2026-10-12T17:25:16.847Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 102,
+        "memory_used": {
+          "total": 28419223,
+          "heap": 12334280,
+          "external": 16084943,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15077376,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 14946304,
+              "totalAvailableSize": 256707160,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 12334280,
+              "mallocedMemory": 278624,
+              "externalMemory": 16084943,
+              "peakMallocedMemory": 1835096
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "af37cb24-b2e7-4224-a47b-e63d0e64f3b1",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T17:27:48.314Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 72,
+        "memory_used": {
+          "total": 32348052,
+          "heap": 11734848,
+          "external": 20613204,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15667200,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 15278080,
+              "totalAvailableSize": 256028688,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 11734848,
+              "mallocedMemory": 278624,
+              "externalMemory": 20613204,
+              "peakMallocedMemory": 1835064
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "b20b1968-bb69-4ab9-8dab-73d002b2e1b6",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T17:27:49.339Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 57,
+        "memory_used": {
+          "total": 29297733,
+          "heap": 12764680,
+          "external": 16533053,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15400960,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 15269888,
+              "totalAvailableSize": 256342384,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 12764680,
+              "mallocedMemory": 278624,
+              "externalMemory": 16533053,
+              "peakMallocedMemory": 1831192
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "783a00bc-81ed-4c60-a310-fcacb1859117",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T17:27:50.497Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 226,
+        "memory_used": {
+          "total": 66418238,
+          "heap": 11903552,
+          "external": 54514686,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15339520,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 14950400,
+              "totalAvailableSize": 256677912,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 11903552,
+              "mallocedMemory": 278624,
+              "externalMemory": 54514686,
+              "peakMallocedMemory": 1835144
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "a9d5ae87-0e7d-4b09-8005-afcd00ddf7a6",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T17:27:51.884Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 502,
+        "memory_used": {
+          "total": 132072329,
+          "heap": 11713960,
+          "external": 120358369,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15601664,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 15212544,
+              "totalAvailableSize": 256632072,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 11713960,
+              "mallocedMemory": 278624,
+              "externalMemory": 120358369,
+              "peakMallocedMemory": 1835112
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "ccb8c656-70cc-40de-8517-6c67d4608766",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    }
+  ],
+  "probes": [
+    {
+      "labels": {
+        "scope": "LOCAL Edge actual production reader/export core with an in-memory verified publisher; NOT hosted Supabase Storage/SQL",
+        "timing": "performance.now wall-clock per step; NOT CPU time",
+        "memory": "Deno.memoryUsage samples; rss is process-wide; NOT peak; limit survival decided by runtime"
+      },
+      "compat": {
+        "bufferGlobal": "undefined",
+        "denoMemoryUsage": "function",
+        "node:buffer": "function",
+        "node:crypto": "import ok",
+        "node:util": "import ok",
+        "node:fs/promises": "import ok",
+        "node:path": "import ok"
+      },
+      "index": 0,
+      "shim": false,
+      "syntheticPadBytesPerDoc": 0,
+      "syntheticAllSourceFiles": false,
+      "run": {
+        "status": "succeeded",
+        "stageStatuses": [
+          "succeeded",
+          "succeeded",
+          "succeeded"
+        ],
+        "runId": "ad6d7395-6e12-4c62-b24f-996aff9192cf",
+        "pipelineVersion": "rrc-collection-v1"
+      },
+      "result": {
+        "files": 13,
+        "mismatched": [],
+        "missing": [],
+        "diskOnly": [],
+        "archiveBytes": 1325056,
+        "archiveSha256": "492ebaa6b5f7c9353c39416dc72a1cf5180d1e9ba7a3af21d4b063c20e81db8a",
+        "archiveMatchesFrozen": true
+      },
+      "ok": true,
+      "steps": {
+        "builtins": 1.6,
+        "import-lib": 2.1,
+        "import-data": 10.2,
+        "decode": 18.7,
+        "reader-export": 59.1,
+        "files": 3.1,
+        "compare": 5.3,
+        "archive": 4.2
+      },
+      "memorySamples": [
+        {
+          "label": "builtins",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.5,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-lib",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.7,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-data",
+          "rssMiB": 0,
+          "heapUsedMiB": 10.8,
+          "externalMiB": 3
+        },
+        {
+          "label": "decode",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.9,
+          "externalMiB": 4.1
+        },
+        {
+          "label": "reader-export",
+          "rssMiB": 0,
+          "heapUsedMiB": 12.2,
+          "externalMiB": 15.3
+        },
+        {
+          "label": "files",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.7,
+          "externalMiB": 11.4
+        },
+        {
+          "label": "compare",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.4,
+          "externalMiB": 9
+        },
+        {
+          "label": "archive",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.7,
+          "externalMiB": 14.1
+        }
+      ],
+      "workerWallMs": 107.2
+    },
+    {
+      "labels": {
+        "scope": "LOCAL Edge actual production reader/export core with an in-memory verified publisher; NOT hosted Supabase Storage/SQL",
+        "timing": "performance.now wall-clock per step; NOT CPU time",
+        "memory": "Deno.memoryUsage samples; rss is process-wide; NOT peak; limit survival decided by runtime"
+      },
+      "compat": {
+        "bufferGlobal": "undefined",
+        "denoMemoryUsage": "function",
+        "node:buffer": "function",
+        "node:crypto": "import ok",
+        "node:util": "import ok",
+        "node:fs/promises": "import ok",
+        "node:path": "import ok"
+      },
+      "index": 1,
+      "shim": false,
+      "syntheticPadBytesPerDoc": 0,
+      "syntheticAllSourceFiles": false,
+      "provenance": {
+        "classification": "public_reported",
+        "basis": "recorded_official_acquisition_v2"
+      },
+      "run": {
+        "status": "succeeded",
+        "stageStatuses": [
+          "succeeded",
+          "succeeded",
+          "succeeded"
+        ],
+        "runId": "83bc4762-951f-4905-a0c9-2ab88af0b2dc",
+        "pipelineVersion": "rrc-collection-v2"
+      },
+      "result": {
+        "files": 28,
+        "mismatched": [],
+        "missing": [],
+        "diskOnly": [],
+        "archiveBytes": 1393664,
+        "archiveSha256": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8",
+        "archiveMatchesFrozen": true
+      },
+      "ok": true,
+      "steps": {
+        "builtins": 0.6,
+        "import-lib": 2.4,
+        "import-data": 8.6,
+        "decode": 5.8,
+        "reader-export": 27.8,
+        "files": 1.1,
+        "compare": 6.9,
+        "archive": 8.9
+      },
+      "memorySamples": [
+        {
+          "label": "builtins",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.5,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-lib",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.7,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-data",
+          "rssMiB": 0,
+          "heapUsedMiB": 10.9,
+          "externalMiB": 3
+        },
+        {
+          "label": "decode",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.9,
+          "externalMiB": 4.2
+        },
+        {
+          "label": "reader-export",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.8,
+          "externalMiB": 11.8
+        },
+        {
+          "label": "files",
+          "rssMiB": 0,
+          "heapUsedMiB": 12,
+          "externalMiB": 13.1
+        },
+        {
+          "label": "compare",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.8,
+          "externalMiB": 13.1
+        },
+        {
+          "label": "archive",
+          "rssMiB": 0,
+          "heapUsedMiB": 12.4,
+          "externalMiB": 18.3
+        }
+      ],
+      "workerWallMs": 65.2
+    },
+    {
+      "labels": {
+        "scope": "LOCAL Edge actual production reader/export core with an in-memory verified publisher; NOT hosted Supabase Storage/SQL",
+        "timing": "performance.now wall-clock per step; NOT CPU time",
+        "memory": "Deno.memoryUsage samples; rss is process-wide; NOT peak; limit survival decided by runtime"
+      },
+      "compat": {
+        "bufferGlobal": "undefined",
+        "denoMemoryUsage": "function",
+        "node:buffer": "function",
+        "node:crypto": "import ok",
+        "node:util": "import ok",
+        "node:fs/promises": "import ok",
+        "node:path": "import ok"
+      },
+      "index": 2,
+      "shim": false,
+      "syntheticPadBytesPerDoc": 0,
+      "syntheticAllSourceFiles": false,
+      "provenance": {
+        "classification": "public_reported",
+        "basis": "recorded_official_acquisition_v2"
+      },
+      "run": {
+        "status": "succeeded",
+        "stageStatuses": [
+          "succeeded",
+          "succeeded",
+          "succeeded"
+        ],
+        "runId": "ab32d2de-9166-4f15-828e-1a3f1018e88b",
+        "pipelineVersion": "rrc-collection-v2"
+      },
+      "result": {
+        "files": 28,
+        "mismatched": [],
+        "missing": [],
+        "diskOnly": [],
+        "archiveBytes": 1377280,
+        "archiveSha256": "377721ac93c47313a9f5b58df2f581c9133cf9920ef74e390fef88392dbf6b9d",
+        "archiveMatchesFrozen": true
+      },
+      "ok": true,
+      "steps": {
+        "builtins": 0.5,
+        "import-lib": 2.2,
+        "import-data": 4.6,
+        "decode": 4.5,
+        "reader-export": 23.6,
+        "files": 1.1,
+        "compare": 8.7,
+        "archive": 5.7
+      },
+      "memorySamples": [
+        {
+          "label": "builtins",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.5,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-lib",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.7,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-data",
+          "rssMiB": 0,
+          "heapUsedMiB": 10.9,
+          "externalMiB": 3
+        },
+        {
+          "label": "decode",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.9,
+          "externalMiB": 4.2
+        },
+        {
+          "label": "reader-export",
+          "rssMiB": 0,
+          "heapUsedMiB": 12.2,
+          "externalMiB": 15.7
+        },
+        {
+          "label": "files",
+          "rssMiB": 0,
+          "heapUsedMiB": 12.4,
+          "externalMiB": 17
+        },
+        {
+          "label": "compare",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.5,
+          "externalMiB": 9.2
+        },
+        {
+          "label": "archive",
+          "rssMiB": 0,
+          "heapUsedMiB": 12.1,
+          "externalMiB": 14.5
+        }
+      ],
+      "workerWallMs": 53.2
+    },
+    {
+      "labels": {
+        "scope": "LOCAL Edge actual production reader/export core with an in-memory verified publisher; NOT hosted Supabase Storage/SQL",
+        "timing": "performance.now wall-clock per step; NOT CPU time",
+        "memory": "Deno.memoryUsage samples; rss is process-wide; NOT peak; limit survival decided by runtime"
+      },
+      "compat": {
+        "bufferGlobal": "undefined",
+        "denoMemoryUsage": "function",
+        "node:buffer": "function",
+        "node:crypto": "import ok",
+        "node:util": "import ok",
+        "node:fs/promises": "import ok",
+        "node:path": "import ok"
+      },
+      "index": 0,
+      "shim": false,
+      "syntheticPadBytesPerDoc": 3000000,
+      "syntheticAllSourceFiles": false,
+      "provenance": {
+        "classification": "test_fixture",
+        "basis": "recorded_test_fixture"
+      },
+      "run": {
+        "status": "succeeded",
+        "stageStatuses": [
+          "succeeded",
+          "succeeded",
+          "succeeded"
+        ],
+        "runId": "df4ce350-cdaa-4bb2-be47-d790a46a379b",
+        "pipelineVersion": "rrc-collection-v1"
+      },
+      "result": {
+        "syntheticFixture": true,
+        "classification": "test_fixture",
+        "totalBuiltBytes": 10314821,
+        "note": "test-only fixture copy; TAR builder refuses fixtures, so frozen archive equality is not applicable"
+      },
+      "ok": true,
+      "steps": {
+        "builtins": 0.5,
+        "import-lib": 2,
+        "import-data": 5.7,
+        "decode": 10.4,
+        "reader-export": 181.8,
+        "files": 5.3,
+        "synthetic-hash": 10.9
+      },
+      "memorySamples": [
+        {
+          "label": "builtins",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.5,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-lib",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.7,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-data",
+          "rssMiB": 0,
+          "heapUsedMiB": 10.8,
+          "externalMiB": 3
+        },
+        {
+          "label": "decode",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.9,
+          "externalMiB": 13.8
+        },
+        {
+          "label": "reader-export",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.6,
+          "externalMiB": 80.4
+        },
+        {
+          "label": "files",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.8,
+          "externalMiB": 90.3
+        },
+        {
+          "label": "synthetic-hash",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.3,
+          "externalMiB": 52
+        }
+      ],
+      "workerWallMs": 216.7
+    },
+    {
+      "labels": {
+        "scope": "LOCAL Edge actual production reader/export core with an in-memory verified publisher; NOT hosted Supabase Storage/SQL",
+        "timing": "performance.now wall-clock per step; NOT CPU time",
+        "memory": "Deno.memoryUsage samples; rss is process-wide; NOT peak; limit survival decided by runtime"
+      },
+      "compat": {
+        "bufferGlobal": "undefined",
+        "denoMemoryUsage": "function",
+        "node:buffer": "function",
+        "node:crypto": "import ok",
+        "node:util": "import ok",
+        "node:fs/promises": "import ok",
+        "node:path": "import ok"
+      },
+      "index": 0,
+      "shim": false,
+      "syntheticPadBytesPerDoc": 8000000,
+      "syntheticAllSourceFiles": false,
+      "provenance": {
+        "classification": "test_fixture",
+        "basis": "recorded_test_fixture"
+      },
+      "run": {
+        "status": "succeeded",
+        "stageStatuses": [
+          "succeeded",
+          "succeeded",
+          "succeeded"
+        ],
+        "runId": "49301048-6cab-4ac2-afc7-4ff09935b138",
+        "pipelineVersion": "rrc-collection-v1"
+      },
+      "result": {
+        "syntheticFixture": true,
+        "classification": "test_fixture",
+        "totalBuiltBytes": 25314821,
+        "note": "test-only fixture copy; TAR builder refuses fixtures, so frozen archive equality is not applicable"
+      },
+      "ok": true,
+      "steps": {
+        "builtins": 0.5,
+        "import-lib": 2.2,
+        "import-data": 4.7,
+        "decode": 19.7,
+        "reader-export": 448.6,
+        "files": 2.7,
+        "synthetic-hash": 22.2
+      },
+      "memorySamples": [
+        {
+          "label": "builtins",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.5,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-lib",
+          "rssMiB": 0,
+          "heapUsedMiB": 7.7,
+          "externalMiB": 3
+        },
+        {
+          "label": "import-data",
+          "rssMiB": 0,
+          "heapUsedMiB": 10.8,
+          "externalMiB": 3
+        },
+        {
+          "label": "decode",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.9,
+          "externalMiB": 28.1
+        },
+        {
+          "label": "reader-export",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.5,
+          "externalMiB": 179.5
+        },
+        {
+          "label": "files",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.7,
+          "externalMiB": 203.7
+        },
+        {
+          "label": "synthetic-hash",
+          "rssMiB": 0,
+          "heapUsedMiB": 11.1,
+          "externalMiB": 114.8
+        }
+      ],
+      "workerWallMs": 500.6
+    }
+  ],
+  "scope": "Local cached Edge runtime; actual shared export core before the later continuation seam; no Storage, SQL, network, or hosted deployment"
+}

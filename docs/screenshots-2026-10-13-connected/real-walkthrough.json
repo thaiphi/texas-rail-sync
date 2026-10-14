@@ -1,0 +1,732 @@
+{
+  "origin": "http://127.0.0.1:56978",
+  "workspace": "C:\\Users\\thai.phi\\Downloads\\python\\portfolio\\texas-rrc-explorer\\tmp\\connected-real-y21dJd",
+  "scope": "One real local official lookup and January 2024 collection, native fetch, isolated scratch versions/runs; NOT hosted Edge",
+  "checks": [
+    {
+      "name": "Official lookup returned explicit candidate",
+      "status": "PASS",
+      "evidence": "UIC 000020838 · API 38910201\nTREES, J. C. ESTATE, ET AL -A- · well 5D · operator 103834\nCounty basis: source API prefix 389; county name not independently verified. Permit limits: 14500 bbl/day, 2600.0 psi. Interval: 5200–6100 ft. Source injection type: 1; cancellation date: not supplied; plugged date: not supplied. Current operating status is not inferred."
+    },
+    {
+      "name": "Explicit well and one-month bounds ready for confirmation",
+      "status": "PASS"
+    },
+    {
+      "name": "Current request is collecting with repeat clicks disabled",
+      "status": "PASS",
+      "evidence": "Collecting UIC 000020838, 2024-01 through 2024-01. Waiting for the recorded completion; live sub-stage events are unavailable. Official source preservation may take several minutes."
+    },
+    {
+      "name": "Real bounded collection created an immutable public version",
+      "status": "PASS",
+      "evidence": {
+        "status": 201,
+        "artifactId": "rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228",
+        "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b"
+      }
+    },
+    {
+      "name": "Result handoff opens the newly collected version",
+      "status": "PASS"
+    },
+    {
+      "name": "New real dataset saves in the browser",
+      "status": "PASS",
+      "evidence": "Saved in this browser. Browsers may clear saved data; keep a downloaded backup."
+    },
+    {
+      "name": "Whole new version downloads with evidence",
+      "status": "PASS",
+      "evidence": {
+        "sha256": "72d47f1d79bc24ca6297af0528bd6bf815ca5e895e86eed137e1cc4e1a7c30ae",
+        "bytes": 1356288
+      }
+    },
+    {
+      "name": "Default pin remains unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "No browser script errors",
+      "status": "PASS",
+      "evidence": []
+    }
+  ],
+  "api": [
+    {
+      "url": "http://127.0.0.1:56978/api/lookup",
+      "status": 200,
+      "body": {
+        "lookupId": "7c150a84-845b-4bb1-aefe-a3eaaf3147db",
+        "status": "ready",
+        "candidates": [
+          {
+            "sourceRecordKey": "lookup:1",
+            "ordinal": 1,
+            "uic_number": "000020838",
+            "api_no": "38910201",
+            "operator_number": "103834",
+            "district_code": "08",
+            "lease_number": "17459",
+            "lease_name": "TREES, J. C. ESTATE, ET AL -A-",
+            "well_no_display": "5D",
+            "w14_number": "7412",
+            "max_liq_inj_pressure": "2600.0",
+            "bbl_vol_inj": "14500",
+            "top_inj_zone": "5200",
+            "bot_inj_zone": "6100",
+            "uic_type_injection": "1",
+            "permit_canceled_date": "",
+            "w3_plugged_date": "",
+            "selectable": true,
+            "reason": null
+          }
+        ],
+        "queryUrl": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+        "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+        "testFixture": false,
+        "retrievedAt": "2026-10-13T05:38:47.687Z",
+        "sourceRowsUpdatedAt": 1790858146
+      }
+    },
+    {
+      "url": "http://127.0.0.1:56978/api/collect",
+      "status": 201,
+      "body": {
+        "artifactId": "rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228",
+        "version": {
+          "schemaVersion": 1,
+          "artifactId": "rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228",
+          "path": "/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/",
+          "manifestSha256": "97436598096791e1b34694deb9ce557b6cfa6df8f875aa059a93602c6d5f3008",
+          "normalizedSha256": "44fa2819cfbc8a477b78f5796c44a8e9524ad6fe9fc07743ee62a432bfca2446",
+          "classification": "public_reported",
+          "realHistoryStatus": "verified_bounded_linkage"
+        },
+        "run": {
+          "schemaVersion": 1,
+          "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+          "mode": "live_collection",
+          "testFixture": false,
+          "provenance": {
+            "classification": "public_reported",
+            "basis": "recorded_official_acquisition_v2"
+          },
+          "pipelineVersion": "rrc-collection-v2",
+          "dataSchemaVersion": 1,
+          "transformationVersion": "rrc-odp-v2.0.0",
+          "startedAt": "2026-10-13T05:38:48.017Z",
+          "endedAt": "2026-10-13T05:38:50.210Z",
+          "status": "succeeded",
+          "events": [
+            {
+              "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+              "stage": "load",
+              "stageId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:load",
+              "eventId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:1",
+              "timestamp": "2026-10-13T05:38:48.018Z",
+              "status": "running",
+              "evidence": null
+            },
+            {
+              "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+              "stage": "load",
+              "stageId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:load",
+              "eventId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:2",
+              "timestamp": "2026-10-13T05:38:50.099Z",
+              "status": "succeeded",
+              "evidence": {
+                "requests": [
+                  {
+                    "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+                    "name": "inventory-metadata.json",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  },
+                  {
+                    "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+                    "name": "monthly-metadata.json",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  },
+                  {
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "name": "candidate-inventory.json",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  },
+                  {
+                    "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272024-02-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+                    "name": "candidate-monthly.json",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  },
+                  {
+                    "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+                    "name": "uic-manual.pdf",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  },
+                  {
+                    "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+                    "name": "rrc-resources.html",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  },
+                  {
+                    "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+                    "name": "uic-query-help.html",
+                    "status": "succeeded",
+                    "httpStatus": 200
+                  }
+                ],
+                "outputs": [
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/inventory-metadata.json",
+                    "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+                    "sha256": "69b3109966a8ab2c1a0b7087a5f95dde53e858e9e08b86efeed6940ace245d7b",
+                    "bytes": 47527,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/monthly-metadata.json",
+                    "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+                    "sha256": "9677c977a9620029abbc8e080a2dde521e1e3f7c3497c8bbac601b823b74391b",
+                    "bytes": 21609,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/candidate-inventory.json",
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+                    "bytes": 591,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/candidate-monthly.json",
+                    "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272024-02-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+                    "sha256": "2e44075a0b9127a07aa3f3f640d27bcd9b18e21daad428728b351d28cf271495",
+                    "bytes": 242,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/uic-manual.pdf",
+                    "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+                    "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+                    "bytes": 1077385,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/rrc-resources.html",
+                    "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+                    "sha256": "da27eb861ecf6ad0b19f6ee338e4818546f9a0baf2c668f9e23830bb5c9aee7f",
+                    "bytes": 47800,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/sources/bb4b3a30-b167-4ffd-830c-ec3ab67e5228/uic-query-help.html",
+                    "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+                    "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+                    "bytes": 42272,
+                    "count": null
+                  }
+                ],
+                "provenance": {
+                  "classification": "public_reported",
+                  "basis": "recorded_official_acquisition_v2"
+                },
+                "inputs": [
+                  {
+                    "snapshot_id": "givw-z9t4:4aa137acc7b03b86",
+                    "name": "candidate-inventory",
+                    "title": "RRC-UIC well location",
+                    "kind": "inventory",
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "retrieved_at": "2026-10-13T05:38:48.397Z",
+                    "http_status": 200,
+                    "last_modified": "Thu, 01 Oct 2026 12:32:17 GMT",
+                    "etag": "\"aW5kaWEuMTgxODQ3XzNfMTE1QVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+                    "bytes": 591,
+                    "testFixture": false,
+                    "raw_file": "sources/candidate-inventory.json",
+                    "count": 1
+                  },
+                  {
+                    "snapshot_id": "qq2j-f2zm:2e44075a0b9127a0",
+                    "name": "candidate-monthly",
+                    "title": "RRC-UIC H10 Injection Monitoring",
+                    "kind": "monthly",
+                    "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272024-02-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+                    "retrieved_at": "2026-10-13T05:38:48.605Z",
+                    "http_status": 200,
+                    "last_modified": "Thu, 01 Oct 2026 12:10:42 GMT",
+                    "etag": "\"anVsaWV0dC4xNjgwOThfMl81N2plU0oyaDhJdm8yRVFHekFrdldKX2U0MFMzSQ---gzithI52tLPd2MOZ7fRyeUE6tzizf2--gzip--gzip\"",
+                    "sha256": "2e44075a0b9127a07aa3f3f640d27bcd9b18e21daad428728b351d28cf271495",
+                    "bytes": 242,
+                    "testFixture": false,
+                    "raw_file": "sources/candidate-monthly.json",
+                    "count": 1
+                  },
+                  {
+                    "snapshot_id": "inventory-metadata:69b3109966a8ab2c",
+                    "name": "inventory-metadata",
+                    "title": "RRC-UIC well location",
+                    "kind": "metadata",
+                    "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+                    "retrieved_at": "2026-10-13T05:38:48.118Z",
+                    "http_status": 200,
+                    "last_modified": null,
+                    "etag": null,
+                    "sha256": "69b3109966a8ab2c1a0b7087a5f95dde53e858e9e08b86efeed6940ace245d7b",
+                    "bytes": 47527,
+                    "testFixture": false,
+                    "raw_file": "sources/inventory-metadata.json",
+                    "count": null
+                  },
+                  {
+                    "snapshot_id": "monthly-metadata:9677c977a9620029",
+                    "name": "monthly-metadata",
+                    "title": "RRC-UIC H10 Injection Monitoring",
+                    "kind": "metadata",
+                    "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+                    "retrieved_at": "2026-10-13T05:38:48.248Z",
+                    "http_status": 200,
+                    "last_modified": null,
+                    "etag": null,
+                    "sha256": "9677c977a9620029abbc8e080a2dde521e1e3f7c3497c8bbac601b823b74391b",
+                    "bytes": 21609,
+                    "testFixture": false,
+                    "raw_file": "sources/monthly-metadata.json",
+                    "count": null
+                  },
+                  {
+                    "snapshot_id": "uic-manual.pdf:09f3744d1ae5ea6b",
+                    "name": "uic-manual.pdf",
+                    "kind": "documentation",
+                    "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+                    "retrieved_at": "2026-10-13T05:38:49.758Z",
+                    "http_status": 200,
+                    "last_modified": "Tue, 02 Jun 2026 17:37:44 GMT",
+                    "etag": "\"1dcf2b684d89489\"",
+                    "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+                    "bytes": 1077385,
+                    "testFixture": false,
+                    "raw_file": "sources/uic-manual.pdf",
+                    "count": null
+                  },
+                  {
+                    "snapshot_id": "rrc-resources.html:da27eb861ecf6ad0",
+                    "name": "rrc-resources.html",
+                    "kind": "documentation",
+                    "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+                    "retrieved_at": "2026-10-13T05:38:49.894Z",
+                    "http_status": 200,
+                    "last_modified": null,
+                    "etag": null,
+                    "sha256": "da27eb861ecf6ad0b19f6ee338e4818546f9a0baf2c668f9e23830bb5c9aee7f",
+                    "bytes": 47800,
+                    "testFixture": false,
+                    "raw_file": "sources/rrc-resources.html",
+                    "count": null
+                  },
+                  {
+                    "snapshot_id": "uic-query-help.html:563b33af66a36b52",
+                    "name": "uic-query-help.html",
+                    "kind": "documentation",
+                    "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+                    "retrieved_at": "2026-10-13T05:38:50.075Z",
+                    "http_status": 200,
+                    "last_modified": "Fri, 17 Apr 2026 15:25:08 GMT",
+                    "etag": null,
+                    "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+                    "bytes": 42272,
+                    "testFixture": false,
+                    "raw_file": "sources/uic-query-help.html",
+                    "count": null
+                  },
+                  {
+                    "snapshot_id": "lookup:4aa137acc7b03b86",
+                    "name": "lookup-inventory",
+                    "kind": "selection",
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "retrieved_at": "2026-10-13T05:38:47.687Z",
+                    "http_status": 200,
+                    "last_modified": "Thu, 01 Oct 2026 12:32:17 GMT",
+                    "etag": "\"aW5kaWEuMTgxODQ3XzNfMTE1QVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+                    "bytes": 591,
+                    "testFixture": false,
+                    "raw_file": "sources/lookup-inventory.json",
+                    "count": null
+                  }
+                ]
+              }
+            },
+            {
+              "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+              "stage": "normalize-qc",
+              "stageId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:normalize-qc",
+              "eventId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:3",
+              "timestamp": "2026-10-13T05:38:50.101Z",
+              "status": "running",
+              "evidence": null
+            },
+            {
+              "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+              "stage": "normalize-qc",
+              "stageId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:normalize-qc",
+              "eventId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:4",
+              "timestamp": "2026-10-13T05:38:50.104Z",
+              "status": "succeeded",
+              "evidence": {
+                "provenance": {
+                  "classification": "public_reported",
+                  "basis": "recorded_official_acquisition_v2"
+                },
+                "inputs": [
+                  {
+                    "snapshotId": "givw-z9t4:4aa137acc7b03b86",
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+                  },
+                  {
+                    "snapshotId": "qq2j-f2zm:2e44075a0b9127a0",
+                    "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272024-02-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+                    "sha256": "2e44075a0b9127a07aa3f3f640d27bcd9b18e21daad428728b351d28cf271495"
+                  }
+                ],
+                "counts": {
+                  "inventory": {
+                    "raw": 1,
+                    "parsed": 1,
+                    "accepted": 1,
+                    "quarantined": 0,
+                    "excluded": 0
+                  },
+                  "monthly": {
+                    "raw": 1,
+                    "parsed": 1,
+                    "accepted": 1,
+                    "quarantined": 0,
+                    "excluded": 0
+                  },
+                  "parent_join": {
+                    "matched": 1,
+                    "unmatched": 0,
+                    "ambiguous": 0
+                  },
+                  "issue_counts": {},
+                  "dispositions": [
+                    {
+                      "source_row_key": "rrc:h10:qq2j-f2zm:2e44075a0b9127a0:1",
+                      "disposition": "accepted"
+                    }
+                  ],
+                  "annulus_fields": "not supplied by ODP dataset; not inferred",
+                  "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+                  "scope": "Bounded inventory candidates and one UIC monthly history; no statewide coverage or current operating-status assertion."
+                },
+                "outputs": [
+                  {
+                    "name": "normalized inventory",
+                    "count": 1,
+                    "sha256": "c6b0c57d5ea5fd1808b1c519aa1e6704321c6d1e4bb20a205e5214685d677e0c"
+                  },
+                  {
+                    "name": "normalized monthly",
+                    "count": 1,
+                    "sha256": "163e9dd9b300eaff067fe7e198bf27e89d2ee158b71c9c46b52d6ed59c7e8b8f"
+                  }
+                ]
+              }
+            },
+            {
+              "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+              "stage": "export",
+              "stageId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:export",
+              "eventId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:5",
+              "timestamp": "2026-10-13T05:38:50.104Z",
+              "status": "running",
+              "evidence": null
+            },
+            {
+              "runId": "795368e3-50b2-4397-a969-2dcb7a07dd1b",
+              "stage": "export",
+              "stageId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:export",
+              "eventId": "795368e3-50b2-4397-a969-2dcb7a07dd1b:6",
+              "timestamp": "2026-10-13T05:38:50.210Z",
+              "status": "succeeded",
+              "evidence": {
+                "artifactId": "rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228",
+                "provenance": {
+                  "classification": "public_reported",
+                  "basis": "recorded_official_acquisition_v2"
+                },
+                "counts": {
+                  "inventory": {
+                    "raw": 1,
+                    "parsed": 1,
+                    "accepted": 1,
+                    "quarantined": 0,
+                    "excluded": 0
+                  },
+                  "monthly": {
+                    "raw": 1,
+                    "parsed": 1,
+                    "accepted": 1,
+                    "quarantined": 0,
+                    "excluded": 0
+                  },
+                  "parent_join": {
+                    "matched": 1,
+                    "unmatched": 0,
+                    "ambiguous": 0
+                  },
+                  "issue_counts": {},
+                  "dispositions": [
+                    {
+                      "source_row_key": "rrc:h10:qq2j-f2zm:2e44075a0b9127a0:1",
+                      "disposition": "accepted"
+                    }
+                  ],
+                  "annulus_fields": "not supplied by ODP dataset; not inferred",
+                  "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+                  "scope": "Bounded inventory candidates and one UIC monthly history; no statewide coverage or current operating-status assertion."
+                },
+                "operation": "published_new_version",
+                "inputs": [
+                  {
+                    "snapshotId": "givw-z9t4:4aa137acc7b03b86",
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+                  },
+                  {
+                    "snapshotId": "qq2j-f2zm:2e44075a0b9127a0",
+                    "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272024-02-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+                    "sha256": "2e44075a0b9127a07aa3f3f640d27bcd9b18e21daad428728b351d28cf271495"
+                  },
+                  {
+                    "snapshotId": "inventory-metadata:69b3109966a8ab2c",
+                    "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+                    "sha256": "69b3109966a8ab2c1a0b7087a5f95dde53e858e9e08b86efeed6940ace245d7b"
+                  },
+                  {
+                    "snapshotId": "monthly-metadata:9677c977a9620029",
+                    "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+                    "sha256": "9677c977a9620029abbc8e080a2dde521e1e3f7c3497c8bbac601b823b74391b"
+                  },
+                  {
+                    "snapshotId": "uic-manual.pdf:09f3744d1ae5ea6b",
+                    "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+                    "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c"
+                  },
+                  {
+                    "snapshotId": "rrc-resources.html:da27eb861ecf6ad0",
+                    "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+                    "sha256": "da27eb861ecf6ad0b19f6ee338e4818546f9a0baf2c668f9e23830bb5c9aee7f"
+                  },
+                  {
+                    "snapshotId": "uic-query-help.html:563b33af66a36b52",
+                    "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+                    "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d"
+                  },
+                  {
+                    "snapshotId": "lookup:4aa137acc7b03b86",
+                    "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/candidate-inventory.json",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+                    "bytes": 591,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/candidate-inventory.source.json",
+                    "sha256": "61049d11e7ba64b65a5d9ed4394487b75a9c802f9430e1c62f5feac20d5391e3",
+                    "bytes": 505,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/candidate-monthly.json",
+                    "sha256": "2e44075a0b9127a07aa3f3f640d27bcd9b18e21daad428728b351d28cf271495",
+                    "bytes": 242,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/candidate-monthly.source.json",
+                    "sha256": "aa3a343b7cbf012723462bc8a6c5e35a067d055ec368d708c1bb07a413cdf61b",
+                    "bytes": 613,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/inventory-metadata.json",
+                    "sha256": "69b3109966a8ab2c1a0b7087a5f95dde53e858e9e08b86efeed6940ace245d7b",
+                    "bytes": 47527,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/inventory-metadata.source.json",
+                    "sha256": "780287e1649acd8f1520dc15214447b32112e57658011cc6978ff61cadb15580",
+                    "bytes": 294,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/monthly-metadata.json",
+                    "sha256": "9677c977a9620029abbc8e080a2dde521e1e3f7c3497c8bbac601b823b74391b",
+                    "bytes": 21609,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/monthly-metadata.source.json",
+                    "sha256": "bb9e88a12f54aa370fd1abc1278c6811685121f01fc6f0c8276a08448b197ac2",
+                    "bytes": 294,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/uic-manual.pdf",
+                    "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+                    "bytes": 1077385,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/uic-manual.source.json",
+                    "sha256": "64bdd3f2b4802ddcd5a50ea45011bc1b6521ccb4d861faed63bf01d1de143a9b",
+                    "bytes": 360,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/rrc-resources.html",
+                    "sha256": "da27eb861ecf6ad0b19f6ee338e4818546f9a0baf2c668f9e23830bb5c9aee7f",
+                    "bytes": 47800,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/rrc-resources.source.json",
+                    "sha256": "4fa4b73b098b911c26ee665fbd9fb9d61cf2b3125ea6ffc3550478a92e0a64e2",
+                    "bytes": 346,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/uic-query-help.html",
+                    "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+                    "bytes": 42272,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/uic-query-help.source.json",
+                    "sha256": "8b60413a713301d3107bfc2d57338d317b67eeaa645fc53a33225f4e1b082080",
+                    "bytes": 334,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/acquisition.json",
+                    "sha256": "1306f2dddba20549a5939772b20c6935777631c12c6274399645f29852676d31",
+                    "bytes": 1178,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/selection.json",
+                    "sha256": "3df4670ed242969da756345fc05139b0b86bda415c3fdfc3dba56aada99fe162",
+                    "bytes": 192,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/lookup.json",
+                    "sha256": "d83ff2603d03952f2aefd4fd2c8878d7196f9f7f60311376fd5831a5c18f3204",
+                    "bytes": 605,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/lookup-metadata.json",
+                    "sha256": "69b3109966a8ab2c1a0b7087a5f95dde53e858e9e08b86efeed6940ace245d7b",
+                    "bytes": 47527,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/lookup-metadata.source.json",
+                    "sha256": "caef80ca930468d45d7a84702eda276349536b2d6949ecb26c8cb34e3e1bf7fa",
+                    "bytes": 294,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/lookup-inventory.json",
+                    "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+                    "bytes": 591,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/sources/lookup-inventory.source.json",
+                    "sha256": "9544b2551550fc51c8214861c1f7c19647c236b1a2eddd2a3f0bbe32d076f938",
+                    "bytes": 505,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/inventory.csv",
+                    "sha256": "2b32fa67ad128173558d967f15b11f170b59d14b84e11f65a22db632417facd5",
+                    "bytes": 589,
+                    "count": 1
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/injection_monthly.csv",
+                    "sha256": "2ac4c9d2a427601b62bf0f3874985c2fa2512b34c5ead7c8495b7a7b0eaa9f0d",
+                    "bytes": 509,
+                    "count": 1
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/quality_report.json",
+                    "sha256": "6857b4a7beeb93212bc7c3a8e67f1d9dde1de8d8173e604d37dcd158d0a34629",
+                    "bytes": 862,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/data_dictionary.json",
+                    "sha256": "ac6f25adff0bbf5639aecc944d11e0da9b67bd9e5c9ddfaf4f745fffc6c14446",
+                    "bytes": 7403,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/normalized.json",
+                    "sha256": "44fa2819cfbc8a477b78f5796c44a8e9524ad6fe9fc07743ee62a432bfca2446",
+                    "bytes": 22131,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/manifest.json",
+                    "sha256": "97436598096791e1b34694deb9ce557b6cfa6df8f875aa059a93602c6d5f3008",
+                    "bytes": 11102,
+                    "count": null
+                  },
+                  {
+                    "path": "tmp/connected-real-y21dJd/artifacts/rrc-2026-10-13-uic000020838-bb4b3a30-b167-4ffd-830c-ec3ab67e5228/version-pins.json",
+                    "sha256": "401587cde70204bb391b1dcf57afeb4ceb3ba1e262b9484a424ef05745829025",
+                    "bytes": 467,
+                    "count": null
+                  }
+                ],
+                "realHistoryStatus": "verified_bounded_linkage"
+              }
+            }
+          ]
+        },
+        "scope": {
+          "query_version": 2,
+          "uic_number": "000020838",
+          "start": "2024-01-01",
+          "end": "2024-01-31",
+          "inventory_limit": 25,
+          "inventory_returned": 1,
+          "monthly_limit": 1000,
+          "monthly_returned": 1,
+          "pagination": "Complete bounded response below cap; no statewide coverage"
+        },
+        "realHistoryStatus": "verified_bounded_linkage"
+      }
+    }
+  ],
+  "errors": []
+}

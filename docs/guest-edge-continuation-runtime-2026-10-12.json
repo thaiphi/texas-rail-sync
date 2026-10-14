@@ -1,0 +1,215 @@
+{
+  "scope": "Local configured Edge limits; shutdown CPU and captured total memory, not peak RSS or hosted verification",
+  "events": [
+    {
+      "timestamp": "2026-10-12T22:47:03.16Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 168,
+        "memory_used": {
+          "total": 24500220,
+          "heap": 17641024,
+          "external": 6859196,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 20672512,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 20541440,
+              "totalAvailableSize": 249724768,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 17641024,
+              "mallocedMemory": 278624,
+              "externalMemory": 6859196,
+              "peakMallocedMemory": 1835096
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "02c0b949-4ba3-46a2-b5ab-9894fa4a0592",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T22:47:04.21Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 83,
+        "memory_used": {
+          "total": 35560870,
+          "heap": 14022536,
+          "external": 21538334,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 17301504,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 16912384,
+              "totalAvailableSize": 255112824,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 14022536,
+              "mallocedMemory": 278624,
+              "externalMemory": 21538334,
+              "peakMallocedMemory": 1835096
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "ef71e0f2-6738-4b65-a472-7954775115f7",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T22:47:05.163Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 97,
+        "memory_used": {
+          "total": 24764282,
+          "heap": 17721728,
+          "external": 7042554,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 21078016,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 20946944,
+              "totalAvailableSize": 251487472,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 17721728,
+              "mallocedMemory": 278624,
+              "externalMemory": 7042554,
+              "peakMallocedMemory": 1835064
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "f1362503-ad33-45c0-a958-6425a44a6b7a",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T22:47:06.188Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 91,
+        "memory_used": {
+          "total": 43376419,
+          "heap": 11756936,
+          "external": 31619483,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 15667200,
+              "totalHeapSizeExecutable": 524288,
+              "totalPhysicalSize": 15536128,
+              "totalAvailableSize": 256127720,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 11756936,
+              "mallocedMemory": 278624,
+              "externalMemory": 31619483,
+              "peakMallocedMemory": 1835064
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "2ccc722a-f247-4d90-ba95-88a5f8e74bf6",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T22:47:07.172Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 96,
+        "memory_used": {
+          "total": 25357979,
+          "heap": 18344912,
+          "external": 7013067,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 20525056,
+              "totalHeapSizeExecutable": 262144,
+              "totalPhysicalSize": 20393984,
+              "totalAvailableSize": 249025560,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 18344912,
+              "mallocedMemory": 278624,
+              "externalMemory": 7013067,
+              "peakMallocedMemory": 1831192
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "511197dc-0b03-43ae-8df6-e1831939d158",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-12T22:47:08.188Z",
+      "event_type": "Shutdown",
+      "event": {
+        "reason": "EarlyDrop",
+        "cpu_time_used": 73,
+        "memory_used": {
+          "total": 36599416,
+          "heap": 14434544,
+          "external": 22164872,
+          "mem_check_captured": {
+            "current": {
+              "totalHeapSize": 17887232,
+              "totalHeapSizeExecutable": 786432,
+              "totalPhysicalSize": 17498112,
+              "totalAvailableSize": 254758376,
+              "totalGlobalHandlesSize": 24576,
+              "usedGlobalHandlesSize": 21248,
+              "usedHeapSize": 14434544,
+              "mallocedMemory": 278624,
+              "externalMemory": 22164872,
+              "peakMallocedMemory": 1831192
+            },
+            "exceeded": false
+          }
+        }
+      },
+      "metadata": {
+        "service_path": "/probe/worker",
+        "execution_id": "8889228b-0f8c-43bf-a861-9b9a7295b242",
+        "otel_attributes": {
+          "edge_runtime.worker.kind": "user"
+        }
+      }
+    }
+  ]
+}

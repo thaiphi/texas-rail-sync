@@ -1,0 +1,75 @@
+{
+  "scope": "Actual local Storage v1.37.7 and PostgreSQL17; fixture JWT gateway translation, NOT hosted sb_secret auth",
+  "checks": [
+    {
+      "label": "actual cached Storage API becomes healthy",
+      "result": "PASS"
+    },
+    {
+      "label": "private test bucket is created only in disposable service",
+      "result": "PASS"
+    },
+    {
+      "label": "actual add-only upload, binary readback and existing-byte verification",
+      "result": "PASS"
+    },
+    {
+      "label": "private evidence cannot be read anonymously or through a bare fake apikey",
+      "result": "PASS"
+    },
+    {
+      "label": "Storage restart retains exact object bytes",
+      "result": "PASS"
+    },
+    {
+      "label": "empty recorded evidence is distinct from an absent object",
+      "result": "PASS"
+    },
+    {
+      "label": "real SQL plus real Storage publishes the exact preserved public archive",
+      "result": "PASS"
+    },
+    {
+      "label": "actual deletion is verified and missing deletion is idempotent",
+      "result": "PASS"
+    }
+  ],
+  "failures": [],
+  "requests": 338,
+  "replay": {
+    "artifactId": "rrc-2026-10-10-uic000020838-7aecd619-c19b-48ad-b354-832f5cc0cca0",
+    "mode": "offline_replay",
+    "steps": [
+      {
+        "state": "queued",
+        "wallMs": 36124
+      },
+      {
+        "state": "queued",
+        "wallMs": 86421
+      },
+      {
+        "state": "succeeded",
+        "wallMs": 108847
+      }
+    ],
+    "archiveBytes": 1393664,
+    "archiveSha256": "69a9378185df7a1ecd8fe357d7d984eaf1b6258f4cc0b402c5f679f133f605f8"
+  },
+  "storageMetadata": {
+    "objects": 28,
+    "bytes": 2717183
+  },
+  "budgetLedger": [
+    {
+      "kind": "download",
+      "reservations": 1,
+      "bytes": 1459200
+    },
+    {
+      "kind": "processing",
+      "reservations": 297,
+      "bytes": 42334930
+    }
+  ]
+}
