@@ -222,8 +222,12 @@ export function createMemoryGuestJournal({clock=Date.now,limits=GUEST_LIMITS,lis
  }
  const referenced=()=>{const all=new Set();for(const item of jobs.values())for(const key of references(item))all.add(key);return all;};
  async function orphanCandidates({lease}={}){
-  maintained(lease);const refs=referenced(),cutoff=now()-limits.cleanupAgeMs,keys=[];
-  for(const {key,createdAt} of await listObjects())if(/^sha256\/[a-f0-9]{64}$/.test(key)&&createdAt<=cutoff&&!refs.has(key)){tombstones.add(key);keys.push(key);}
+  maintained(lease);const refs=referenced(),cutoff=now()-limits.cleanupAgeMs,keys=[],listed=new Set();
+  for(const {key,createdAt} of await listObjects()){listed.add(key);if(/^sha256\/[a-f0-9]{64}$/.test(key)&&createdAt<=cutoff&&!refs.has(key)){tombstones.add(key);keys.push(key);}}
+  // A tombstone that is unreferenced and no longer listed is stale: it was left by an earlier sweep whose lease ended
+  // after deletion but before confirmation. It is returned again so confirmOrphans can clear it.
+  // Referenced tombstones belong to runCleanup and are left alone.
+  for(const key of tombstones)if(!refs.has(key)&&!listed.has(key)&&!keys.includes(key))keys.push(key);
   return keys.sort();
  }
  // Like confirmCleanup, releases the maintenance lease so the next sweep can run.

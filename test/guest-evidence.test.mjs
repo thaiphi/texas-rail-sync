@@ -113,3 +113,44 @@ test('orphan sweep never removes an object a job references, however old',async(
  assert.deepEqual(await runOrphanSweep({journal,store}),{removed:0});
  assert.equal((await store.get(entry.objectKey)).length,1);
 });
+async function sweepSetup(){
+ let t=Date.parse('2026-10-14T00:00:00.000Z');const clock=()=>t,store=createMemoryObjectStore({clock});
+ const journal=createMemoryGuestJournal({clock,listObjects:()=>store.listKeys()}),tokenHash=sha256(randomUUID());await journal.issueToken({tokenHash});
+ let n=0;const lease=async()=>{const {job}=await journal.enqueue({tokenHash,idemKey:`orphan-lease-000${++n}`,kind:'lookup',requestDigest:sha256(`l${n}`),request:{kind:'uic',value:'000020838'},testFixture:true});return (await journal.claim({tokenHash,jobId:job.jobId,leaseOwner:randomUUID()})).lease;};
+ const settle=async item=>journal.fail({lease:item,errorCode:'HTTP_ERROR'});
+ return {store,journal,lease,settle,tick:ms=>{t+=ms;}};
+}
+const reservation=key=>({sha256:key.slice(7),bytes:3,objectKey:key});
+test('a tombstoned orphan key refuses reservation until the sweep confirms',async()=>{
+ const {store,journal,lease,settle,tick}=await sweepSetup(),orphan=await putObject(store,new Uint8Array([1,2,3]));tick(3_600_001);
+ const maintenance=await journal.claimMaintenance({leaseOwner:randomUUID()});
+ assert.deepEqual(await journal.orphanCandidates({lease:maintenance}),[orphan.objectKey]);
+ const live=await lease();
+ await assert.rejects(journal.reserveObject({lease:live,...reservation(orphan.objectKey)}),error=>error.code==='OBJECT_BUSY');
+ await store.delete(orphan.objectKey);assert.deepEqual(await journal.confirmOrphans({lease:maintenance,keys:[orphan.objectKey]}),{removed:1});
+ assert.deepEqual(await journal.reserveObject({lease:live,...reservation(orphan.objectKey)}),{objectKey:orphan.objectKey});await settle(live);
+});
+test('a sweep while the maintenance lease is held is skipped',async()=>{
+ const {store,journal}=await sweepSetup();
+ await journal.claimMaintenance({leaseOwner:randomUUID()});
+ assert.deepEqual(await runOrphanSweep({journal,store}),{removed:0,skipped:true});
+});
+test('confirmOrphans refuses referenced or untombstoned keys',async()=>{
+ const {store,journal,lease,settle,tick}=await sweepSetup(),job=await lease(),held=await putReservedObject({journal,store,lease:job,bytes:new Uint8Array([7])});await settle(job);
+ tick(GUEST_LIMITS.lookupRetentionMs+GUEST_LIMITS.cleanupAgeMs);
+ const maintenance=await journal.claimMaintenance({leaseOwner:randomUUID()});
+ // runCleanup's flow tombstones the referenced key; the orphan confirmation must not release it.
+ assert.deepEqual(await journal.cleanupCandidates({lease:maintenance}),[held.objectKey]);
+ await assert.rejects(journal.confirmOrphans({lease:maintenance,keys:[held.objectKey]}),error=>error.code==='CLEANUP_CONFLICT');
+ await assert.rejects(journal.confirmOrphans({lease:maintenance,keys:[objectKeyFor('b'.repeat(64))]}),error=>error.code==='CLEANUP_CONFLICT');
+ assert.deepEqual(await journal.orphanCandidates({lease:maintenance}),[]);
+});
+test('a stale orphan tombstone left by a failed sweep is cleared by the next sweep',async()=>{
+ const {store,journal,lease,tick}=await sweepSetup(),orphan=await putObject(store,new Uint8Array([1,2,3]));tick(3_600_001);
+ const maintenance=await journal.claimMaintenance({leaseOwner:randomUUID()});
+ assert.deepEqual(await journal.orphanCandidates({lease:maintenance}),[orphan.objectKey]);
+ await store.delete(orphan.objectKey);tick(GUEST_LIMITS.leaseMs+1);
+ assert.deepEqual(await runOrphanSweep({journal,store}),{removed:1});
+ const live=await lease();
+ assert.deepEqual(await journal.reserveObject({lease:live,...reservation(orphan.objectKey)}),{objectKey:orphan.objectKey});
+});
