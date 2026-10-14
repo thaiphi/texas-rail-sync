@@ -41,6 +41,7 @@ async function authUser(response){
  * @property {(name: string) => string | undefined} getEnv Server environment reader.
  * @property {typeof fetch} [fetchImpl] Injected Web Fetch implementation.
  * @property {typeof createSupabaseArchiveTransport} [createTransport] Archive transport factory.
+ * @property {(request: Request, path: string) => Promise<Response | null>} [guest] Explicit guest route handler. The production entrypoint never supplies one; hosted guest routes require a reviewed code change, never configuration.
  */
 
 /** One instance per Edge isolate. createTransport is an optional test seam; the
@@ -50,8 +51,8 @@ async function authUser(response){
  * @returns {(request: Request) => Promise<Response>}
  */
 export function createHostedEdgeHandler(options){
- const {getEnv,fetchImpl=fetch,createTransport=createSupabaseArchiveTransport}=options??{};
- if(typeof getEnv!=='function'||typeof fetchImpl!=='function'||typeof createTransport!=='function')throw unavailable();
+ const {getEnv,fetchImpl=fetch,createTransport=createSupabaseArchiveTransport,guest=null}=options??{};
+ if(typeof getEnv!=='function'||typeof fetchImpl!=='function'||typeof createTransport!=='function'||(guest!==null&&typeof guest!=='function'))throw unavailable();
  let initialization=null;
  function readHandler(){
   if(!initialization)initialization=Promise.resolve().then(async()=>{
@@ -80,6 +81,8 @@ export function createHostedEdgeHandler(options){
    const routePrefix=routePrefixes.find(prefix=>url.pathname===prefix||url.pathname.startsWith(prefix+'/'));
    if(routePrefix)url.pathname=url.pathname.slice(routePrefix.length)||'/';
    let path;try{path=decodeURIComponent(url.pathname);}catch{return errorResponse('NOT_FOUND','Evidence unavailable.',404,head);}
+   // Mounted only for an explicitly supplied handler; when absent, routing is unchanged.
+   if(guest&&(path==='/api/guest'||path.startsWith('/api/guest/'))){const response=await guest(request,path);if(response)return response;}
    if(request.method==='POST'&&['/api/lookup','/api/collect'].includes(path)){
     if(!await signedIn(request))return errorResponse('AUTH_REQUIRED','Sign in with an authorized account.',401);
     return errorResponse('HOSTED_COLLECTION_UNAVAILABLE','Hosted collection is not enabled. Existing local collection remains available.',503);
