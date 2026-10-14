@@ -4,6 +4,7 @@ import {readFile,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {randomUUID} from 'node:crypto';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
+import {createHostedEdgeHandler} from '../src/hosted/edge-bootstrap.mjs';
 const journalModule=await import('../src/hosted/guest-journal.mjs').catch(()=>({}));
 const evidenceModule=await import('../src/hosted/evidence-store.mjs').catch(()=>({}));
 const serviceModule=await import('../src/hosted/guest-steps.mjs').catch(()=>({}));
@@ -34,4 +35,23 @@ test('owned preserved-public replay commits a real verified package without clai
  const expected=await buildVersionArchive({directory:new URL(`artifacts/${id}/`,root),pins});assert.deepEqual(Buffer.from(bytes),Buffer.from(expected));
  const record=await service.run({token:session.token,jobId:job.jobId,runId:job.runId});
  assert.equal(record.mode,'offline_replay');assert.equal(record.testFixture,false);assert.equal(record.status,'succeeded');
+});
+test('hosted Edge mounts guest routes only when TRRC_GUEST_ENABLED is exactly 1',async()=>{
+ const env=extra=>name=>({SUPABASE_URL:'https://p.supabase.co',SUPABASE_SECRET_KEYS:JSON.stringify({default:'sb_secret_x'}),SUPABASE_PUBLISHABLE_KEYS:JSON.stringify({default:'sb_publishable_x'}),...extra})[name];
+ let built=0;const createGuest=()=>{built++;return {handle:async()=>new Response('{}',{status:201}),maintain:async()=>{}};};
+ const off=createHostedEdgeHandler({getEnv:env({}),createGuest,createTransport:()=>{throw Error('no reads');}});
+ assert.equal((await off(new Request('https://p.supabase.co/functions/v1/trrc-explorer/api/guest/session',{method:'POST'}))).status,405);assert.equal(built,0);
+ const on=createHostedEdgeHandler({getEnv:env({TRRC_GUEST_ENABLED:'1',TRRC_GUEST_ALLOWED_ORIGIN:'https://explorer.example'}),createGuest,createTransport:()=>{throw Error('no reads');}});
+ assert.equal((await on(new Request('https://p.supabase.co/functions/v1/trrc-explorer/api/guest/session',{method:'POST'}))).status,201);assert.equal(built,1);
+ assert.equal((await createHostedEdgeHandler({getEnv:env({TRRC_GUEST_ENABLED:'true'}),createGuest,createTransport:()=>{throw Error('no reads');}})(new Request('https://p.supabase.co/trrc-explorer/api/guest/session',{method:'POST'}))).status,405);
+});
+test('a guest session schedules maintenance at most once per ten minutes and never fails the response',async()=>{
+ let maint=0,t=0;const scheduled=[];
+ const createGuest=()=>({handle:async()=>new Response('{}',{status:201}),maintain:async()=>{maint++;throw Error('storage down');}});
+ const env=name=>({SUPABASE_URL:'https://p.supabase.co',SUPABASE_SECRET_KEYS:JSON.stringify({default:'sb_secret_x'}),TRRC_GUEST_ENABLED:'1',TRRC_GUEST_ALLOWED_ORIGIN:'https://explorer.example'})[name];
+ const handler=createHostedEdgeHandler({getEnv:env,createGuest,clock:()=>t,waitUntil:p=>scheduled.push(p),createTransport:()=>{throw Error('no reads');}});
+ const session=()=>handler(new Request('https://p.supabase.co/trrc-explorer/api/guest/session',{method:'POST'}));
+ assert.equal((await session()).status,201);await Promise.allSettled(scheduled);assert.equal(maint,1);
+ t+=60_000;await session();await Promise.allSettled(scheduled);assert.equal(maint,1);
+ t+=600_001;await session();await Promise.allSettled(scheduled);assert.equal(maint,2);
 });

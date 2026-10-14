@@ -38,6 +38,8 @@ import {createGuestService} from './lib/src/hosted/guest-steps.mjs';
 import {createLocalReferenceAdmission} from './lib/src/hosted/guest-admission.mjs';
 import {createSupabaseObjectStore} from './lib/src/hosted/guest-transport.mjs';
 import {sha256} from './lib/src/normalize.mjs';
+// Loads the hosted entry graph (edge-bootstrap -> guest-http/steps/admission/transport/evidence-store) under Deno.
+import {createHostedEdgeHandler} from './lib/src/hosted/edge-bootstrap.mjs';
 const decode=b=>new Uint8Array(Buffer.from(b,'base64'));
 Deno.serve(async request=>{
  const {caseName,index=0}=await request.json(),data=packages[index],started=performance.now();
@@ -57,7 +59,14 @@ Deno.serve(async request=>{
    let substitutionRefused=false;try{await store.put('sha256/'+('a'.repeat(64)),expected);}catch(error){substitutionRefused=error.code==='STORAGE_INVALID';}
    const unavailable=createSupabaseObjectStore({url:'https://local-test.supabase.co',secretKey:'sb_secret_local_test_not_a_credential',fetchImpl:async()=>new Response(null,{status:503})});
    let serviceFailure=false;try{await unavailable.put(key,expected);}catch(error){serviceFailure=error.code==='STORAGE_UNAVAILABLE';}
-   report.ok=sha256(actual)===sha256(expected)&&substitutionRefused&&serviceFailure;report.controlledTransportOnly=true;sample('transport-end');report.memorySamples=samples;report.workerWallMs=+(performance.now()-started).toFixed(2);return Response.json(report);
+   // Flag-gated production composition with no I/O: a tokenless guest read is refused by guest-http before any fetch.
+   let compositionFetches=0;
+   const edge=createHostedEdgeHandler({getEnv:n=>({SUPABASE_URL:'https://local-test.supabase.co',SUPABASE_SECRET_KEYS:'{"default":"sb_secret_local_test_not_a_credential"}',TRRC_GUEST_ENABLED:'1'})[n],fetchImpl:async()=>{compositionFetches++;return new Response(null,{status:503});},createTransport:()=>{throw Error('no reads');}});
+   const composedResponse=await edge(new Request('https://local-test.supabase.co/functions/v1/trrc-explorer/api/guest/history'));
+   const composedCode=(await composedResponse.json())?.error?.code??null;
+   report.composition={status:composedResponse.status,code:composedCode,fetches:compositionFetches};
+   const compositionOk=composedResponse.status===401&&composedCode==='TOKEN_INVALID'&&compositionFetches===0;
+   report.ok=sha256(actual)===sha256(expected)&&substitutionRefused&&serviceFailure&&compositionOk;report.controlledTransportOnly=true;sample('transport-end');report.memorySamples=samples;report.workerWallMs=+(performance.now()-started).toFixed(2);return Response.json(report);
   }
   let calls=0;const files=new Map(Object.entries(data.files).map(([k,v])=>[k,decode(v)]));
   const fixture=caseName.startsWith('fixture');
@@ -117,7 +126,7 @@ try{
  try{run(['stop','--time','5',name]);logs=run(['logs',name]);}finally{run(['rm',name]);}
  await writeFile(resolve(dir,'runtime.log'),logs);
  const events=logs.split(/\r?\n/).flatMap(line=>{try{const value=JSON.parse(line);return value.event_type?[value]:[];}catch{return [];}});
- const sourceHashes={};for(const file of ['src/hosted/guest-journal.mjs','src/hosted/guest-admission.mjs','src/hosted/evidence-store.mjs','src/hosted/guest-steps.mjs','src/hosted/guest-transport.mjs','src/exportCore.mjs','public/archive-bytes.js'])sourceHashes[file]=hash(await readFile(resolve(dir,'worker/lib',file)));
+ const sourceHashes={};for(const file of ['src/hosted/guest-journal.mjs','src/hosted/guest-admission.mjs','src/hosted/evidence-store.mjs','src/hosted/guest-steps.mjs','src/hosted/guest-transport.mjs','src/hosted/guest-http.mjs','src/hosted/edge-bootstrap.mjs','src/exportCore.mjs','public/archive-bytes.js'])sourceHashes[file]=hash(await readFile(resolve(dir,'worker/lib',file)));
  const cpuControlEnforced=Boolean(results.find(value=>value.caseName==='cpu-control')?.terminated&&events.some(event=>event.event.cpu_time_used>=2000));
  const report={scope:'Local cached Edge guest reference adapters, not hosted/durable/Storage I/O',image,imageId:run(['image','inspect','--format','{{.Id}}',image]).trim(),sourceHashes,limits:{cpuHardMs:2000,memoryMb:256,wallMs:150000},cpuControlEnforced,packages:packages.map(({files,...rest})=>rest),results,events};
  await writeFile(resolve(dir,'results.json'),JSON.stringify(report,null,2)+'\n');
