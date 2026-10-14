@@ -9,6 +9,7 @@ import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import {createSupabaseObjectStore,createSupabaseGuestJournal} from '../src/hosted/guest-transport.mjs';
 import {createGuestService} from '../src/hosted/guest-steps.mjs';
+import {runOrphanSweep} from '../src/hosted/evidence-store.mjs';
 import {createJournalAdmission} from '../src/hosted/guest-admission.mjs';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
 import {sha256} from '../src/normalize.mjs';
@@ -17,7 +18,7 @@ const docker='C:/Program Files/Docker/Docker/resources/bin/docker.exe',suffix=ra
 const secret='trrc-disposable-local-jwt-secret-never-hosted',password='trrc-local-test-only';
 const jwt=role=>{const header=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url'),payload=Buffer.from(JSON.stringify({role,iss:'supabase',iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+7200})).toString('base64url');return `${header}.${payload}.${createHmac('sha256',secret).update(header+'.'+payload).digest('base64url')}`;};
 const serviceJwt=jwt('service_role'),anonJwt=jwt('anon'),key='sb_secret_local_test_not_a_credential';
-const report={scope:'Actual local Storage v1.37.7 and PostgreSQL17; fixture JWT gateway translation, NOT hosted sb_secret auth',checks:[],failures:[],requests:0};
+const report={scope:'Actual local Storage v1.37.7 and PostgreSQL17; fixture JWT gateway translation, NOT hosted sb_secret auth',checks:[],failures:[],journalRpcErrors:[],requests:0};
 const literal=value=>"'"+String(value).replaceAll("'","''")+"'";
 function command(args,input=null){const result=spawnSync(docker,args,{input,encoding:null,maxBuffer:100_000_000});if(result.status!==0)throw Error(result.stderr?.toString()||result.stdout?.toString()||'Docker failed');return result.stdout;}
 // Existing local Storage bootstrap owner; hosted migration-owner access is unverified.
@@ -40,7 +41,7 @@ const store=createSupabaseObjectStore({url:'https://local-test.supabase.co',secr
 const journal=createSupabaseGuestJournal({url:'https://local-test.supabase.co',secretKey:key,fetchImpl:async(url,init)=>{
  const name=new URL(url).pathname.split('/').at(-1);assert.match(name,/^trrc_guest_[a-z_]+$/);
  try{const value=sql(`SELECT public.${name}(${literal(init.body)}::jsonb->'args');`,'service_role');return Response.json(value?JSON.parse(value):null);}
- catch(error){return Response.json({message:error.message.replace(/^ERROR:\s*/,'').split('\n')[0]},{status:400});}
+ catch(error){const message=error.message.replace(/^ERROR:\s*/,'').split('\n')[0];report.journalRpcErrors.push({rpc:name,message});return Response.json({message},{status:400});}
 }});
 async function gate(label,fn){try{await fn();report.checks.push({label,result:'PASS'});console.log('PASS '+label);}catch(error){report.failures.push({label,message:error.message});throw error;}}
 let startedDb=false,startedStorage=false,startedNetwork=false,startedHttp=false;
@@ -64,6 +65,8 @@ try{
  await gate('empty recorded evidence is distinct from an absent object',async()=>{const empty=new Uint8Array(),emptyKey=`sha256/${sha256(empty)}`;await store.put(emptyKey,empty);assert.equal((await store.get(emptyKey)).length,0);await assert.rejects(store.get(`sha256/${'f'.repeat(64)}`),e=>e.code==='ENOENT');});
  await gate('real SQL plus real Storage publishes the exact preserved public archive',async()=>{
   sql(await readFile(resolve(root,'docs/sql/trrc-guest-budget-DRAFT-not-applied.sql'),'utf8'));
+  // Ops draft loads after the budget draft, as the migration and the Postgres gate order them.
+  sql(await readFile(resolve(root,'docs/sql/trrc-guest-ops-DRAFT-not-applied.sql'),'utf8'));
   // Private disposable fixture attestation; these numbers do not attest hosted room.
   sql("INSERT INTO trrc_guest.platform_proofs(source,attested_at,expires_at,storage_limit_bytes,storage_remaining_bytes,project_storage_bytes,database_limit_bytes,database_remaining_bytes,project_database_bytes,egress_limit_bytes,egress_remaining_bytes) VALUES ('operator_attested',clock_timestamp(),clock_timestamp()+interval '590 seconds',1000000000,900000000,(select project_bytes from trrc_guest.storage_measure()),1000000000,500000000,pg_database_size(current_database()),5000000000,4000000000);");
   const id=(await readdir(resolve(root,'artifacts'))).find(name=>name.startsWith('rrc-2026-10-10-uic000020838-'));
@@ -75,6 +78,15 @@ try{
   assert.deepEqual(Buffer.from(archive.bytes),frozen);report.replay={artifactId:id,mode:'offline_replay',steps,archiveBytes:archive.bytes.length,archiveSha256:sha256(archive.bytes)};
  });
  await gate('actual deletion is verified and missing deletion is idempotent',async()=>{await store.delete(objectKey);await assert.rejects(store.get(objectKey),e=>e.code==='ENOENT');await store.delete(objectKey);});
+ await gate('orphan sweep deletes an aged unreferenced object through the real Storage API and verifies absence',async()=>{
+  const orphan=new Uint8Array([7,7,7]),orphanKey=`sha256/${sha256(orphan)}`;assert.equal(await store.put(orphanKey,orphan),'created');
+  // Age only this disposable fixture row past the one-hour rule; Storage itself sets created_at.
+  assert.equal(sql(`UPDATE storage.objects SET created_at = now() - interval '2 hours' WHERE bucket_id = 'trrc-guest-evidence' AND name = ${literal(orphanKey)} RETURNING name;`),orphanKey);
+  assert.deepEqual(await runOrphanSweep({journal,store}),{removed:1});
+  await assert.rejects(store.get(orphanKey),e=>e.code==='ENOENT');
+  assert.equal(sql(`SELECT count(*) FROM storage.objects WHERE name = ${literal(orphanKey)};`),'0');
+  report.orphanSweep={key:orphanKey,removed:1,absentAfter:true};
+ });
  report.storageMetadata=JSON.parse(sql("SELECT json_build_object('objects',count(*),'bytes',coalesce(sum((metadata->>'size')::numeric),0)) FROM storage.objects;"));
  report.budgetLedger=JSON.parse(sql("SELECT coalesce(json_agg(t),'[]'::json) FROM (SELECT kind,count(*) AS reservations,sum(bytes) AS bytes FROM trrc_guest.egress GROUP BY kind ORDER BY kind) t;"));
 }catch(error){report.error=error.message;console.log('FAIL '+error.message);process.exitCode=1;}
