@@ -1136,7 +1136,7 @@ Before each step, show the owner exactly what will change and wait for yes. Stop
   - After 5 minutes, `select attested_by from trrc_guest.platform_proofs order by attested_at desc limit 1` returns `pg_cron:trrc_guest_attest`.
   - `get_advisors` (security) reports no new public exposure of `trrc_guest`.
 - [ ] **Step 3: Create the private bucket.** Run `insert into storage.buckets (id, name, public, file_size_limit) values ('trrc-guest-evidence','trrc-guest-evidence',false,80106496);`.
-- [ ] **Step 4: Set the Edge secrets.** `TRRC_GUEST_ENABLED=1` and `TRRC_GUEST_ALLOWED_ORIGIN=<published Explorer origin>`. That origin comes from Step 6, so do Step 6's publish first with the flag still unset, then set it here. Secrets are set with `supabase secrets set` or the MCP; the owner may need to run `! supabase secrets set ...` themselves.
+- [ ] **Step 4: Set the Edge secrets.** `TRRC_GUEST_ENABLED=1` and `TRRC_GUEST_ALLOWED_ORIGIN=https://texasrrcexplorer.lovable.app`. This is the published Explorer origin, already live with the read-only site, as confirmed on 2026-10-14. Secrets are set with `supabase secrets set` or the MCP; the owner may need to run `! supabase secrets set ...` themselves.
 - [ ] **Step 5: Deploy the Edge function.** Deploy `trrc-explorer` with the MCP `deploy_edge_function` (`verify_jwt=false` per `supabase/config.toml`). Smoke test through the published Explorer origin:
   1. Session → 201.
   2. Lookup `000020838` → succeeded with ≥ 1 candidate.
@@ -1145,9 +1145,12 @@ Before each step, show the owner exactly what will change and wait for yes. Stop
   5. A second session's history is empty (isolation).
 
   Record the results in `docs/verification-2026-10-14-guest-hosted.md`.
-- [ ] **Step 6: Publish the Explorer on Lovable.** Use `mcp__lovable__deploy_project` for project `f0e9357f-02d2-4f69-8979-05a2e7bda2b3`, then do one live browser walkthrough with a GIF, `guest-walkthrough-hosted.gif`.
+- [ ] **Step 6: Republish the Explorer on Lovable.**
+  - Use `mcp__lovable__deploy_project` for project `f0e9357f-02d2-4f69-8979-05a2e7bda2b3` so `https://texasrrcexplorer.lovable.app` serves the guest-mode shell from merged `main`.
+  - Confirm the served HTML contains `<meta name="trrc-mode" content="guest">`.
+  - Do one live browser walkthrough there with a GIF, `guest-walkthrough-hosted.gif`.
 - [ ] **Step 7: Portfolio link.**
-  - In phi-analytics: set `demoUrls.rrc` to the published Explorer URL. Update `portfolio.test.ts` expectations (RRC is now "Live prototype"). Set the Explorer's `PORTFOLIO_URL` to the portfolio's published URL and update `guest-wiring.test.mjs`.
+  - In phi-analytics: set `demoUrls.rrc` to `"https://texasrrcexplorer.lovable.app/"`. Update `portfolio.test.ts` expectations (RRC is now "Live prototype"). Set the Explorer's `PORTFOLIO_URL` to the portfolio's published URL and update `guest-wiring.test.mjs`.
   - Run both test suites. Push phi-analytics `rrc-demo-link` → PR → merge with `GH_TOKEN=$(gh auth token -u thaiphi)`, then push the Explorer change.
   - Verify on the live portfolio: card → Open live demo → Explorer → ← Thai Phi portfolio.
 - [ ] **Step 8: Update the README release status** to describe the live guest collection, with links to the hosted verification. Commit and push.
