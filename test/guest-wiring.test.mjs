@@ -7,6 +7,12 @@ test('collection screens call only the injected api, never fixed legacy URLs',()
  assert.match(collection,/export function mountCollection\(\{onRun,onVersions,onOpen,onDownload,api\}\)/);
  assert.doesNotMatch(collection,/'\/api\/lookup'|'\/api\/collect'/);
 });
+test('collection failure status does not double the period of a guest message',()=>{
+ const collection=src('collection.js');assert.doesNotMatch(collection,/Collection unavailable: \$\{error\.message\}\./);
+ const trim=new Function('message',`return ${collection.match(/Collection unavailable: \$\{(String\(error\.message\)[^}]*)\}/)[1].replace('error.message','message')};`);
+ assert.equal(trim('Guest collection is temporarily unavailable. Browsing saved datasets still works.'),'Guest collection is temporarily unavailable. Browsing saved datasets still works');
+ assert.equal(trim('Lookup HTTP 503'),'Lookup HTTP 503');
+});
 test('app selects guest mode only from the hosted shell meta and keeps guest packages out of the public registry',()=>{
  const app=src('app.js');
  assert.match(app,/meta\[name="trrc-mode"\]/);assert.match(app,/guestPackages\.get\(id\)/);
