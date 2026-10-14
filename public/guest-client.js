@@ -8,7 +8,10 @@ const MESSAGES=Object.freeze({
  EVIDENCE_EXPIRED:'This guest dataset has expired. Collect it again to view it.'});
 const LIMIT='Demo limit reached. Please try again later.',UNAVAILABLE='Guest collection is temporarily unavailable. Browsing saved datasets still works.';
 export function guestMessage(code){return MESSAGES[code]??(/^(?:QUOTA_EXCEEDED|TOKEN_QUOTA|STORAGE_QUOTA|DATABASE_QUOTA|EGRESS_QUOTA|DOWNLOAD_QUOTA)$/.test(code)?LIMIT:UNAVAILABLE);}
-const guestError=(code,detail)=>Object.assign(Error(guestMessage(code)),{code,detail});
+// Only errors made here carry plain, user-safe text; anything else is shown as a guest code message.
+const GUEST_ERROR=Symbol('guest-error');
+const guestError=(code,detail)=>Object.assign(Error(guestMessage(code)),{code,detail,[GUEST_ERROR]:true});
+export function isGuestError(error){return error?.[GUEST_ERROR]===true;}
 export function createGuestClient({fetchImpl=globalThis.fetch.bind(globalThis),storage=globalThis.sessionStorage,sleep=ms=>new Promise(r=>setTimeout(r,ms)),newKey=()=>crypto.randomUUID().replaceAll('-',''),now=Date.now}={}){
  let memory=null;const archives=new Map();
  const read=()=>{try{const value=JSON.parse(storage.getItem(KEY)??'null');return value&&typeof value.token==='string'?value:memory;}catch{return memory;}};
@@ -34,7 +37,7 @@ export function createGuestClient({fetchImpl=globalThis.fetch.bind(globalThis),s
    try{({job}=await (await call(`/api/guest/jobs/${job.jobId}/advance`,{method:'POST',body:{}})).json());busy=0;}
    catch(error){if((error.code==='LANE_BUSY'||error.code==='TOKEN_BUSY')&&++busy<=24){onProgress?.(guestMessage(error.code));await sleep(5_000);continue;}throw error;}
   }
-  if(job.state!=='succeeded')throw guestError(job.errorCode??'GUEST_UNAVAILABLE',job);
+  if(job.state!=='succeeded')throw guestError(job.errorCode??(job.state==='expired'?'EVIDENCE_EXPIRED':'GUEST_UNAVAILABLE'),job);
   return job;
  }
  return Object.freeze({

@@ -7,6 +7,9 @@ import {facts,filterInventory,dispositionRows,sourceUrl,countText} from './prese
 import {parseRoute,datasetRoute,datasetSummary,localTime,localZone} from './navigation.js';
 import {createAnalyticsHandoff} from './analytics-handoff.js';
 import {listSavedPackages,saveVerifiedPackage,verifyVersionPackage} from './browser-library.js';
+import {createLegacyCollectionApi,createGuestCollectionApi} from './collection-api.js';
+import {createGuestClient} from './guest-client.js';
+import {PORTFOLIO_URL} from './portfolio-link.js';
 const $=id=>document.getElementById(id);
 // Bootstrap failure before the collection controls mount: say so instead of leaving a silent control.
 let collectionMounted=false;window.addEventListener('error',()=>{if(!collectionMounted&&$('lookup-submit')?.disabled)$('collection-status').textContent='Collection controls could not start. Reload the page to retry; saved and preserved datasets may still be browsable.';});
@@ -15,6 +18,10 @@ let availableVersions=[],requestedVersionId=null,pinnedVersion=null,failedVersio
 let workflow=null,currentRoute=parseRoute(location.hash);const libraryArtifacts=new Map();
 let analyticsPins=null,analyticsVersion=null,analyticsTransfer={state:'idle'};
 const savedPackages=new Map();let savedView=null;
+const guestMode=document.querySelector('meta[name="trrc-mode"]')?.getAttribute('content')==='guest';
+// Guest datasets: private, verified on open, never listed in the public registry or pinned.
+const guestPackages=new Map();
+if(PORTFOLIO_URL){const link=$('portfolio-link');link.href=PORTFOLIO_URL;link.hidden=false;}
 const analyticsActive=()=>['preparing','waiting','receiving','validating','previewed'].includes(analyticsTransfer.state);
 const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
  analyticsTransfer=event;analyticsVersion=event.artifactId??analyticsVersion;
@@ -47,7 +54,7 @@ function route(focus=false){
  if(workspace&&id)updateWorkspaceLinks(id);
  const showRun=currentRoute.screen==='history'||(workspace&&currentRoute.tab==='collection');$('workflow-view').hidden=!showRun;
  if(showRun){$(workspace?'workspace-run-host':'history-run-host').appendChild($('workflow-view'));if(workflow){if(workspace)workflow.forDataset(id,data?.artifactId===id?data.manifest:null,availableVersions.find(version=>version.artifactId===id)?.runId);else workflow.showHistory(currentRoute.runId);}}
- if(workspace&&currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId&&(currentRoute.artifactId!==requestedVersionId||(focus&&currentRoute.artifactId===failedVersionId))&&(availableVersions.length||savedPackages.size))void openDataset(currentRoute.artifactId);
+ if(workspace&&currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId&&(currentRoute.artifactId!==requestedVersionId||(focus&&currentRoute.artifactId===failedVersionId))&&(availableVersions.length||savedPackages.size||guestPackages.size))void openDataset(currentRoute.artifactId);
  if(currentRoute.screen==='datasets'&&availableVersions.length)void verifyLibrary();
  if(focus){if(currentRoute.screen==='history'&&currentRoute.runId){$('workflow-view').tabIndex=-1;$('workflow-view').focus({preventScroll:true});$('workflow-view').scrollIntoView({block:'start'});}else{$('main').focus({preventScroll:true});window.scrollTo({top:0});}}
 }
@@ -172,11 +179,11 @@ async function refreshVersions(){
 }
 async function openDataset(id){
  resetAnalytics();revokeSavedUrls();
- failedVersionId=null;requestedVersionId=id;$('version-selection').value=id;const ticket=versionRequest.begin(),pins=availableVersions.find(version=>version.artifactId===id),saved=pins?null:savedPackages.get(id);
+ failedVersionId=null;requestedVersionId=id;$('version-selection').value=id;const ticket=versionRequest.begin(),guest=guestPackages.get(id),pins=guest?null:availableVersions.find(version=>version.artifactId===id),saved=pins||guest?null:savedPackages.get(id);
  updateWorkspaceLinks(id);
  data=null;selected=null;clearDatasetEvidence(document);$('error').textContent='';$('error').hidden=true;$('well-name').textContent='Verifying selected version…';$('snapshot').textContent='Verifying…';$('workspace-identity').textContent='Verifying selected dataset…';$('workspace-version').textContent=id;for(const control of ['search','county','operator','clear-filters'])$(control).disabled=true;
  if(workflow&&currentRoute.tab==='collection')workflow.clearDataset('Verifying dataset; associated run evidence is unavailable.');
- try{if(!pins&&!saved)throw Error('Requested publication pins unavailable');if(saved){const opened=await openSavedDataset(saved);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==id){for(const url of opened.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(opened.tarUrl);return;}savedView=opened;displayDataset(opened.artifact,{...saved.pins,path:`/artifacts/${id}/`});markSavedView();return;}const artifact=await loadVerifiedVersion(pins);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==pins.artifactId||$('version-selection').value!==requestedVersionId)return;libraryArtifacts.set(id,artifact);displayDataset(artifact,pins);}catch(error){if(!versionRequest.isCurrent(ticket))return;failedVersionId=id;$('error').hidden=currentRoute.screen!=='workspace';$('error').textContent=`Selected version unavailable: ${error.message}. Records and downloads are unavailable until verification succeeds.`;$('well-name').textContent='Dataset unavailable';$('snapshot').textContent='Unavailable';$('workspace-identity').textContent='Dataset unavailable';if(workflow&&currentRoute.screen==='workspace'&&currentRoute.tab==='collection')workflow.clearDataset('Dataset verification failed; associated run evidence is unavailable.');}
+ try{if(!pins&&!saved&&!guest)throw Error('Requested publication pins unavailable');if(guest){const opened=await openSavedDataset(guest);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==id){for(const url of opened.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(opened.tarUrl);return;}savedView=opened;displayDataset(opened.artifact,{...guest.pins,path:`/artifacts/${id}/`});markGuestView();return;}if(saved){const opened=await openSavedDataset(saved);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==id){for(const url of opened.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(opened.tarUrl);return;}savedView=opened;displayDataset(opened.artifact,{...saved.pins,path:`/artifacts/${id}/`});markSavedView();return;}const artifact=await loadVerifiedVersion(pins);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==pins.artifactId||$('version-selection').value!==requestedVersionId)return;libraryArtifacts.set(id,artifact);displayDataset(artifact,pins);}catch(error){if(!versionRequest.isCurrent(ticket))return;failedVersionId=id;$('error').hidden=currentRoute.screen!=='workspace';$('error').textContent=`Selected version unavailable: ${error.message}. Records and downloads are unavailable until verification succeeds.`;$('well-name').textContent='Dataset unavailable';$('snapshot').textContent='Unavailable';$('workspace-identity').textContent='Dataset unavailable';if(workflow&&currentRoute.screen==='workspace'&&currentRoute.tab==='collection')workflow.clearDataset('Dataset verification failed; associated run evidence is unavailable.');}
 }
 function inspectIssue(key){
  const inventory=data.inventory.find(row=>row.source_record_key===key),monthly=data.injectionMonthly.find(row=>row.source_row_key===key),parent=inventory??data.inventory.find(row=>row.source_record_key===monthly?.parent_key);
@@ -201,7 +208,8 @@ try{
 }
 await refreshVersions();
 workflow=await mountWorkflow(manifest);
-mountCollection({onRun:()=>workflow.refresh(),onVersions:refreshVersions,onOpen:id=>{location.hash=datasetRoute(id,'overview');},onDownload:id=>{location.hash=datasetRoute(id,'downloads');}});
+const collectionApi=guestMode?createGuestCollectionApi({client:createGuestClient(),onGuestPackage:({artifactId,tarBytes,pins})=>{guestPackages.set(artifactId,{artifactId,tarBytes,pins});}}):createLegacyCollectionApi();
+mountCollection({api:collectionApi,onRun:()=>workflow.refresh(),onVersions:guestMode?async()=>{}:refreshVersions,onOpen:id=>{location.hash=datasetRoute(id,'overview');},onDownload:id=>{location.hash=datasetRoute(id,'downloads');}});
 collectionMounted=true;
 if(currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId)await openDataset(currentRoute.artifactId);
 route();
@@ -228,6 +236,11 @@ async function openSavedDataset(record){
  // it is never live proof, a default-pin badge or origin trust.
  const verified=await verifyVersionPackage({tarBytes:record.tarBytes,pins:record.pins});
  return {artifact:verified.artifact,urls:new Map([...verified.files].map(([name,body])=>[name,URL.createObjectURL(new Blob([body],{type:blobType(name)}))])),tarUrl:URL.createObjectURL(new Blob([verified.tarBytes],{type:'application/x-tar'}))};
+}
+function markGuestView(){
+ resetAnalytics();$('analytics-status').textContent='Analytics transfer is unavailable for private guest datasets. Download the complete archive instead.';
+ const recordClass=$('version-details').querySelector('dd');if(recordClass)recordClass.textContent='Guest dataset — private to this tab, expires; integrity verified on open';
+ $('workspace-version').textContent=`${data.artifactId} · Guest dataset — private, expires`;const button=$('save-browser');if(button)button.disabled=true;
 }
 function markSavedView(){
  resetAnalytics();$('analytics-status').textContent='Analytics transfer is disabled: this browser-saved copy cannot be re-verified against the server now. Download the exact backup instead.';

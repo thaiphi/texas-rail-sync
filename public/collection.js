@@ -1,13 +1,12 @@
 import {escapeHtml as escape} from './inspection.js';
 import {localTime,monthWindow} from './navigation.js';
 export function createLatestRequest(){let revision=0;return {begin:()=>++revision,isCurrent:ticket=>ticket===revision,invalidate:()=>++revision};}
-export function mountCollection({onRun,onVersions,onOpen,onDownload}){
+export function mountCollection({onRun,onVersions,onOpen,onDownload,api}){
  const $=id=>document.getElementById(id),latest=createLatestRequest();let lookup=null,selected=null,busy=false;
  $('collect-form').hidden=true;
  const status=message=>{$('collection-status').textContent=message;};
  const step=phase=>{for(const item of $('request-steps').querySelectorAll('[data-step]')){if(item.dataset.step===phase)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');}};
  const reset=()=>{latest.invalidate();lookup=null;selected=null;$('lookup-candidates').replaceChildren();$('collect-submit').disabled=true;$('collect-form').hidden=true;$('collection-result').hidden=true;$('collection-result').replaceChildren();step('find');};
- const post=async(path,body)=>{const response=await fetch(path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),result=await response.json();return {response,result};};
  for(const id of ['lookup-kind','lookup-value'])$(id).addEventListener('input',()=>{reset();status('Identifier changed. Look up again before selecting a candidate.');});
  for(const id of ['start-month','end-month'])$(id).addEventListener('input',()=>{if(busy)return;$('collection-result').hidden=true;$('collection-result').replaceChildren();step(selected?'confirm':'find');status('Reporting period changed. Confirm the inclusive bounds before collecting.');});
  $('lookup-form').addEventListener('submit',async event=>{
@@ -15,8 +14,8 @@ export function mountCollection({onRun,onVersions,onOpen,onDownload}){
   if(!(kind==='uic'?/^\d{9}$/:/^\d{8}$/).test(value)){status(kind==='uic'?'Enter exactly nine UIC digits; preserve leading zeros.':'Enter exactly eight source API digits. Longer API formats are unsupported.');return;}
   busy=true;$('lookup-submit').disabled=true;status('Requesting bounded official inventory candidates…');
   try{
-   const {response,result}=await post('/api/lookup',{kind:$('lookup-kind').value,value:$('lookup-value').value});if(!latest.isCurrent(ticket))return;
-   if(!response.ok)throw Error(result.error?.message??'Lookup failed');lookup=result;
+   const {ok,result,error}=await api.lookup({kind:$('lookup-kind').value,value:$('lookup-value').value},{onProgress:status});if(!latest.isCurrent(ticket))return;
+   if(!ok)throw Error(error?.message??'Lookup failed');lookup=result;
    if(result.status==='empty'){status('No inventory candidates returned for this exact identifier.');return;}
    step('confirm');
    status(result.status==='cap_reached'?'Candidate cap reached (25). Selection is blocked because completeness is unproven.':`${result.candidates.length} candidate${result.candidates.length===1?'':'s'} returned. Choose one explicitly. ${result.testFixture?'Test fixture response — not public evidence.':''}`);
@@ -34,11 +33,11 @@ export function mountCollection({onRun,onVersions,onOpen,onDownload}){
   try{monthWindow($('start-month').value,$('end-month').value);}catch(error){status(error.message);return;}
   const submitted={lookupId:lookup.lookupId,sourceRecordKey:selected,startMonth:$('start-month').value,endMonth:$('end-month').value},candidate=lookup.candidates.find(row=>row.sourceRecordKey===selected),radios=[...$('lookup-candidates').querySelectorAll('input')].map(radio=>[radio,radio.disabled]);for(const [radio] of radios)radio.disabled=true;
   busy=true;$('collection-result').hidden=true;step('collect');$('collect-submit').disabled=true;$('lookup-submit').disabled=true;for(const id of ['lookup-kind','lookup-value','start-month','end-month'])$(id).disabled=true;
-  status(`Collecting UIC ${candidate.uic_number}, ${submitted.startMonth} through ${submitted.endMonth}. Waiting for the recorded completion; live sub-stage events are unavailable. Official source preservation may take several minutes.`);
+  status(api.mode==='guest'?`Collecting UIC ${candidate.uic_number}, ${submitted.startMonth} through ${submitted.endMonth} as a guest. Progress updates as each official source is preserved.`:`Collecting UIC ${candidate.uic_number}, ${submitted.startMonth} through ${submitted.endMonth}. Waiting for the recorded completion; live sub-stage events are unavailable. Official source preservation may take several minutes.`);
   try{
-   const {response,result}=await post('/api/collect',submitted);
+   const {ok,result,error}=await api.collect(submitted,{onProgress:status});
    if(result.run)await onRun?.(result.run);
-   if(!response.ok){const code=result.run?.events.find(event=>event.status==='failed')?.error?.code??result.error?.code;throw Error(`${code??'Failed'}: ${result.error?.message??'Collection failed'}`);}
+   if(!ok){const code=result.run?.events?.find(event=>event.status==='failed')?.error?.code??error?.code;throw Error(api.mode==='guest'?(error?.message??'Collection failed'):`${code??'Failed'}: ${error?.message??'Collection failed'}`);}
    await onVersions();step('review');status(`Collection completed: ${result.artifactId}. ${result.scope.monthly_returned===0?'No reports returned for this period. ':''}${result.realHistoryStatus==='verified_bounded_linkage'?'Verified bounded linkage.':'Incomplete linkage; inspect quality and provenance.'}`);
    $('collection-result').hidden=false;$('collection-result').innerHTML=`<h2>Review the collected dataset</h2><p>${escape(result.artifactId)}</p><p>${result.scope.monthly_returned} retained monthly report rows. ${result.scope.monthly_returned===0?'No reports returned does not mean zero injection.':'Review the acquired records and their evidence before use.'}</p><div class="context-actions"><button type="button" id="open-collected" class="primary">Open this dataset</button><button type="button" id="download-collected">Prepare download</button></div><p class="note">Opening does not change the default pin or import data into Analytics.</p>`;
    $('open-collected').addEventListener('click',()=>onOpen?.(result.artifactId));$('download-collected').addEventListener('click',()=>{step('download');onDownload?.(result.artifactId);});

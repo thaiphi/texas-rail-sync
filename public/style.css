@@ -26,3 +26,4 @@ body{background:#f5f8fc}.rail{width:220px;background:#102b43;color:white}.rail-m
 #workflow-view[hidden] .workflow-node::after{content:none}#workflow-view{scroll-margin-top:24px}@media(max-width:640px){#workflow-view{scroll-margin-top:80px}}
 #dataset-library td:nth-child(2){white-space:nowrap;min-width:150px}
 .snapshot-metrics .metric-icon{display:none}
+.portfolio-link{display:inline-block;margin-bottom:.5rem;font-size:.875rem;color:inherit;text-decoration:underline}

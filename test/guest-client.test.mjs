@@ -55,3 +55,21 @@ test('every guest code has one plain message; unknown and disabled routes read a
  assert.match(guestMessage('BUDGET_UNVERIFIED'),/paused/i);assert.match(guestMessage('EVIDENCE_EXPIRED'),/expired/i);
  assert.match(guestMessage('NOT_FOUND'),/temporarily unavailable/i);assert.match(guestMessage('WHATEVER'),/temporarily unavailable/i);
 });
+test('non-guest errors never reach the screens as raw text; the custom lookup message stays',async()=>{
+ const collection={kind:'collection',artifactId:'rrc-guest-1',pins:{artifactId:'rrc-guest-1'},runId:null,scope:{monthly_returned:0},realHistoryStatus:'incomplete'};
+ const server=fakeServer([json(201,{token:TOKEN,expiresAt:'2026-10-15T00:00:00.000Z'}),json(202,{job:job('succeeded',{result:lookupResult}),replayed:false}),json(202,{job:{...job('succeeded',{result:collection}),jobId:CJOB,kind:'collection'},replayed:false}),new Response(new Uint8Array([1]).buffer,{status:200})]);
+ const client=createGuestClient({fetchImpl:server.fetchImpl,storage:memoryStorage(),sleep:async()=>{},newKey:()=>'k'.repeat(24),now:()=>0});
+ const api=createGuestCollectionApi({client,onGuestPackage:()=>{throw TypeError('secret-ish text');}});
+ const early=await api.collect({lookupId:'L-1',sourceRecordKey:'k1',startMonth:'2024-01',endMonth:'2024-01'});assert.equal(early.error.code,'LOOKUP_UNAVAILABLE');assert.equal(early.error.message,'Look up the well again before collecting.');
+ await api.lookup({kind:'uic',value:'000020838'});
+ const outcome=await api.collect({lookupId:'L-1',sourceRecordKey:'k1',startMonth:'2024-01',endMonth:'2024-01'});
+ assert.equal(outcome.ok,false);assert.deepEqual(outcome.result,{});assert.equal(outcome.error.message,guestMessage('GUEST_UNAVAILABLE'));assert.ok(!JSON.stringify(outcome).includes('secret-ish'));
+ const raw=await createGuestCollectionApi({client:{lookup:async()=>{throw SyntaxError('Unexpected token < in JSON');}}}).lookup({kind:'uic',value:'000020838'});
+ assert.equal(raw.error.message,guestMessage('GUEST_UNAVAILABLE'));assert.doesNotMatch(raw.error.message,/Unexpected token/);
+});
+test('an expired terminal job rejects as expired evidence unless it names a more specific code',async()=>{
+ const client=createGuestClient({fetchImpl:fakeServer([json(201,{token:TOKEN,expiresAt:'2026-10-15T00:00:00.000Z'}),json(202,{job:job('queued'),replayed:false}),json(200,{job:job('expired')})]).fetchImpl,storage:memoryStorage(),sleep:async()=>{},newKey:()=>'k'.repeat(24),now:()=>0});
+ await assert.rejects(client.lookup({kind:'uic',value:'000020838'}),error=>error.code==='EVIDENCE_EXPIRED'&&error.message===guestMessage('EVIDENCE_EXPIRED'));
+ const specific=createGuestClient({fetchImpl:fakeServer([json(201,{token:TOKEN,expiresAt:'2026-10-15T00:00:00.000Z'}),json(202,{job:job('expired',{errorCode:'STORAGE_QUOTA'}),replayed:false})]).fetchImpl,storage:memoryStorage(),sleep:async()=>{},newKey:()=>'k'.repeat(24),now:()=>0});
+ await assert.rejects(specific.lookup({kind:'uic',value:'000020838'}),error=>error.code==='STORAGE_QUOTA');
+});
