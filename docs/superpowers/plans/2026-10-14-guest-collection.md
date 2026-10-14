@@ -61,7 +61,7 @@
 | `pg_cron` schedule | every 5 min |
 
 - Cleanup and orphan age threshold: **1 hour**.
-- Hosted guest routes exist only when `TRRC_GUEST_ENABLED === '1'`. With it unset, behavior is byte-for-byte today's read-only site.
+- Hosted guest routes exist only when `TRRC_GUEST_ENABLED === '1'`. With it unset, the Edge behaves byte-for-byte like today's read-only site; the published shell still shows the guest form, which answers "temporarily unavailable" (owner-accepted 2026-10-14, final review I1).
 - Hosted steps (migration apply, bucket, secrets, deploy, publish, phi-analytics push) each need the owner's explicit yes at that step.
 - `gh` commands use `GH_TOKEN=$(gh auth token -u thaiphi)`; never `gh auth switch`.
 - **Isolation (owner rule):** other agents work in the shared checkouts at the same time.

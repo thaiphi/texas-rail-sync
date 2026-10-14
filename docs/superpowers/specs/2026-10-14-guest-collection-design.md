@@ -78,7 +78,7 @@ Reuse the tested guest backend behind the existing same-origin hosting bridge. R
 
 **Edge** (`src/hosted/edge-bootstrap.mjs`, `supabase/functions/trrc-explorer/index.ts`):
 - The production entrypoint composes the guest handler with the real `guest-transport` (PostgREST RPC + Storage) and `guest-admission`.
-- This happens only when `TRRC_GUEST_ENABLED=1`. With it unset, the site stays read-only, which is also the rollback.
+- This happens only when `TRRC_GUEST_ENABLED=1`. With it unset, the Edge serves only the read-only routes, which is also the rollback. The published shell still declares guest mode and the bridge still forwards `/api/guest/*`, so the page keeps showing the collect form and answers "temporarily unavailable"; browsing works and no write path opens (owner-accepted 2026-10-14, final review I1).
 
 **Database:**
 - `docs/sql/trrc-guest-journal-DRAFT-not-applied.sql` and `trrc-guest-budget-DRAFT-not-applied.sql` become one reviewed migration under `supabase/migrations/`. Schema `trrc_guest` is service-only; anon and authenticated roles are denied.
@@ -154,7 +154,7 @@ Plus:
 7. Publish the Explorer on Lovable and do one live walkthrough.
 8. Set `demoUrl` and the portfolio URL, push phi-analytics.
 
-**Rollback:** unset `TRRC_GUEST_ENABLED` and redeploy, which returns the site to read-only browsing. Public datasets and pins are never touched.
+**Rollback:** unset `TRRC_GUEST_ENABLED` and redeploy, which returns the site to read-only browsing. Public datasets and pins are never touched. If guest collection must also disappear from the page, republish the Explorer from a commit whose hosting shell does not declare `trrc-mode` guest.
 
 ## Out of scope
 
