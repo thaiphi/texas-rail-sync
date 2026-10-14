@@ -25,7 +25,7 @@ export function createHostingBridge({html,fetchImpl=fetch}){
     const reader=request.body?.getReader(),parts=[];let size=0;
     if(reader){try{for(;;){const item=await reader.read();if(item.done)break;size+=item.value.length;if(size>8192){await reader.cancel();return error(413,'REQUEST_LIMIT','Request too large.');}parts.push(item.value);}}finally{reader.releaseLock();}}
     body=new Uint8Array(size);let offset=0;for(const part of parts){body.set(part,offset);offset+=part.length;}
-    headers.set('content-type','application/json');const authorization=request.headers.get('authorization');if(authorization&&!guestPost.test(url.pathname))headers.set('authorization',authorization);
+    headers.set('content-type','application/json');const authorization=request.headers.get('authorization');if(authorization&&!guestPost.test(url.pathname)&&!/^Guest /i.test(authorization))headers.set('authorization',authorization);
    }
    const upstream=await fetchImpl(backend+url.pathname+url.search,{method:request.method,headers,body,redirect:'error',signal:AbortSignal.timeout(120000)});
    if(upstream.headers.get('content-encoding')&&!/^identity$/i.test(upstream.headers.get('content-encoding'))){await upstream.body?.cancel();return error(503,'BACKEND_UNAVAILABLE','Saved datasets are temporarily unavailable. Please retry.');}
