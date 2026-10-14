@@ -52,7 +52,7 @@ Reuse the tested guest backend behind the existing same-origin hosting bridge. R
   - The run goes to the existing `onRun`.
   - The dataset opens through a new **guest resolver** in `openDataset` (`public/app.js`). It loads the version from the guest archive (`GET /api/guest/jobs/{id}/archive`), verifies it with the existing browser-library hash checks, and labels it **Guest dataset — private, expires**.
   - It is never added to the public registry and never changes the default pin.
-- **Downloads:** guest TAR via the archive route. The UI shows the remaining downloads for the session (3 per 24 h).
+- **Downloads:** the guest TAR is fetched once per job, using one of the session's 3 downloads per 24 h. Viewing and later downloads use that verified in-memory copy, so they spend no further downloads.
 - **Errors:** each guest code maps to one plain message:
 
 | Codes | Message |
@@ -72,7 +72,9 @@ Reuse the tested guest backend behind the existing same-origin hosting bridge. R
 - Allow `/api/guest/*` paths: GET, and POST only for the guest POST routes.
 - Keep the same-origin and 8 KB body checks.
 - Forward the `authorization` (Guest token only) and `idempotency-key` headers.
-- The bridge vouches for origin: it forwards `x-trrc-origin-verified: 1` together with a shared bridge secret header. The Edge guest handler's `sameOrigin` accepts either a direct same-origin request or a request carrying the valid bridge secret. The secret lives only in the server environment of both the Lovable host and the Edge function.
+- The bridge already enforces a same-origin browser `Origin` and forwards it. The Edge guest handler accepts the request URL's origin or the exact `TRRC_GUEST_ALLOWED_ORIGIN`, which is the published Explorer origin.
+- This is the same CSRF-level check as today; guest tokens remain the authentication. No secret is needed on the Lovable host.
+- Revised at plan review; the earlier design used a shared bridge secret.
 
 **Edge** (`src/hosted/edge-bootstrap.mjs`, `supabase/functions/trrc-explorer/index.ts`):
 - The production entrypoint composes the guest handler with the real `guest-transport` (PostgREST RPC + Storage) and `guest-admission`.
@@ -113,7 +115,9 @@ Reuse the tested guest backend behind the existing same-origin hosting bridge. R
   3. Read back each object to prove absence.
   4. Release the references.
 - An **orphan sweep** lists `trrc-guest-evidence` objects older than 1 hour that no journal row references. It tombstones and deletes them with the same read-back check.
-- Cleanup runs from `pg_cron` hourly via the Edge maintenance RPC. Failures leave tombstones in place and are retried, never silently dropped.
+- Supabase blocks SQL deletion from `storage.objects`, so cleanup runs in the Edge function. It runs after a guest session is issued, at most once per 10 minutes per isolate, fenced by the maintenance lease.
+- Failures leave tombstones in place and are retried, never silently dropped.
+- Revised at plan review; the earlier design had `pg_cron` call the Edge function.
 
 ## 3. Testing and rollout
 
@@ -143,7 +147,7 @@ Plus:
 **Rollout:** the owner approves each step separately.
 1. Apply the migration.
 2. Create the bucket.
-3. Set secrets (`TRRC_GUEST_ENABLED`, bridge secret).
+3. Set secrets (`TRRC_GUEST_ENABLED`, `TRRC_GUEST_ALLOWED_ORIGIN`).
 4. Enable `pg_cron` jobs.
 5. Deploy the Edge function.
 6. Hosted API smoke test: session → lookup → 3-month collection → archive hash.
