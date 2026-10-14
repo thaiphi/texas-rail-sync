@@ -4,9 +4,12 @@ import {Buffer} from 'node:buffer';
 import {sha256} from './normalize.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
 // onResponse(status) lets trusted callers record the HTTP status before body checks.
-export async function fetchSource(target,{fetchImpl=fetch,testFixture=false,onResponse=null}={}){
+// timeoutMs defaults to 30000 for acquisition/lookup. A throw before any Response (DNS,
+// connect, TLS) becomes NETWORK_ERROR with the original as cause; timeouts/aborts pass as-is.
+export async function fetchSource(target,{fetchImpl=fetch,testFixture=false,onResponse=null,timeoutMs=30000}={}){
  if(fetchImpl!==fetch&&!testFixture)throw failure('SOURCE_INVALID','Injected responses require fixture mode');
- const response=await fetchImpl(target.url,{signal:AbortSignal.timeout(30000),redirect:'error'});
+ let response;try{response=await fetchImpl(target.url,{signal:AbortSignal.timeout(timeoutMs),redirect:'error'});}
+ catch(error){if(error?.name==='TimeoutError'||error?.name==='AbortError')throw error;throw Object.assign(Error('Official source unreachable',{cause:error}),{code:'NETWORK_ERROR'});}
  onResponse?.(response.status);
  if(!response.ok)throw failure('HTTP_ERROR','Official source request failed');
  if(Number(response.headers.get('content-length'))>10_000_000)throw failure('SOURCE_LIMIT','Source byte cap exceeded');

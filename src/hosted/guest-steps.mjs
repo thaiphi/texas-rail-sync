@@ -22,8 +22,10 @@ const jsonBytes=value=>Buffer.from(JSON.stringify(value,null,2)+'\n');
 // The complete versioned evidence set that live preparation and finalization require.
 export const GUEST_EVIDENCE_NAMES=Object.freeze(['acquisition.json','selection.json','lookup.json',...lookupFiles,...targetsForScope().flatMap(target=>[target.name,sidecar(target.name)])].sort());
 const v2Recorder=Object.freeze({pipelineVersion:'rrc-collection-v2',schemaVersion:1,transformationVersion:'rrc-odp-v2.0.0'});
+// Slow official hosts (TLS/response ~30 s+): 90 s fits Edge wall 150 s and leaseMs 180 s; 2 attempts, 30-120 s backoff, laneMs 600 s.
+export const GUEST_SOURCE_TIMEOUT_MS=90_000;
 const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
-const retryable=error=>error?.code==='HTTP_ERROR'||error?.name==='TimeoutError'||error?.name==='AbortError';
+const retryable=error=>error?.code==='HTTP_ERROR'||error?.code==='NETWORK_ERROR'||error?.name==='TimeoutError'||error?.name==='AbortError';
 function errorCode(error){
  if(error?.code==='ENOENT')return 'EVIDENCE_UNAVAILABLE';
  if(error?.name==='TimeoutError'||error?.name==='AbortError')return 'SOURCE_TIMEOUT';
@@ -56,7 +58,7 @@ export function createGuestService({journal,store:objectStore,fetchImpl=fetch,te
   // is checked after fetch, so reserve the full network envelope, including failures.
   await meter.reserveEgress({kind:'processing',jobId:ctx.job.jobId,bytes:GUEST_LIMITS.evidenceBytes+65_536});
   try{
-   const {body,metadata}=await fetchSource(target,{fetchImpl,testFixture,onResponse:status=>{request.httpStatus=status;}}),metaBytes=jsonBytes(metadata);
+   const {body,metadata}=await fetchSource(target,{fetchImpl,testFixture,timeoutMs:GUEST_SOURCE_TIMEOUT_MS,onResponse:status=>{request.httpStatus=status;}}),metaBytes=jsonBytes(metadata);
    if(ctx.job.usedBytes+body.length+metaBytes.length>GUEST_LIMITS.evidenceBytes)throw failure('SOURCE_LIMIT','Guest evidence would exceed 10,000,000 total bytes; nothing was truncated');
    await put(ctx,target.name,body);await put(ctx,sidecar(target.name),metaBytes);
    request.status='succeeded';return {request,body};

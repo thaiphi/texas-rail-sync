@@ -9,7 +9,7 @@ import {workflowView} from '../public/workflow.js';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
 import {createMemoryGuestJournal,GUEST_LIMITS} from '../src/hosted/guest-journal.mjs';
 import {createMemoryObjectStore} from '../src/hosted/evidence-store.mjs';
-import {createGuestService} from '../src/hosted/guest-steps.mjs';
+import {createGuestService,GUEST_SOURCE_TIMEOUT_MS} from '../src/hosted/guest-steps.mjs';
 import {createPreservedFixtureFetch,createPreservedReplaySource} from '../scripts/guest-local.mjs';
 const root=new URL('../',import.meta.url),version=(await readdir(new URL('artifacts/',root))).find(name=>name.startsWith('rrc-2026-10-10-uic000020838-'));
 const manual='https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf',stages=record=>workflowView(record).stages.map(stage=>stage.status);
@@ -72,6 +72,25 @@ test('a source HTTP error retries once after backoff, then fails with a recorded
  assert.deepEqual(run.events.find(event=>event.stage==='load'&&event.status==='failed').evidence.requests.at(-1),{url:manual,name:'uic-manual.pdf',status:'failed',httpStatus:503});
  const marker=(await state.journal.evidence({jobId:job.jobId})).find(row=>row.path==='acquisition.json');
  assert.equal(JSON.parse(Buffer.from(await state.store.get(marker.objectKey))).status,'failed');
+});
+test('a source network error retries once after backoff, then fails as NETWORK_ERROR without the token',async()=>{
+ let throws=0;const state=await setup({fixture:true,fetchWrap:async(url,respond)=>url===manual?(throws++,Promise.reject(new TypeError('fetch failed'))):respond()});
+ const {job}=await collection(state,await fixtureLookup(state));
+ for(let i=0;i<5;i++)await advance(state,job.jobId);
+ let view=await advance(state,job.jobId);assert.equal(view.state,'retry_wait');assert.equal(view.attempt,2);assert.equal(throws,1);
+ state.tick(30_000);view=await advance(state,job.jobId);
+ assert.equal(throws,2);assert.equal(view.state,'failed');assert.equal(view.errorCode,'NETWORK_ERROR');assert.equal(JSON.stringify(view).includes(state.token),false);
+ const run=await state.service.run({token:state.token,jobId:job.jobId,runId:view.runId});assert.deepEqual(stages(run),['failed','skipped','skipped']);
+ assert.deepEqual(run.events.find(event=>event.stage==='load'&&event.status==='failed').evidence.requests.at(-1),{url:manual,name:'uic-manual.pdf',status:'failed'});assert.equal(JSON.stringify(run).includes(state.token),false);
+});
+test('guest source fetches carry a GUEST_SOURCE_TIMEOUT_MS (90 s) signal, not the legacy 30 s default',async()=>{
+ assert.equal(GUEST_SOURCE_TIMEOUT_MS,90_000);
+ const original=AbortSignal.timeout,seen=[];AbortSignal.timeout=ms=>{seen.push(ms);return original.call(AbortSignal,ms);};
+ try{const state=await setup({fixture:true});
+  const lookup=await fixtureLookup(state);assert.equal(lookup.state,'succeeded');
+  const {job}=await collection(state,lookup);for(let i=0;i<8;i++)await advance(state,job.jobId);
+  assert.equal(seen.length,state.calls.length);assert.ok(seen.length>=9);assert.ok(seen.every(ms=>ms===GUEST_SOURCE_TIMEOUT_MS));
+ }finally{AbortSignal.timeout=original;}
 });
 test('concurrent advances execute one step with one fetch and one fence change',async()=>{
  const state=await setup({fixture:true}),{job}=await state.service.enqueueLookup({token:state.token,idemKey:key(),request:{kind:'uic',value:'000020838'}});
