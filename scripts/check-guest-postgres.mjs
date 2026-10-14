@@ -263,6 +263,16 @@ ROLLBACK;`);
   assert.deepEqual(seen.split('\n'),['f','t']);
   assert.equal(await sql(`SELECT trrc_guest.expires_at(j)-j.terminal_at FROM trrc_guest.jobs j WHERE job_id=${job};`),'7 days');
  });
+ await gate('generated migration applies as one transaction',async()=>{
+  // A fresh database in this disposable container (roles are cluster-wide), given only the
+  // same storage.objects stub, receives the generated file through psql -f with ON_ERROR_STOP.
+  const fresh='trrc_migration_check',psql=['exec',name,'psql','-U','supabase_admin','-d',fresh,'-X','-q','-A','-t','-v','ON_ERROR_STOP=1'];
+  await sql(`CREATE DATABASE ${fresh};`);
+  command([...psql,'-c','CREATE SCHEMA storage; CREATE TABLE storage.objects (bucket_id text,name text,metadata jsonb,created_at timestamptz NOT NULL DEFAULT now());']);
+  command(['cp',resolve(root,'supabase/migrations/20261014000000_trrc_guest.sql'),`${name}:/tmp/trrc_guest_migration.sql`]);
+  command([...psql,'-f','/tmp/trrc_guest_migration.sql']);
+  assert.equal(command([...psql,'-c',"SELECT to_regprocedure('trrc_guest.attest_platform()') IS NOT NULL, to_regprocedure('public.trrc_guest_orphan_candidates(jsonb)') IS NOT NULL, EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='trrc_guest' AND table_name='platform_proofs' AND column_name='attested_by');"]).trim(),'t|t|t');
+ });
 }catch(error){report.error=error.message;process.exitCode=1;}
 finally{
  try{command(['rm','-f','-v',name]);}catch(error){report.cleanupError=error.message;process.exitCode=1;}

@@ -75,10 +75,14 @@ begin
 end $$;
 revoke all on function public.trrc_guest_orphan_candidates(jsonb), public.trrc_guest_confirm_orphans(jsonb) from public, anon, authenticated;
 grant execute on function public.trrc_guest_orphan_candidates(jsonb), public.trrc_guest_confirm_orphans(jsonb) to service_role;
--- Hosted only: pg_cron exists on Supabase; the disposable gate calls attest_platform() directly.
+-- Scheduling happens only if the pg_cron extension is ENABLED before this migration runs
+-- (Supabase: Database > Extensions). Otherwise a warning names the command to run after
+-- enabling it. The disposable gate has no pg_cron and calls attest_platform() directly.
 do $$ begin
   if exists (select 1 from pg_extension where extname = 'pg_cron') then
     perform cron.schedule('trrc_guest_attest', '*/5 * * * *', 'select trrc_guest.attest_platform()');
+  else
+    raise warning 'pg_cron extension absent; trrc_guest_attest NOT scheduled — run: select cron.schedule(''trrc_guest_attest'',''*/5 * * * *'',''select trrc_guest.attest_platform()'')';
   end if;
 end $$;
 commit;

@@ -104,6 +104,10 @@
     {
       "label": "cleanup waits one hour after terminal",
       "result": "PASS"
+    },
+    {
+      "label": "generated migration applies as one transaction",
+      "result": "PASS"
     }
   ],
   "failed": [],
