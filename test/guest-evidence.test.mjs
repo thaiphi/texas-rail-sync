@@ -4,7 +4,7 @@ import {Buffer} from 'node:buffer';
 import {randomUUID} from 'node:crypto';
 import {sha256} from '../src/normalize.mjs';
 import {createMemoryGuestJournal,GUEST_LIMITS} from '../src/hosted/guest-journal.mjs';
-import {createMemoryObjectStore,createStagedPublisher,createVerifiedEvidenceReader,objectKeyFor,putObject,putReservedObject,recordEvidence,runCleanup,stageOutputs} from '../src/hosted/evidence-store.mjs';
+import {createMemoryObjectStore,createStagedPublisher,createVerifiedEvidenceReader,objectKeyFor,putObject,putReservedObject,recordEvidence,runCleanup,runOrphanSweep,stageOutputs} from '../src/hosted/evidence-store.mjs';
 async function claimed(){
  let now=Date.parse('2026-10-13T05:00:00.000Z');const objects=new Map(),store=createMemoryObjectStore({objects}),journal=createMemoryGuestJournal({clock:()=>now}),tokenHash=sha256(randomUUID());
  await journal.issueToken({tokenHash});
@@ -91,4 +91,25 @@ test('reserved uploads are tracked and cleaned; keys being deleted refuse new ad
  assert.equal((await state.journal.confirmCleanup({lease:maintenance,keys:[archive.objectKey]})).removed,1);
  await recordEvidence({...state,lease:live.lease,attemptId:'L1-a1',path:'lookup-metadata.json',bytes:Buffer.from('archive')});
  assert.equal(state.objects.has(archive.objectKey),true);
+});
+test('orphan sweep deletes only unreferenced guest objects older than one hour and fences re-admission',async()=>{
+ let t=Date.parse('2026-10-14T00:00:00.000Z');const clock=()=>t,store=createMemoryObjectStore({clock});
+ const journal=createMemoryGuestJournal({clock,listObjects:()=>store.listKeys()});
+ const orphan=await putObject(store,new Uint8Array([1,2,3]));
+ assert.deepEqual(await runOrphanSweep({journal,store}),{removed:0});
+ t+=3_600_001;
+ assert.deepEqual(await runOrphanSweep({journal,store}),{removed:1});
+ await assert.rejects(store.get(orphan.objectKey),{code:'ENOENT'});
+ assert.deepEqual(await runOrphanSweep({journal,store}),{removed:0});
+});
+test('orphan sweep never removes an object a job references, however old',async()=>{
+ let t=Date.parse('2026-10-14T00:00:00.000Z');const clock=()=>t,store=createMemoryObjectStore({clock});
+ const journal=createMemoryGuestJournal({clock,listObjects:()=>store.listKeys()}),tokenHash=sha256(randomUUID());
+ await journal.issueToken({tokenHash});
+ const {job}=await journal.enqueue({tokenHash,idemKey:'orphan-test-0001',kind:'lookup',requestDigest:sha256('o'),request:{kind:'uic',value:'000020838'},testFixture:true});
+ const {lease}=await journal.claim({tokenHash,jobId:job.jobId,leaseOwner:randomUUID()});
+ const entry=await putReservedObject({journal,store,lease,bytes:new Uint8Array([9])});
+ t+=7_200_000;
+ assert.deepEqual(await runOrphanSweep({journal,store}),{removed:0});
+ assert.equal((await store.get(entry.objectKey)).length,1);
 });

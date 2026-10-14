@@ -8,8 +8,8 @@ const bucketPattern=/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,62}$/;
 // Existing archive maximum; no new raw limit is introduced.
 const objectByteLimit=80_106_496;
 const sha256Hex=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),byte=>byte.toString(16).padStart(2,'0')).join('');
-// The 21 journal RPCs plus the 2 budget RPCs defined in the unapplied SQL drafts.
-const operations=Object.freeze({issueToken:'issue_token',replay:'replay',enqueue:'enqueue',job:'job',history:'history',claim:'claim',renew:'renew',reserveObject:'reserve_object',recordEvidence:'record_evidence',evidence:'evidence',recordStaged:'record_staged',staged:'staged',advance:'advance',retry:'retry',fail:'fail',publish:'publish',publication:'publication',run:'run',claimMaintenance:'claim_maintenance',cleanupCandidates:'cleanup_candidates',confirmCleanup:'confirm_cleanup',reserveEgress:'reserve_egress',purgeRetainedRows:'purge_retained_rows'});
+// The 21 journal RPCs, the 2 budget RPCs and the 2 orphan-sweep RPCs defined in the unapplied SQL drafts.
+const operations=Object.freeze({issueToken:'issue_token',replay:'replay',enqueue:'enqueue',job:'job',history:'history',claim:'claim',renew:'renew',reserveObject:'reserve_object',recordEvidence:'record_evidence',evidence:'evidence',recordStaged:'record_staged',staged:'staged',advance:'advance',retry:'retry',fail:'fail',publish:'publish',publication:'publication',run:'run',claimMaintenance:'claim_maintenance',cleanupCandidates:'cleanup_candidates',confirmCleanup:'confirm_cleanup',reserveEgress:'reserve_egress',purgeRetainedRows:'purge_retained_rows',orphanCandidates:'orphan_candidates',confirmOrphans:'confirm_orphans'});
 function originFor(url,secretKey){
  const endpoint=new URL(url);
  if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.search||endpoint.hash||endpoint.pathname!=='/')throw fail('GUEST_UNAVAILABLE','Supabase endpoint must be an HTTPS origin');

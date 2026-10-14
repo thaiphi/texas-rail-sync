@@ -8,7 +8,7 @@ import {isDeepStrictEqual} from 'node:util';
 import {workflowView} from '../../public/workflow.js';
 import {resumeRunRecorder} from '../runEvents.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
-export const GUEST_LIMITS=Object.freeze({leaseMs:180_000,laneMs:600_000,tokenMs:86_400_000,tokensPerHour:200,lookupMaxAgeMs:86_400_000,lookupRetentionMs:86_400_000,evidenceRetentionMs:604_800_000,evidenceBytes:10_000_000,lookupsPerHour:10,collectionsPerDay:3,globalCollectionsPerDay:20,maxAttempts:2});
+export const GUEST_LIMITS=Object.freeze({leaseMs:180_000,laneMs:600_000,tokenMs:86_400_000,tokensPerHour:200,lookupMaxAgeMs:86_400_000,lookupRetentionMs:86_400_000,evidenceRetentionMs:604_800_000,evidenceBytes:10_000_000,lookupsPerHour:10,collectionsPerDay:3,globalCollectionsPerDay:20,maxAttempts:2,cleanupAgeMs:3_600_000});
 export const GUEST_STEPS=Object.freeze({lookup:Object.freeze(['L1','L2','L3']),collection:Object.freeze(['C0','C1','C2','C3','C4','C5','C6','C7','C8','C9']),replay:Object.freeze(['R0','C8','C9'])});
 const lanes=Object.freeze({lookup:'lookup',collection:'collection',replay:'collection'});
 const terminal=new Set(['succeeded','failed','interrupted']);
@@ -22,7 +22,7 @@ export function monotonicClock(stampBase){
  if(!Number.isFinite(next)||iso(next)!==stampBase)throw failure('RUN_STATE_INVALID','Journal stamp base required');
  return ()=>iso(next++);
 }
-export function createMemoryGuestJournal({clock=Date.now,limits=GUEST_LIMITS}={}){
+export function createMemoryGuestJournal({clock=Date.now,limits=GUEST_LIMITS,listObjects=async()=>[]}={}){
  const tokens=new Map(),jobs=new Map(),evidence=new Map(),staged=new Map(),publications=new Map(),reservations=new Map(),tombstones=new Set();
  let latest=-Infinity,maintenance={fence:0,leaseOwner:null,leaseExpiresAt:0};
  const now=()=>{const value=clock();if(!Number.isFinite(value))throw failure('JOURNAL_UNAVAILABLE','Journal clock unavailable');latest=Math.max(latest,value);return latest;};
@@ -201,7 +201,9 @@ export function createMemoryGuestJournal({clock=Date.now,limits=GUEST_LIMITS}={}
  }
  function maintained(lease){if(lease?.fence!==maintenance.fence||lease.leaseOwner!==maintenance.leaseOwner||maintenance.leaseExpiresAt<=now())throw failure('LEASE_LOST','Maintenance lease lost; nothing may be deleted');}
  const references=item=>[...(evidence.get(item.jobId)??[]).map(row=>row.objectKey),...(staged.get(item.jobId)??[]).map(entry=>entry.objectKey),...(reservations.get(item.jobId)??[]).map(row=>row.objectKey),...(publications.has(item.jobId)?[publications.get(item.jobId).archive.objectKey]:[])];
- function candidates(){const keep=new Set(),drop=new Set();for(const item of jobs.values())for(const key of references(item))(expired(item)?drop:keep).add(key);return [...drop].filter(key=>!keep.has(key)).sort();}
+ // Terminal for at least cleanupAgeMs and past retention: no in-flight request can still write.
+ const settled=item=>expired(item)&&item.terminalAt!==null&&item.terminalAt<=now()-limits.cleanupAgeMs;
+ function candidates(){const keep=new Set(),drop=new Set();for(const item of jobs.values())for(const key of references(item))(settled(item)?drop:keep).add(key);return [...drop].filter(key=>!keep.has(key)).sort();}
  async function cleanupCandidates({lease}={}){maintained(lease);reap();const keys=candidates();for(const key of keys)tombstones.add(key);return keys;}
  // Rechecks references under the maintenance fence. Rows are released only after the
  // caller confirmed deletion, so incomplete cleanup frees nothing optimistically.
@@ -218,5 +220,18 @@ export function createMemoryGuestJournal({clock=Date.now,limits=GUEST_LIMITS}={}
  for(const key of keys)tombstones.delete(key);
   maintenance={...maintenance,leaseOwner:null,leaseExpiresAt:0};return {removed:keys.length};
  }
- return Object.freeze({kind:'local_reference',issueToken,replay,enqueue,job:readJob,history,claim,renew,reserveObject,recordEvidence,evidence:listEvidence,recordStaged,staged:listStaged,advance,retry,fail,publish,publication:readPublication,run:readRun,claimMaintenance,cleanupCandidates,confirmCleanup});
+ const referenced=()=>{const all=new Set();for(const item of jobs.values())for(const key of references(item))all.add(key);return all;};
+ async function orphanCandidates({lease}={}){
+  maintained(lease);const refs=referenced(),cutoff=now()-limits.cleanupAgeMs,keys=[];
+  for(const {key,createdAt} of await listObjects())if(/^sha256\/[a-f0-9]{64}$/.test(key)&&createdAt<=cutoff&&!refs.has(key)){tombstones.add(key);keys.push(key);}
+  return keys.sort();
+ }
+ // Like confirmCleanup, releases the maintenance lease so the next sweep can run.
+ async function confirmOrphans({lease,keys}={}){
+  maintained(lease);const refs=referenced();
+  if(!Array.isArray(keys)||keys.some(key=>!tombstones.has(key)||refs.has(key)))throw failure('CLEANUP_CONFLICT','Orphan references changed; nothing was released');
+  for(const key of keys)tombstones.delete(key);
+  maintenance={...maintenance,leaseOwner:null,leaseExpiresAt:0};return {removed:keys.length};
+ }
+ return Object.freeze({kind:'local_reference',issueToken,replay,enqueue,job:readJob,history,claim,renew,reserveObject,recordEvidence,evidence:listEvidence,recordStaged,staged:listStaged,advance,retry,fail,publish,publication:readPublication,run:readRun,claimMaintenance,cleanupCandidates,confirmCleanup,orphanCandidates,confirmOrphans});
 }
