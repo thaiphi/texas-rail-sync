@@ -6,11 +6,15 @@ import {mountWorkflow} from './workflow-ui.js';
 import {facts,filterInventory,dispositionRows,sourceUrl,countText} from './presentation.js';
 import {parseRoute,datasetRoute,datasetSummary,localTime,localZone} from './navigation.js';
 import {createAnalyticsHandoff} from './analytics-handoff.js';
+import {listSavedPackages,saveVerifiedPackage,verifyVersionPackage} from './browser-library.js';
 const $=id=>document.getElementById(id);
+// Bootstrap failure before the collection controls mount: say so instead of leaving a silent control.
+let collectionMounted=false;window.addEventListener('error',()=>{if(!collectionMounted&&$('lookup-submit')?.disabled)$('collection-status').textContent='Collection controls could not start. Reload the page to retry; saved and preserved datasets may still be browsable.';});
 let data,base,selected;
 let availableVersions=[],requestedVersionId=null,pinnedVersion=null,failedVersionId=null;const versionRequest=createLatestRequest(),registryRequest=createLatestRequest();
 let workflow=null,currentRoute=parseRoute(location.hash);const libraryArtifacts=new Map();
 let analyticsPins=null,analyticsVersion=null,analyticsTransfer={state:'idle'};
+const savedPackages=new Map();let savedView=null;
 const analyticsActive=()=>['preparing','waiting','receiving','validating','previewed'].includes(analyticsTransfer.state);
 const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
  analyticsTransfer=event;analyticsVersion=event.artifactId??analyticsVersion;
@@ -19,20 +23,21 @@ const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
  if(event.code&&event.state==='rejected')$('analytics-status').textContent+=' '+String(event.message??event.code).slice(0,300);
  updateAnalyticsControls();
 }});
-function analyticsReady(){return Boolean(data&&analyticsPins?.artifactId===data.artifactId&&currentRoute.screen==='workspace'&&currentRoute.tab==='downloads'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId));}
+function analyticsReady(){return Boolean(data&&!savedView&&analyticsPins?.artifactId===data.artifactId&&currentRoute.screen==='workspace'&&currentRoute.tab==='downloads'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId));}
 function updateAnalyticsControls(){
  $('analytics-start').disabled=!analyticsReady()||analyticsActive();$('analytics-cancel').hidden=!analyticsActive();
 }
 function resetAnalytics(){if(analyticsActive())analyticsHandoff.cancel();analyticsPins=null;analyticsVersion=null;analyticsTransfer={state:'idle'};$('analytics-status').textContent='';$('analytics-scope').textContent='';updateAnalyticsControls();}
 $('analytics-start').addEventListener('click',()=>{if(!analyticsReady()||analyticsActive())return;analyticsVersion=data.artifactId;analyticsHandoff.start({artifact:data,pins:analyticsPins});});
 $('analytics-cancel').addEventListener('click',()=>analyticsHandoff.cancel());
-window.addEventListener('pagehide',()=>analyticsHandoff.cancel());
+// Always cancel a pending transfer; keep owned saved-file URLs when the page enters the back/forward cache.
+window.addEventListener('pagehide',event=>{analyticsHandoff.cancel();if(!event?.persisted)revokeSavedUrls();});
 updateAnalyticsControls();
 
 function route(focus=false){
  currentRoute=parseRoute(location.hash);const workspace=currentRoute.screen==='workspace',id=currentRoute.artifactId??requestedVersionId??data?.artifactId;
  if(analyticsActive()&&(!workspace||currentRoute.tab!=='downloads'||id!==analyticsVersion))analyticsHandoff.cancel();
- updateAnalyticsControls();
+ updateAnalyticsControls();updateSaveControl();
  for(const name of ['find','datasets','history','help'])$(name+'-view').hidden=currentRoute.screen!==name;
  $('dataset-workspace').hidden=!workspace;
  $('error').hidden=!workspace||!$('error').textContent;
@@ -42,7 +47,7 @@ function route(focus=false){
  if(workspace&&id)updateWorkspaceLinks(id);
  const showRun=currentRoute.screen==='history'||(workspace&&currentRoute.tab==='collection');$('workflow-view').hidden=!showRun;
  if(showRun){$(workspace?'workspace-run-host':'history-run-host').appendChild($('workflow-view'));if(workflow){if(workspace)workflow.forDataset(id,data?.artifactId===id?data.manifest:null,availableVersions.find(version=>version.artifactId===id)?.runId);else workflow.showHistory(currentRoute.runId);}}
- if(workspace&&currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId&&(currentRoute.artifactId!==requestedVersionId||(focus&&currentRoute.artifactId===failedVersionId))&&availableVersions.length)void openDataset(currentRoute.artifactId);
+ if(workspace&&currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId&&(currentRoute.artifactId!==requestedVersionId||(focus&&currentRoute.artifactId===failedVersionId))&&(availableVersions.length||savedPackages.size))void openDataset(currentRoute.artifactId);
  if(currentRoute.screen==='datasets'&&availableVersions.length)void verifyLibrary();
  if(focus){if(currentRoute.screen==='history'&&currentRoute.runId){$('workflow-view').tabIndex=-1;$('workflow-view').focus({preventScroll:true});$('workflow-view').scrollIntoView({block:'start'});}else{$('main').focus({preventScroll:true});window.scrollTo({top:0});}}
 }
@@ -76,7 +81,7 @@ function select(key,reveal=false){
   showReport(rows[0].source_row_key);
  }else $('history').innerHTML=record.uic_number===data.manifest.scope.uic_number?`<div class="empty"><h3>No reports returned for this period</h3><p>The completed bounded query covered UIC ${escape(record.uic_number)}, ${escape(data.manifest.scope.start)}${data.manifest.scope.end?' through '+escape(data.manifest.scope.end):' onward'}. This does not indicate zero injection.</p></div>`:`<div class="empty"><h3>No history acquired for this inventory record</h3><p>This version queried monthly history for UIC ${escape(data.manifest.scope.uic_number)} only. An empty view does not indicate zero injection or a missing report.</p></div>`;
  const source=data.manifest.sources.find(item=>item.snapshot_id===record.source_snapshot_id),monthlySource=rows.length?data.manifest.sources.find(item=>item.snapshot_id===rows[0].source_snapshot_id):null;
- $('record-provenance').innerHTML=`<section class="record-source"><h3>Source &amp; provenance</h3><p>${sourceLink(source,'Inventory source')}${monthlySource?' · '+sourceLink(monthlySource,'Monthly source'):''}</p><p>Snapshot ${escape(record.source_snapshot_id)} · API retained as ${record.api_no.length} source characters.</p><details><summary>Record identity, flags &amp; source hash</summary><p>Record key ${escape(record.source_record_key)}</p><p>Quality flags: ${escape(record.quality_flags.join(', ')||'No recorded flags')}</p><p>SHA-256 <code>${escape(source?.sha256??'Unavailable')}</code></p><p>${escape(record.county_basis)}</p><p>Permit values are regulatory constraints, not sustainable capacity. Current operating status is not inferred.</p></details><nav><a class="button-link" href="${datasetRoute(data.artifactId,'sources')}">View source ledger</a><a class="button-link primary" href="${base}injection_monthly.csv?download=1" download="injection_monthly.csv">↓ Whole-snapshot CSV</a></nav></section>`;
+ $('record-provenance').innerHTML=`<section class="record-source"><h3>Source &amp; provenance</h3><p>${sourceLink(source,'Inventory source')}${monthlySource?' · '+sourceLink(monthlySource,'Monthly source'):''}</p><p>Snapshot ${escape(record.source_snapshot_id)} · API retained as ${record.api_no.length} source characters.</p><details><summary>Record identity, flags &amp; source hash</summary><p>Record key ${escape(record.source_record_key)}</p><p>Quality flags: ${escape(record.quality_flags.join(', ')||'No recorded flags')}</p><p>SHA-256 <code>${escape(source?.sha256??'Unavailable')}</code></p><p>${escape(record.county_basis)}</p><p>Permit values are regulatory constraints, not sustainable capacity. Current operating status is not inferred.</p></details><nav><a class="button-link" href="${datasetRoute(data.artifactId,'sources')}">View source ledger</a><a class="button-link primary" href="${escape(fileHref('injection_monthly.csv'))}" download="injection_monthly.csv">↓ Whole-snapshot CSV</a></nav></section>`;
  for(const button of $('inventory-table').querySelectorAll('button')){const active=button.dataset.key===key;button.setAttribute('aria-pressed',String(active));button.closest('tr').classList.toggle('selected',active);}
  if(reveal&&window.matchMedia('(max-width:960px)').matches){$('well-name').tabIndex=-1;$('well-name').focus({preventScroll:true});$('well-name').closest('.record').scrollIntoView({block:'start'});}
 }
@@ -101,12 +106,12 @@ function renderExports(integrity){
  $('version-details').innerHTML=facts([['Record class','Public reported — verified version pins'],['History readiness',manifest.real_history_status],['Inventory / monthly',`${data.inventory.length} / ${data.injectionMonthly.length}`],['Query period',`${manifest.scope.start} – ${manifest.scope.end??'no upper bound recorded'}`],['Schema',manifest.schema_version],['Transformation',manifest.transformation_version]]);
  $('version-provenance').innerHTML=facts([['Artifact ID',data.artifactId],['Retrieved (local)',localTime(manifest.sources[0]?.retrieved_at)],['Manifest SHA-256',integrity.manifestSha256],['Payload SHA-256',integrity.normalizedSha256],['Consumer handoff','Acknowledgement unrecorded']]);
  const descriptions={'inventory.csv':`${data.inventory.length} inventory records`,'injection_monthly.csv':`${data.injectionMonthly.length} retained monthly rows`,'manifest.json':'Source URLs, versions and hashes','quality_report.json':'Dispositions, counts and quality evidence','data_dictionary.json':'Field definitions, units and formulas','normalized.json':'Complete typed artifact for Analytics'};
- $('downloads').innerHTML=Object.entries(descriptions).map(([name,description])=>`<a href="${base+name}?download=1" download="${name}">↓ ${name}<small>${escape(description)}${manifest.files[name]?' · '+fmt(manifest.files[name].bytes)+' bytes':''}</small></a>`).join('');
- $('downloads').insertAdjacentHTML('afterbegin',`<a href="/api/versions/${encodeURIComponent(data.artifactId)}/download" download="${escape(data.artifactId)}.tar">↓ Complete version · TAR archive<small>All contract files, original sources, selection evidence and publication pins, verified before download.</small></a>`);
+ $('downloads').innerHTML=Object.entries(descriptions).map(([name,description])=>`<a href="${escape(fileHref(name))}" download="${name}">↓ ${name}<small>${escape(description)}${manifest.files[name]?' · '+fmt(manifest.files[name].bytes)+' bytes':''}</small></a>`).join('');
+ $('downloads').insertAdjacentHTML('afterbegin',`<a href="${escape(tarHref())}" download="${escape(data.artifactId)}.tar">↓ Complete version · TAR archive<small>All contract files, original sources, selection evidence and publication pins, verified before download.</small></a>`);
  const evidenceFiles=Object.keys(manifest.files).filter(name=>name.startsWith('sources/'));
- if(evidenceFiles.length)$('downloads').innerHTML+=`<details><summary>Whole-version source and selection evidence · ${evidenceFiles.length} files</summary><p class="note">Keep these files under sources/ together with all six contract downloads. Available lookup, selection, acquisition and retrieval sidecars permit independent offline replay.</p>${evidenceFiles.map(name=>`<a href="${base+escape(name)}?download=1" download="${escape(name.split('/').at(-1))}">↓ ${escape(name)}</a>`).join('')}${manifest.scope.query_version===2?`<a href="${base}version-pins.json?download=1" download="version-pins.json">↓ Publication pins</a>`:''}</details>`;
+ if(evidenceFiles.length)$('downloads').innerHTML+=`<details><summary>Whole-version source and selection evidence · ${evidenceFiles.length} files</summary><p class="note">Keep these files under sources/ together with all six contract downloads. Available lookup, selection, acquisition and retrieval sidecars permit independent offline replay.</p>${evidenceFiles.map(name=>`<a href="${escape(fileHref(name))}" download="${escape(name.split('/').at(-1))}">↓ ${escape(name)}</a>`).join('')}${manifest.scope.query_version===2?`<a href="${escape(fileHref('version-pins.json'))}" download="version-pins.json">↓ Publication pins</a>`:''}</details>`;
  for(const link of $('downloads').querySelectorAll('a'))link.addEventListener('click',()=>{if(analyticsActive())analyticsHandoff.cancel();});
- $('sources').innerHTML=manifest.sources.map(source=>`<article class="panel padded source-card"><h3>${escape(source.title??source.name)}</h3><p class="note">${escape(source.kind)}</p><p>${sourceLink(source,'Open official source')}</p><p>Retrieved ${escape(localTime(source.retrieved_at))}</p><a class="button-link" href="${base+escape(source.raw_file)}?download=1" download="${escape(source.raw_file.split('/').at(-1))}">View preserved response</a><details><summary>Snapshot identity and checksum</summary><p>${fmt(source.bytes)} bytes</p><p>Snapshot ${escape(source.snapshot_id)}</p><p>SHA-256 <code>${escape(source.sha256)}</code></p></details></article>`).join('');
+ $('sources').innerHTML=manifest.sources.map(source=>`<article class="panel padded source-card"><h3>${escape(source.title??source.name)}</h3><p class="note">${escape(source.kind)}</p><p>${sourceLink(source,'Open official source')}</p><p>Retrieved ${escape(localTime(source.retrieved_at))}</p><a class="button-link" href="${escape(fileHref(source.raw_file))}" download="${escape(source.raw_file.split('/').at(-1))}">View preserved response</a><details><summary>Snapshot identity and checksum</summary><p>${fmt(source.bytes)} bytes</p><p>Snapshot ${escape(source.snapshot_id)}</p><p>SHA-256 <code>${escape(source.sha256)}</code></p></details></article>`).join('');
  const quality=data.qualityReport;
  $('quality-summary').textContent=`Monthly rows: ${countText(quality.monthly.raw)} raw = ${countText(quality.monthly.accepted)} accepted + ${countText(quality.monthly.quarantined)} quarantined + ${countText(quality.monthly.excluded)} excluded. Quarantine reasons stay with the retained rows.`;
  const issues=dispositionRows(data);
@@ -114,7 +119,7 @@ function renderExports(integrity){
  for(const button of $('quarantine').querySelectorAll('[data-issue]'))button.addEventListener('click',()=>inspectIssue(button.dataset.issue));
  $('quality-metrics').innerHTML=[['Inventory accepted',quality.inventory.accepted],['Monthly accepted',quality.monthly.accepted],['Quarantined (all rows)',quality.inventory.quarantined+quality.monthly.quarantined],['Excluded (all rows)',quality.inventory.excluded+quality.monthly.excluded]].map(([label,count])=>`<div><strong>${countText(count)}</strong><small>${escape(label)}</small></div>`).join('');
  $('quality-checks').innerHTML=facts([['Inventory reconciliation',`${quality.inventory.raw} raw = ${quality.inventory.accepted} accepted + ${quality.inventory.quarantined} quarantined + ${quality.inventory.excluded} excluded`],['Matched / unmatched / ambiguous',`${quality.parent_join.matched} / ${quality.parent_join.unmatched} / ${quality.parent_join.ambiguous}`],['Checks','Original identity, parsing, negatives, pressure consistency, duplicate reports, exact parent linkage and declared source scope'],['Revision policy',quality.revision_policy]])+`<pre>${escape(JSON.stringify(quality.issue_counts,null,2))}</pre>`;
- $('quality-download').textContent='Download quality report (JSON)';$('quality-download').href=base+'quality_report.json?download=1';
+ $('quality-download').textContent='Download quality report (JSON)';$('quality-download').href=fileHref('quality_report.json');
  $('quality').textContent=JSON.stringify(quality,null,2);$('dictionary').textContent=JSON.stringify(data.dataDictionary,null,2);
 }
 let manifest=null;
@@ -142,6 +147,7 @@ function renderLibrary(){
  const query=$('dataset-search').value.trim().toLowerCase();
  const rows=availableVersions.filter(pins=>{const artifact=libraryArtifacts.get(pins.artifactId),summary=artifact&&datasetSummary(artifact);return !query||[pins.artifactId,summary?.uic,summary?.api,summary?.name].some(value=>String(value??'').toLowerCase().includes(query));});
  $('dataset-library').innerHTML=rows.length?`<div class="scroll-table" tabindex="0" aria-label="Preserved dataset versions"><table><thead><tr><th>Dataset</th><th>Reporting coverage</th><th>Quality</th><th>Version</th><th>Open</th></tr></thead><tbody>${rows.map(pins=>{const artifact=libraryArtifacts.get(pins.artifactId),summary=artifact&&datasetSummary(artifact);return `<tr><td><strong>${escape(summary?.name??'Metadata not verified yet')}</strong><small>${summary?`Monthly scope UIC ${escape(summary.uic)} · API ${escape(summary.api)} · ${summary.inventoryRows} inventory rows · ${summary.monthlyRows} monthly report rows (${summary.reportingMonths} distinct months)`:'Verify this version to inspect source identity.'}</small></td><td>${escape(summary?.period??'Unavailable')}</td><td>${summary?`${summary.quarantined} quarantined rows`:'Unavailable'}</td><td><code>${escape(pins.artifactId)}</code><small>${pins.defaultPinned?'Default pinned':''}${data?.artifactId===pins.artifactId?' · Opened':''}</small></td><td><button type="button" class="primary" data-open-version="${escape(pins.artifactId)}">Open dataset</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="empty">No preserved datasets match this search.</p>';
+ $('dataset-library').insertAdjacentHTML('beforeend',savedLibraryHtml());
  for(const button of $('dataset-library').querySelectorAll('[data-open-version]'))button.addEventListener('click',()=>{location.hash=datasetRoute(button.dataset.openVersion,'overview');});
  $('library-default').textContent=`Default pinned: ${availableVersions.find(version=>version.defaultPinned)?.artifactId??'Unavailable'}. ${data?'Opened: '+data.artifactId+'. ':''}Opening a dataset does not change the default pin.`;
 }
@@ -154,33 +160,35 @@ async function verifyLibrary(){
 }
 function updateVersionSelection(){
  const requested=requestedVersionId??data?.artifactId??availableVersions.find(version=>version.defaultPinned)?.artifactId??'';
- $('version-selection').innerHTML=availableVersions.map(version=>`<option value="${escape(version.artifactId)}">${escape(version.artifactId)}${version.defaultPinned?' · default pinned':''}</option>`).join('')+(requested&&!availableVersions.some(version=>version.artifactId===requested)?`<option value="${escape(requested)}">${escape(requested)} · requested evidence unavailable in registry</option>`:'');$('version-selection').value=requested;$('version-selection').disabled=false;
+ const savedOnly=[...savedPackages.keys()].filter(id=>!availableVersions.some(version=>version.artifactId===id));
+ $('version-selection').innerHTML=availableVersions.map(version=>`<option value="${escape(version.artifactId)}">${escape(version.artifactId)}${version.defaultPinned?' · default pinned':''}</option>`).join('')+savedOnly.map(id=>`<option value="${escape(id)}">${escape(id)} · saved in this browser · origin not re-verified</option>`).join('')+(requested&&!availableVersions.some(version=>version.artifactId===requested)&&!savedOnly.includes(requested)?`<option value="${escape(requested)}">${escape(requested)} · requested evidence unavailable in registry</option>`:'');$('version-selection').value=requested;$('version-selection').disabled=false;
 }
 async function refreshVersions(){
  const ticket=registryRequest.begin();
  try{const response=await fetch('/api/versions');const type=response.headers?.get?.('content-type')??'unavailable';if(!response.ok||!type.includes('application/json'))console.warn('Dataset registry response could not be verified',{status:response.status,contentType:type});if(!response.ok)throw Error('Version registry unavailable');const registry=await response.json();if(!registryRequest.isCurrent(ticket))return;availableVersions=registry.versions;
  updateVersionSelection();
  $('library-status').textContent=`${availableVersions.length} preserved public versions. Source identity is shown only after version verification.`;renderLibrary();void verifyLibrary();
- }catch{if(!registryRequest.isCurrent(ticket))return;console.warn('Dataset registry request failed; unverified versions remain unavailable.');$('library-status').textContent=availableVersions.length?'Version registry unavailable. Previously verified versions remain available below; additional versions cannot be listed. Reload to retry.':'Version registry unavailable. Retry by reloading; no verified versions are available.';renderLibrary();updateVersionSelection();$('version-selection').disabled=!availableVersions.length;}
+ }catch{if(!registryRequest.isCurrent(ticket))return;console.warn('Dataset registry request failed; unverified versions remain unavailable.');$('library-status').textContent=availableVersions.length?'Version registry unavailable. Previously verified versions remain available below; additional versions cannot be listed. Reload to retry.':'Version registry unavailable. Retry by reloading; no verified versions are available.';renderLibrary();updateVersionSelection();$('version-selection').disabled=!availableVersions.length&&!savedPackages.size;}
 }
 async function openDataset(id){
- resetAnalytics();
- failedVersionId=null;requestedVersionId=id;$('version-selection').value=id;const ticket=versionRequest.begin(),pins=availableVersions.find(version=>version.artifactId===id);
+ resetAnalytics();revokeSavedUrls();
+ failedVersionId=null;requestedVersionId=id;$('version-selection').value=id;const ticket=versionRequest.begin(),pins=availableVersions.find(version=>version.artifactId===id),saved=pins?null:savedPackages.get(id);
  updateWorkspaceLinks(id);
  data=null;selected=null;clearDatasetEvidence(document);$('error').textContent='';$('error').hidden=true;$('well-name').textContent='Verifying selected version…';$('snapshot').textContent='Verifying…';$('workspace-identity').textContent='Verifying selected dataset…';$('workspace-version').textContent=id;for(const control of ['search','county','operator','clear-filters'])$(control).disabled=true;
  if(workflow&&currentRoute.tab==='collection')workflow.clearDataset('Verifying dataset; associated run evidence is unavailable.');
- try{if(!pins)throw Error('Requested publication pins unavailable');const artifact=await loadVerifiedVersion(pins);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==pins.artifactId||$('version-selection').value!==requestedVersionId)return;libraryArtifacts.set(id,artifact);displayDataset(artifact,pins);}catch(error){if(!versionRequest.isCurrent(ticket))return;failedVersionId=id;$('error').hidden=currentRoute.screen!=='workspace';$('error').textContent=`Selected version unavailable: ${error.message}. Records and downloads are unavailable until verification succeeds.`;$('well-name').textContent='Dataset unavailable';$('snapshot').textContent='Unavailable';$('workspace-identity').textContent='Dataset unavailable';if(workflow&&currentRoute.screen==='workspace'&&currentRoute.tab==='collection')workflow.clearDataset('Dataset verification failed; associated run evidence is unavailable.');}
+ try{if(!pins&&!saved)throw Error('Requested publication pins unavailable');if(saved){const opened=await openSavedDataset(saved);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==id){for(const url of opened.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(opened.tarUrl);return;}savedView=opened;displayDataset(opened.artifact,{...saved.pins,path:`/artifacts/${id}/`});markSavedView();return;}const artifact=await loadVerifiedVersion(pins);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==pins.artifactId||$('version-selection').value!==requestedVersionId)return;libraryArtifacts.set(id,artifact);displayDataset(artifact,pins);}catch(error){if(!versionRequest.isCurrent(ticket))return;failedVersionId=id;$('error').hidden=currentRoute.screen!=='workspace';$('error').textContent=`Selected version unavailable: ${error.message}. Records and downloads are unavailable until verification succeeds.`;$('well-name').textContent='Dataset unavailable';$('snapshot').textContent='Unavailable';$('workspace-identity').textContent='Dataset unavailable';if(workflow&&currentRoute.screen==='workspace'&&currentRoute.tab==='collection')workflow.clearDataset('Dataset verification failed; associated run evidence is unavailable.');}
 }
 function inspectIssue(key){
  const inventory=data.inventory.find(row=>row.source_record_key===key),monthly=data.injectionMonthly.find(row=>row.source_row_key===key),parent=inventory??data.inventory.find(row=>row.source_record_key===monthly?.parent_key);
  if(parent){$('search').value='';$('county').value='';$('operator').value='';filter();select(parent.source_record_key);if(monthly)showReport(monthly.source_row_key);location.hash=datasetRoute(data.artifactId,'records');}
- else {$('source-lineage').innerHTML=`<h3>Affected monthly record: parent unavailable</h3><p>Source row ${escape(key)}</p><p>${escape(monthly?.quality_flags.join(', ')??'Retained disposition; normalized row unavailable')}</p><p>${sourceLink(data.manifest.sources.find(source=>source.kind==='monthly'),'Official monthly source')} · <a href="${base}sources/candidate-monthly.json?download=1" download>Retained raw monthly response</a></p><pre>${escape(JSON.stringify(monthly??data.qualityReport.dispositions.find(row=>row.source_row_key===key),null,2))}</pre>`;location.hash=datasetRoute(data.artifactId,'sources');}
+ else {$('source-lineage').innerHTML=`<h3>Affected monthly record: parent unavailable</h3><p>Source row ${escape(key)}</p><p>${escape(monthly?.quality_flags.join(', ')??'Retained disposition; normalized row unavailable')}</p><p>${sourceLink(data.manifest.sources.find(source=>source.kind==='monthly'),'Official monthly source')} · <a href="${escape(fileHref('sources/candidate-monthly.json'))}" download>Retained raw monthly response</a></p><pre>${escape(JSON.stringify(monthly??data.qualityReport.dispositions.find(row=>row.source_row_key===key),null,2))}</pre>`;location.hash=datasetRoute(data.artifactId,'sources');}
 }
 for(const id of ['county','operator'])$(id).addEventListener('change',filter);
 $('search').addEventListener('input',filter);$('clear-filters').addEventListener('click',()=>{$('search').value='';$('county').value='';$('operator').value='';filter();});
 $('dataset-search').addEventListener('input',renderLibrary);
 $('version-selection').addEventListener('change',async()=>{const id=$('version-selection').value;location.hash=datasetRoute(id,currentRoute.screen==='workspace'?currentRoute.tab:'overview');await openDataset(id);});
 $('timezone-caption').textContent='Times shown in '+localZone();
+await loadSavedLibrary();
 try{
  const pointer=await fetch('/artifact-path.json').then(response=>{if(!response.ok)throw Error('Artifact pointer unavailable');return response.json();});base=pointer.path;
  const pinned=await loadPinnedArtifact(pointer);manifest=pinned.manifest;libraryArtifacts.set(pinned.artifactId,pinned);
@@ -194,5 +202,50 @@ try{
 await refreshVersions();
 workflow=await mountWorkflow(manifest);
 mountCollection({onRun:()=>workflow.refresh(),onVersions:refreshVersions,onOpen:id=>{location.hash=datasetRoute(id,'overview');},onDownload:id=>{location.hash=datasetRoute(id,'downloads');}});
+collectionMounted=true;
 if(currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId)await openDataset(currentRoute.artifactId);
 route();
+// Browser-saved versions: exact TAR + pins only; re-verified on every open. "Verified now"
+// comes only from the live server path; saved copies never enable trusted Analytics transfer.
+function revokeSavedUrls(){if(!savedView)return;for(const url of savedView.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(savedView.tarUrl);savedView=null;}
+function fileHref(name){return savedView?savedView.urls.get(name)??'#':`${base}${name}?download=1`;}
+function tarHref(){return savedView?savedView.tarUrl:`/api/versions/${encodeURIComponent(data.artifactId)}/download`;}
+function blobType(name){return /\.html?$/i.test(name)?'text/plain; charset=utf-8':name.endsWith('.json')?'application/json':name.endsWith('.csv')?'text/csv; charset=utf-8':name.endsWith('.pdf')?'application/pdf':'application/octet-stream';}
+function livePinsFor(id){return availableVersions.find(version=>version.artifactId===id)??null;}
+function samePins(left,right){return ['artifactId','manifestSha256','normalizedSha256','classification','publicationPinsSha256'].every(key=>(left?.[key]??null)===(right?.[key]??null))&&Boolean(left?.defaultPinned)===Boolean(right?.defaultPinned);}
+function updateSaveControl(){const button=$('save-browser');if(button)button.disabled=!data||Boolean(savedView)||!livePinsFor(data.artifactId);}
+async function loadSavedLibrary(){try{for(const record of await listSavedPackages())savedPackages.set(record.artifactId,record);}catch{$('save-status').textContent='Browser-saved datasets are unavailable in this browser.';}}
+function savedLibraryHtml(){
+ if(!savedPackages.size)return '';
+ return `<h3>Saved in this browser</h3><p class="note">Browsers may clear saved data; keep a downloaded backup. A saved copy counts as verified now only when the server lists the same version.</p><ul class="export-history-list">${[...savedPackages.values()].map(record=>{
+  const live=livePinsFor(record.artifactId),conflict=Boolean(live)&&!samePins(live,record.pins),legacy=!live&&record.pins.defaultPinned;
+  const status=live?(conflict?'Differs from the server listing; the server version opens and this copy stays backup-only':'Server listing matches; opens the verified server version'):legacy?'Original-example copy; opens from saved bytes with origin not re-verified; its stored legacy flag is not live proof; Analytics transfer disabled':'Origin not re-verified now; integrity checked on open; Analytics transfer disabled';
+  return `<li><div><code>${escape(record.artifactId)}</code> <span class="badge">Saved in this browser</span><small>${escape(status)} · saved ${escape(localTime(record.savedAt))}</small></div>${conflict?'':`<button type="button" data-open-version="${escape(record.artifactId)}">Open dataset</button>`}<button type="button" data-saved-backup="${escape(record.artifactId)}">Download exact backup</button></li>`;
+ }).join('')}</ul>`;
+}
+async function openSavedDataset(record){
+ // A stored legacy (default-pin-era) flag only selects the legacy self-consistency rules;
+ // it is never live proof, a default-pin badge or origin trust.
+ const verified=await verifyVersionPackage({tarBytes:record.tarBytes,pins:record.pins});
+ return {artifact:verified.artifact,urls:new Map([...verified.files].map(([name,body])=>[name,URL.createObjectURL(new Blob([body],{type:blobType(name)}))])),tarUrl:URL.createObjectURL(new Blob([verified.tarBytes],{type:'application/x-tar'}))};
+}
+function markSavedView(){
+ resetAnalytics();$('analytics-status').textContent='Analytics transfer is disabled: this browser-saved copy cannot be re-verified against the server now. Download the exact backup instead.';
+ const recordClass=$('version-details').querySelector('dd');if(recordClass)recordClass.textContent='Saved in this browser — origin not re-verified now; integrity self-consistent only';
+ $('workspace-version').textContent=`${data.artifactId} · Saved in this browser · origin not re-verified now${savedPackages.get(data.artifactId)?.pins.defaultPinned?' · stored legacy-format flag, not live proof':''}`;updateSaveControl();
+}
+$('save-browser').addEventListener('click',async()=>{
+ const pins=data&&!savedView?livePinsFor(data.artifactId):null,button=$('save-browser');
+ if(!pins){$('save-status').textContent='Only a version listed and verified by the server can be saved.';return;}
+ button.disabled=true;$('save-status').textContent='Saving the complete verified version in this browser…';
+ try{
+  const response=await fetch(`/api/versions/${encodeURIComponent(pins.artifactId)}/download`);if(!response.ok)throw Error('Complete package unavailable');
+  const outcome=await saveVerifiedPackage({tarBytes:await response.arrayBuffer(),pins});
+  for(const record of await listSavedPackages())savedPackages.set(record.artifactId,record);
+  $('save-status').textContent=outcome==='already_saved'?'Already saved in this browser with identical bytes.':'Saved in this browser. Browsers may clear saved data; keep a downloaded backup.';renderLibrary();
+ }catch(error){$('save-status').textContent=`Not saved: ${error.message}`;}finally{updateSaveControl();}
+});
+$('dataset-library').addEventListener('click',event=>{
+ const id=event.target?.closest?.('[data-saved-backup]')?.dataset.savedBackup,record=id&&savedPackages.get(id);if(!record)return;
+ const url=URL.createObjectURL(new Blob([record.tarBytes],{type:'application/x-tar'})),link=document.createElement('a');link.href=url;link.download=`${record.artifactId}.tar`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),0);
+});

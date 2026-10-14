@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "runId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+  "mode": "offline_replay",
+  "testFixture": false,
+  "provenance": {
+    "classification": "public_reported",
+    "basis": "source_proof_2026_10_09_exact_bytes"
+  },
+  "pipelineVersion": "rrc-collection-v1",
+  "dataSchemaVersion": 1,
+  "transformationVersion": "rrc-odp-v1.0.0",
+  "startedAt": "2026-10-12T17:17:18.158Z",
+  "endedAt": "2026-10-12T17:17:18.186Z",
+  "status": "failed",
+  "events": [
+    {
+      "runId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+      "stage": "load",
+      "stageId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:load",
+      "eventId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:1",
+      "timestamp": "2026-10-12T17:17:18.160Z",
+      "status": "running",
+      "evidence": null
+    },
+    {
+      "runId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+      "stage": "load",
+      "stageId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:load",
+      "eventId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:2",
+      "timestamp": "2026-10-12T17:17:18.186Z",
+      "status": "failed",
+      "evidence": {
+        "artifactId": "rrc-2026-10-09-uic000020838-v1",
+        "sourceDirectory": "raw",
+        "provenance": {
+          "classification": "public_reported",
+          "basis": "source_proof_2026_10_09_exact_bytes"
+        },
+        "expectedManifestSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "actualManifestSha256": "3a523cadca4c7a35d667ccd53629d63e5afc6de382be670cba1d61743baef61f"
+      },
+      "error": {
+        "code": "MANIFEST_PIN_MISMATCH",
+        "message": "Preserved manifest does not match the requested SHA256 pin."
+      }
+    },
+    {
+      "runId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+      "stage": "normalize-qc",
+      "stageId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:normalize-qc",
+      "eventId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:3",
+      "timestamp": "2026-10-12T17:17:18.186Z",
+      "status": "skipped",
+      "evidence": {
+        "reason": "upstream_failed",
+        "failedStage": "load"
+      }
+    },
+    {
+      "runId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e",
+      "stage": "export",
+      "stageId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:export",
+      "eventId": "e326c80e-6dd3-4cdb-8395-c9ead3cf441e:4",
+      "timestamp": "2026-10-12T17:17:18.186Z",
+      "status": "skipped",
+      "evidence": {
+        "reason": "upstream_failed",
+        "failedStage": "load"
+      }
+    }
+  ]
+}
