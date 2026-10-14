@@ -41,7 +41,8 @@ export async function createGuestLocalServer({mode,fixtureSources=null}={}){
  if(!['fixture','official'].includes(mode))throw Error('Choose --fixture or --official explicitly');
  const explorer=createExplorerServer().listeners('request')[0],preserved=await createPreservedReplaySource(),fixture=mode==='fixture';
  const fixtureFetch=fixture?await createPreservedFixtureFetch(fixtureSources??resolve(root,'artifacts',preserved.artifactIds[0],'sources')):null;
- const service=createGuestService({journal:createMemoryGuestJournal(),store:createMemoryObjectStore(),preserved,testFixture:fixture,...(fixture?{fetchImpl:fixtureFetch}:{})});
+ const store=createMemoryObjectStore();
+ const service=createGuestService({journal:createMemoryGuestJournal({listObjects:()=>store.listKeys()}),store,preserved,testFixture:fixture,...(fixture?{fetchImpl:fixtureFetch}:{})});
  const guest=createGuestHttpHandler({service});
  return createServer(async(req,res)=>{
   try{

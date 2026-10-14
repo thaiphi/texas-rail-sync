@@ -1,0 +1,229 @@
+{
+  "scope": "ephemeral PostgreSQL17 RPC contract; not hosted PostgREST, grants, Storage or quotas",
+  "checks": [
+    {
+      "label": "unapplied SQL draft loads in isolated PostgreSQL17",
+      "result": "PASS"
+    },
+    {
+      "label": "budget draft loads with existing local Storage metadata and a private fixture attestation",
+      "result": "PASS"
+    },
+    {
+      "label": "anonymous and authenticated callers cannot issue guest tokens",
+      "result": "PASS"
+    },
+    {
+      "label": "service role creates tokens and persists owned jobs",
+      "result": "PASS"
+    },
+    {
+      "label": "idempotent retries reuse jobs and changed requests are refused",
+      "result": "PASS"
+    },
+    {
+      "label": "another token cannot read or claim the job",
+      "result": "PASS"
+    },
+    {
+      "label": "concurrent claim executes one fenced lease",
+      "result": "PASS"
+    },
+    {
+      "label": "numeric bytes, staged keys and invalid run timestamps fail with contract errors",
+      "result": "PASS"
+    },
+    {
+      "label": "lease expiry is rechecked after waiting for a row lock",
+      "result": "PASS"
+    },
+    {
+      "label": "one global lookup lane admits only one concurrent request",
+      "result": "PASS"
+    },
+    {
+      "label": "interrupted SQL run is owned, append-only and accepted by workflowView",
+      "result": "PASS"
+    },
+    {
+      "label": "SQL evidence cap and cleanup tombstones preserve journal references",
+      "result": "PASS"
+    },
+    {
+      "label": "restart preserves token ownership and job identity",
+      "result": "PASS"
+    },
+    {
+      "label": "all guest service steps replay a public version through durable SQL",
+      "result": "PASS"
+    },
+    {
+      "label": "private journal tables and helpers remain inaccessible to the service caller",
+      "result": "PASS"
+    },
+    {
+      "label": "concurrent duplicate token issuance yields a contract error",
+      "result": "PASS"
+    },
+    {
+      "label": "retry backoff, attempt budget and read-only polling stay coherent",
+      "result": "PASS"
+    },
+    {
+      "label": "selected source evidence cannot be replaced by another step",
+      "result": "PASS"
+    },
+    {
+      "label": "token and evidence expiry remain unavailable without changing preserved exports",
+      "result": "PASS"
+    },
+    {
+      "label": "expired proof refuses enqueue with no new job row; the service cannot attest capacity",
+      "result": "PASS"
+    },
+    {
+      "label": "metadata in other buckets and the worst-case envelope fail closed before enqueue",
+      "result": "PASS"
+    },
+    {
+      "label": "processing egress shares the monthly budget and failed reservations add no ledger row",
+      "result": "PASS"
+    },
+    {
+      "label": "automatic statement admits within Free-plan room",
+      "result": "PASS"
+    },
+    {
+      "label": "expired automatic statement refuses admission",
+      "result": "PASS"
+    },
+    {
+      "label": "orphan sweep removes only old unreferenced guest objects",
+      "result": "PASS"
+    },
+    {
+      "label": "cleanup waits one hour after terminal",
+      "result": "PASS"
+    },
+    {
+      "label": "generated migration applies as one transaction",
+      "result": "PASS"
+    }
+  ],
+  "failed": [],
+  "sqlErrors": [
+    {
+      "operation": "trrc_guest_enqueue",
+      "message": "ERROR:  IDEMPOTENCY_CONFLICT: Idempotency key was already used for a different request\nCONTEXT:  PL/pgSQL function trrc_guest.prior(text,text,text) line 6 at RAISE\nPL/pgSQL function public.trrc_guest_enqueue(jsonb) line 7 at assignment"
+    },
+    {
+      "operation": "trrc_guest_job",
+      "message": "ERROR:  NOT_FOUND: Job unavailable\nCONTEXT:  PL/pgSQL function public.trrc_guest_job(jsonb) line 5 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_claim",
+      "message": "ERROR:  NOT_FOUND: Job unavailable\nCONTEXT:  PL/pgSQL function public.trrc_guest_claim(jsonb) line 5 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_advance",
+      "message": "ERROR:  LEASE_LOST: Lease lost; nothing was committed\nCONTEXT:  PL/pgSQL function trrc_guest.fenced(jsonb) line 9 at RAISE\nPL/pgSQL function public.trrc_guest_advance(jsonb) line 2 during statement block local variable initialization"
+    },
+    {
+      "operation": "trrc_guest_reserve_object",
+      "message": "ERROR:  REQUEST_INVALID: Object reservation invalid\nCONTEXT:  PL/pgSQL function public.trrc_guest_reserve_object(jsonb) line 6 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_record_evidence",
+      "message": "ERROR:  REQUEST_INVALID: Evidence entry invalid\nCONTEXT:  PL/pgSQL function public.trrc_guest_record_evidence(jsonb) line 7 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_record_staged",
+      "message": "ERROR:  REQUEST_INVALID: Staged output set invalid\nCONTEXT:  PL/pgSQL function public.trrc_guest_record_staged(jsonb) line 14 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_record_staged",
+      "message": "ERROR:  REQUEST_INVALID: Staged output set invalid\nCONTEXT:  PL/pgSQL function public.trrc_guest_record_staged(jsonb) line 14 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_advance",
+      "message": "ERROR:  RUN_STATE_INVALID: Invalid invocation time\nCONTEXT:  PL/pgSQL function trrc_guest.check_run(jsonb,jsonb) line 22 at RAISE\nSQL statement \"SELECT trrc_guest.check_run(j.run_json, r)\"\nPL/pgSQL function public.trrc_guest_advance(jsonb) line 4 at PERFORM"
+    },
+    {
+      "operation": "trrc_guest_advance",
+      "message": "ERROR:  LEASE_LOST: Lease lost; nothing was committed\nCONTEXT:  PL/pgSQL function trrc_guest.fenced(jsonb) line 9 at RAISE\nPL/pgSQL function public.trrc_guest_advance(jsonb) line 2 during statement block local variable initialization"
+    },
+    {
+      "operation": "trrc_guest_enqueue",
+      "message": "ERROR:  LANE_BUSY: Another guest job is active in this lane\nCONTEXT:  PL/pgSQL function public.trrc_guest_enqueue(jsonb) line 22 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_record_evidence",
+      "message": "ERROR:  SOURCE_LIMIT: Guest evidence would exceed 10,000,000 total bytes; nothing was truncated\nCONTEXT:  PL/pgSQL function public.trrc_guest_record_evidence(jsonb) line 13 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_reserve_object",
+      "message": "ERROR:  OBJECT_BUSY: Object is being cleaned up; retry later\nCONTEXT:  PL/pgSQL function trrc_guest.admit(text) line 4 at RAISE\nSQL statement \"SELECT trrc_guest.admit(k)\"\nPL/pgSQL function public.trrc_guest_reserve_object(jsonb) line 7 at PERFORM"
+    },
+    {
+      "operation": "trrc_guest_issue_token",
+      "message": "ERROR:  REQUEST_INVALID: Token hash invalid\nCONTEXT:  PL/pgSQL function public.trrc_guest_issue_token(jsonb) line 8 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_renew",
+      "message": "ERROR:  LEASE_LOST: Lease lost; nothing was committed\nCONTEXT:  PL/pgSQL function trrc_guest.fenced(jsonb) line 9 at RAISE\nPL/pgSQL function public.trrc_guest_renew(jsonb) line 2 during statement block local variable initialization"
+    },
+    {
+      "operation": "trrc_guest_retry",
+      "message": "ERROR:  RUN_STATE_INVALID: Retry budget exhausted\nCONTEXT:  PL/pgSQL function public.trrc_guest_retry(jsonb) line 6 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_advance",
+      "message": "ERROR:  EVIDENCE_CONFLICT: Selected evidence is never replaced\nCONTEXT:  PL/pgSQL function trrc_guest.select_attempt(uuid,text) line 7 at RAISE\nSQL statement \"SELECT trrc_guest.select_attempt(j.job_id, args ->> 'select')\"\nPL/pgSQL function public.trrc_guest_advance(jsonb) line 7 at PERFORM"
+    },
+    {
+      "operation": "trrc_guest_reserve_egress",
+      "message": "ERROR:  DOWNLOAD_QUOTA: Archive download limit reached for this session\nCONTEXT:  PL/pgSQL function public.trrc_guest_reserve_egress(jsonb) line 23 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_reserve_egress",
+      "message": "ERROR:  REQUEST_INVALID: Download reservation must equal the published archive bytes plus request overhead\nCONTEXT:  PL/pgSQL function public.trrc_guest_reserve_egress(jsonb) line 13 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_history",
+      "message": "ERROR:  TOKEN_EXPIRED: Guest token expired\nCONTEXT:  PL/pgSQL function trrc_guest.owner(text) line 6 at RAISE\nPL/pgSQL function public.trrc_guest_history(jsonb) line 2 during statement block local variable initialization"
+    },
+    {
+      "operation": "trrc_guest_publication",
+      "message": "ERROR:  EVIDENCE_EXPIRED: Guest evidence has expired and is unavailable\nCONTEXT:  PL/pgSQL function public.trrc_guest_publication(jsonb) line 6 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_run",
+      "message": "ERROR:  EVIDENCE_EXPIRED: Guest evidence has expired and is unavailable\nCONTEXT:  PL/pgSQL function public.trrc_guest_run(jsonb) line 6 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_enqueue",
+      "message": "ERROR:  BUDGET_UNVERIFIED: No current attested platform allowance; admission refused\nCONTEXT:  PL/pgSQL function trrc_guest.current_proof(timestamp with time zone) line 5 at RAISE\nPL/pgSQL function trrc_guest.job_budget_trigger() line 5 at assignment\nSQL statement \"insert into trrc_guest.jobs (kind, owner_hash, idem_key, request_digest, request_json, test_fixture, lookup_json, created_at, next_step_at, lane_deadline)\n  values (k, o, args ->> 'idemKey', args ->> 'requestDigest', args -> 'request', fixture, case when k = 'collection' then args -> 'lookup' end, t, t, t + interval '10 minutes')\n  returning *\"\nPL/pgSQL function public.trrc_guest_enqueue(jsonb) line 27 at SQL statement"
+    },
+    {
+      "operation": "trrc_guest_enqueue",
+      "message": "ERROR:  BUDGET_UNVERIFIED: Storage size metadata is missing or invalid\nCONTEXT:  PL/pgSQL function trrc_guest.storage_measure() line 7 at RAISE\nSQL statement \"select *        from trrc_guest.storage_measure()\"\nPL/pgSQL function trrc_guest.require_storage_room() line 6 at SQL statement\nSQL statement \"SELECT trrc_guest.require_storage_room()\"\nPL/pgSQL function trrc_guest.job_budget_trigger() line 8 at PERFORM\nSQL statement \"insert into trrc_guest.jobs (kind, owner_hash, idem_key, request_digest, request_json, test_fixture, lookup_json, created_at, next_step_at, lane_deadline)\n  values (k, o, args ->> 'idemKey', args ->> 'requestDigest', args -> 'request', fixture, case when k = 'collection' then args -> 'lookup' end, t, t, t + interval '10 minutes')\n  returning *\"\nPL/pgSQL function public.tr"
+    },
+    {
+      "operation": "trrc_guest_enqueue",
+      "message": "ERROR:  STORAGE_QUOTA: Guest storage budget or attested platform room with margin would be exceeded; nothing was evicted\nCONTEXT:  PL/pgSQL function trrc_guest.require_storage_room() line 8 at RAISE\nSQL statement \"SELECT trrc_guest.require_storage_room()\"\nPL/pgSQL function trrc_guest.job_budget_trigger() line 8 at PERFORM\nSQL statement \"insert into trrc_guest.jobs (kind, owner_hash, idem_key, request_digest, request_json, test_fixture, lookup_json, created_at, next_step_at, lane_deadline)\n  values (k, o, args ->> 'idemKey', args ->> 'requestDigest', args -> 'request', fixture, case when k = 'collection' then args -> 'lookup' end, t, t, t + interval '10 minutes')\n  returning *\"\nPL/pgSQL function public.trrc_guest_enqueue(jsonb) line 27 at SQL statement"
+    },
+    {
+      "operation": "trrc_guest_reserve_egress",
+      "message": "ERROR:  EGRESS_QUOTA: Guest egress budget or attested allowance with margin would be exceeded\nCONTEXT:  PL/pgSQL function public.trrc_guest_reserve_egress(jsonb) line 28 at RAISE"
+    },
+    {
+      "operation": "trrc_guest_enqueue",
+      "message": "ERROR:  BUDGET_UNVERIFIED: No current attested platform allowance; admission refused\nCONTEXT:  PL/pgSQL function trrc_guest.current_proof(timestamp with time zone) line 5 at RAISE\nPL/pgSQL function trrc_guest.job_budget_trigger() line 5 at assignment\nSQL statement \"insert into trrc_guest.jobs (kind, owner_hash, idem_key, request_digest, request_json, test_fixture, lookup_json, created_at, next_step_at, lane_deadline)\n  values (k, o, args ->> 'idemKey', args ->> 'requestDigest', args -> 'request', fixture, case when k = 'collection' then args -> 'lookup' end, t, t, t + interval '10 minutes')\n  returning *\"\nPL/pgSQL function public.trrc_guest_enqueue(jsonb) line 27 at SQL statement"
+    },
+    {
+      "operation": "trrc_guest_reserve_object",
+      "message": "ERROR:  OBJECT_BUSY: Object is being cleaned up; retry later\nCONTEXT:  PL/pgSQL function trrc_guest.admit(text) line 4 at RAISE\nSQL statement \"SELECT trrc_guest.admit(k)\"\nPL/pgSQL function public.trrc_guest_reserve_object(jsonb) line 7 at PERFORM"
+    }
+  ],
+  "pgCronInstalled": false
+}

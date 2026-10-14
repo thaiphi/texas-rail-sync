@@ -9,15 +9,17 @@ const missing=message=>Object.assign(Error(message),{code:'ENOENT'});
 const keyPattern=/^sha256\/[a-f0-9]{64}$/;
 export const objectKeyFor=hash=>`sha256/${hash}`;
 // Local reference store for explicit local servers and tests only; never hosted.
-export function createMemoryObjectStore({objects=new Map()}={}){
- const check=key=>{if(typeof key!=='string'||!keyPattern.test(key))throw failure('STORAGE_INVALID','Object key invalid');};
+export function createMemoryObjectStore({objects=new Map(),clock=Date.now}={}){
+ const created=new Map(),check=key=>{if(typeof key!=='string'||!keyPattern.test(key))throw failure('STORAGE_INVALID','Object key invalid');};
  return Object.freeze({kind:'local_reference',
   async put(key,bytes){check(key);if(!(bytes instanceof Uint8Array))throw failure('STORAGE_INVALID','Object bytes required');
    // Add-only: an existing object is accepted only when its bytes are identical.
    if(objects.has(key)){if(!Buffer.from(objects.get(key)).equals(Buffer.from(bytes)))throw failure('OBJECT_CONFLICT','Existing object bytes differ');return 'verified_existing';}
-   objects.set(key,new Uint8Array(bytes));return 'created';},
+   objects.set(key,new Uint8Array(bytes));created.set(key,clock());return 'created';},
   async get(key){check(key);if(!objects.has(key))throw missing('Object is absent');return new Uint8Array(objects.get(key));},
-  async delete(key){check(key);objects.delete(key);}
+  async delete(key){check(key);objects.delete(key);created.delete(key);},
+  // Objects placed directly into a supplied map have no recorded time and list as 0 (oldest).
+  async listKeys(){return [...objects.keys()].sort().map(key=>({key,createdAt:created.get(key)??0}));}
  });
 }
 async function readVerified(store,entry){
@@ -87,11 +89,20 @@ export async function createStagedPublisher({journal,store,jobId,buildArchive}){
 export async function readPublishedArchive({store,publication}){
  try{return await readVerified(store,publication.archive);}catch{throw failure('EVIDENCE_UNAVAILABLE','Published archive is missing or failed verification');}
 }
+// Absence probe: any returned body (even empty) means the object remains.
+async function assertAbsent(store,key){try{await store.get(key,{expectedBytes:0});}catch(error){if(error?.code==='ENOENT')return;throw error;}throw failure('CLEANUP_INCOMPLETE','Object remains after deletion');}
 // Bounded journal-owned cleanup under a maintenance fence; never touches trrc_archive.
 export async function runCleanup({journal,store}){
  const lease=await journal.claimMaintenance({leaseOwner:randomUUID()});if(!lease)return {removed:0,skipped:true};
  const keys=await journal.cleanupCandidates({lease});
- // Absence probe: any returned body (even empty) means the object remains.
- for(const key of keys){await store.delete(key);try{await store.get(key,{expectedBytes:0});throw failure('CLEANUP_INCOMPLETE','Object remains after deletion');}catch(error){if(error?.code!=='ENOENT')throw error;}}
+ for(const key of keys){await store.delete(key);await assertAbsent(store,key);}
  return journal.confirmCleanup({lease,keys});
+}
+// Objects no journal row references (late writes, abandoned uploads), older than one hour.
+// Candidates are tombstoned first, so a concurrent reservation of the same key is refused.
+export async function runOrphanSweep({journal,store}){
+ const lease=await journal.claimMaintenance({leaseOwner:randomUUID()});if(!lease)return {removed:0,skipped:true};
+ const keys=await journal.orphanCandidates({lease});
+ for(const key of keys){await store.delete(key);await assertAbsent(store,key);}
+ return journal.confirmOrphans({lease,keys});
 }

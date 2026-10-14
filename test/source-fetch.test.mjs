@@ -47,6 +47,19 @@ test('an aborted request propagates its rejection unchanged without a status',as
  const aborted=new DOMException('The operation was aborted','AbortError'),statuses=[];
  await assert.rejects(shared.fetchSource(target,{testFixture:true,fetchImpl:async()=>{throw aborted;},onResponse:status=>statuses.push(status)}),error=>error===aborted);assert.deepEqual(statuses,[]);
 });
+test('timeoutMs overrides the 30-second default signal; omitting it keeps 30000',async()=>{
+ const original=AbortSignal.timeout,seen=[];AbortSignal.timeout=ms=>{seen.push(ms);return original.call(AbortSignal,ms);};
+ try{const fetchImpl=async()=>fake({body:pulled([Buffer.from('[]')],[])});
+  await shared.fetchSource(target,{testFixture:true,fetchImpl,timeoutMs:90_000});await shared.fetchSource(target,{testFixture:true,fetchImpl});
+  assert.deepEqual(seen,[90_000,30000]);
+ }finally{AbortSignal.timeout=original;}
+});
+test('a fetch that throws before any response becomes a token-free NETWORK_ERROR with the original as cause; timeouts stay unchanged',async()=>{
+ const original=new TypeError('fetch failed'),statuses=[];
+ await assert.rejects(shared.fetchSource(target,{testFixture:true,fetchImpl:async()=>{throw original;},onResponse:status=>statuses.push(status)}),error=>error.code==='NETWORK_ERROR'&&error.message==='Official source unreachable'&&error.cause===original);assert.deepEqual(statuses,[]);
+ const timeout=new DOMException('The operation timed out','TimeoutError');
+ await assert.rejects(shared.fetchSource(target,{testFixture:true,fetchImpl:async()=>{throw timeout;}}),error=>error===timeout);
+});
 async function collectFailure(t,fetchImpl){
  await mkdir(resolve(root,'tmp'),{recursive:true});const dir=await mkdtemp(resolve(root,'tmp/source-fetch-'));t.after(()=>rm(dir,{recursive:true,force:true}));
  let failure;try{await collectPublicSnapshot({sourceDir:resolve(dir,'raw'),outputRoot:resolve(dir,'artifacts'),runRoot:resolve(dir,'runs'),artifactId:'source-fetch-fixture',testFixture:true,fetchImpl});}catch(error){failure=error;}

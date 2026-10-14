@@ -1,5 +1,9 @@
 # Texas RRC Explorer
 
+## Guest collection status (October 14, 2026)
+
+Hosted guest collection is built and locally checked (321/321 tests; final review Ready). Its hosted rollout is pending, and it stays off until the Edge flag `TRRC_GUEST_ENABLED` is set. Opening and downloading an officially collected guest dataset is not yet verified: RRC's help server was too slow on this machine, and the hosted smoke test will cover it. Details: [local guest verification](docs/verification-2026-10-14-guest-local.md). The October 13 notes below remain the record for the read-only release.
+
 ## Release status (October 13, 2026)
 
 This is the current state; the dated banners below are historical and superseded where they conflict.
