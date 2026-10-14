@@ -46,12 +46,19 @@ test('hosted Edge mounts guest routes only when TRRC_GUEST_ENABLED is exactly 1'
  assert.equal((await createHostedEdgeHandler({getEnv:env({TRRC_GUEST_ENABLED:'true'}),createGuest,createTransport:()=>{throw Error('no reads');}})(new Request('https://p.supabase.co/trrc-explorer/api/guest/session',{method:'POST'}))).status,405);
 });
 test('a guest session schedules maintenance at most once per ten minutes and never fails the response',async()=>{
- let maint=0,t=0;const scheduled=[];
- const createGuest=()=>({handle:async()=>new Response('{}',{status:201}),maintain:async()=>{maint++;throw Error('storage down');}});
+ let maint=0,t=0;const scheduled=[],warnings=[];
+ const failures=[Object.assign(Error('storage down https://p.supabase.co/x?token=secret'),{code:'STORAGE_UNAVAILABLE'}),Error('sweep failed sb_secret_x')];
+ const createGuest=()=>({handle:async()=>new Response('{}',{status:201}),maintain:async()=>{throw failures[maint++];}});
  const env=name=>({SUPABASE_URL:'https://p.supabase.co',SUPABASE_SECRET_KEYS:JSON.stringify({default:'sb_secret_x'}),TRRC_GUEST_ENABLED:'1',TRRC_GUEST_ALLOWED_ORIGIN:'https://explorer.example'})[name];
- const handler=createHostedEdgeHandler({getEnv:env,createGuest,clock:()=>t,waitUntil:p=>scheduled.push(p),createTransport:()=>{throw Error('no reads');}});
- const session=()=>handler(new Request('https://p.supabase.co/trrc-explorer/api/guest/session',{method:'POST'}));
- assert.equal((await session()).status,201);await Promise.allSettled(scheduled);assert.equal(maint,1);
- t+=60_000;await session();await Promise.allSettled(scheduled);assert.equal(maint,1);
- t+=600_001;await session();await Promise.allSettled(scheduled);assert.equal(maint,2);
+ const originalWarn=console.warn;console.warn=(...args)=>{warnings.push(args);};
+ try{
+  const handler=createHostedEdgeHandler({getEnv:env,createGuest,clock:()=>t,waitUntil:p=>scheduled.push(p),createTransport:()=>{throw Error('no reads');}});
+  const session=()=>handler(new Request('https://p.supabase.co/trrc-explorer/api/guest/session',{method:'POST'}));
+  assert.equal((await session()).status,201);await Promise.allSettled(scheduled);assert.equal(maint,1);assert.equal(warnings.length,1);
+  t+=60_000;assert.equal((await session()).status,201);await Promise.allSettled(scheduled);assert.equal(maint,1);assert.equal(warnings.length,1);
+  t+=600_001;assert.equal((await session()).status,201);await Promise.allSettled(scheduled);assert.equal(maint,2);assert.equal(warnings.length,2);
+  assert.deepEqual(warnings.map(args=>args.length),[1,1]);
+  assert.deepEqual(warnings.map(([line])=>JSON.parse(line)),[{event:'guest_maintenance_failed',code:'STORAGE_UNAVAILABLE'},{event:'guest_maintenance_failed',code:'UNKNOWN'}]);
+  for(const [line] of warnings)assert.doesNotMatch(line,/storage down|sweep failed|token|secret|https?:|\bat\b/);
+ }finally{console.warn=originalWarn;}
 });

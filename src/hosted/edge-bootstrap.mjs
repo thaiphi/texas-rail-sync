@@ -111,7 +111,7 @@ export function createHostedEdgeHandler(options){
     // The gateway may present the function path; guest-http matches /api/guest/* only.
     const response=await routes.handle(new Request(new URL(path+url.search,url.origin),request),path);
     if(response){
-     if(routes.maintain&&request.method==='POST'&&path==='/api/guest/session'&&response.status===201&&clock()-lastMaintenance>600_000){lastMaintenance=clock();waitUntil(routes.maintain().catch(()=>{}));}
+     if(routes.maintain&&request.method==='POST'&&path==='/api/guest/session'&&response.status===201&&clock()-lastMaintenance>600_000){lastMaintenance=clock();waitUntil(routes.maintain().catch(error=>console.warn(JSON.stringify({event:'guest_maintenance_failed',code:error?.code??'UNKNOWN'}))));}
      return response;
     }
    }
