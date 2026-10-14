@@ -57,6 +57,10 @@ try{
   // Disposable-test allowance only, never a claim about hosted usage or billing.
   await sql("INSERT INTO trrc_guest.platform_proofs(source,attested_at,expires_at,storage_limit_bytes,storage_remaining_bytes,project_storage_bytes,database_limit_bytes,database_remaining_bytes,project_database_bytes,egress_limit_bytes,egress_remaining_bytes) VALUES ('operator_attested',clock_timestamp(),clock_timestamp()+interval '590 seconds',1000000000,900000000,(select project_bytes from trrc_guest.storage_measure()),1000000000,500000000,pg_database_size(current_database()),5000000000,4000000000);");
  });
+ // The local stub gains Storage's object age (defaulted, so three-value inserts still work);
+ // the ops draft then loads after the budget draft, as the migration orders them.
+ await sql('ALTER TABLE storage.objects ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();');
+ await sql(await readFile(resolve(root,'docs/sql/trrc-guest-ops-DRAFT-not-applied.sql'),'utf8'));
  await gate('anonymous and authenticated callers cannot issue guest tokens',async()=>{for(const role of ['anon','authenticated'])await assert.rejects(sql(`SELECT public.trrc_guest_issue_token('{"tokenHash":"${tokenHash}"}'::jsonb);`,role),/permission denied/);});
  await gate('service role creates tokens and persists owned jobs',async()=>{await journal.issueToken({tokenHash});await journal.issueToken({tokenHash:otherHash});original=(await journal.enqueue(request)).job;assert.equal(original.state,'queued');assert.equal((await journal.job({tokenHash,jobId:original.jobId})).jobId,original.jobId);});
  await gate('idempotent retries reuse jobs and changed requests are refused',async()=>{assert.equal((await journal.enqueue(request)).replayed,true);await assert.rejects(journal.enqueue({...request,requestDigest:sha256('changed')}),e=>e.code==='IDEMPOTENCY_CONFLICT');});
@@ -209,6 +213,55 @@ try{
   const before=await sql('SELECT count(*) FROM trrc_guest.egress;');
   await assert.rejects(journal.reserveEgress({kind:'processing',bytes:100000001}),e=>e.code==='EGRESS_QUOTA');
   assert.equal(await sql('SELECT count(*) FROM trrc_guest.egress;'),before);
+ });
+ await gate('automatic statement admits within Free-plan room',async()=>{
+  // Called directly as the owner; the hosted DO block schedules it only where pg_cron exists.
+  report.pgCronInstalled=await sql("SELECT exists(SELECT 1 FROM pg_extension WHERE extname='pg_cron');")==='t';
+  await sql('SELECT trrc_guest.attest_platform();');
+  assert.equal(await sql("SELECT attested_by,storage_limit_bytes,egress_remaining_bytes<=3000000000,expires_at-attested_at=interval '600 seconds' FROM trrc_guest.platform_proofs ORDER BY attested_at DESC,recorded_at DESC LIMIT 1;"),'pg_cron:trrc_guest_attest|1000000000|t|t');
+  await assert.rejects(sql('SELECT trrc_guest.attest_platform();','service_role'),/permission denied/);
+  const {job}=await journal.enqueue({...request,idemKey:'ops-automatic-statement-01'});assert.equal(job.state,'queued');
+  const {lease}=await journal.claim({tokenHash,jobId:job.jobId,leaseOwner:randomUUID()});await journal.fail({lease,errorCode:'HTTP_ERROR'});
+ });
+ await gate('expired automatic statement refuses admission',async()=>{
+  await sql("UPDATE trrc_guest.platform_proofs SET attested_at=attested_at-interval '20 minutes',expires_at=expires_at-interval '20 minutes';");
+  assert.equal(await sql('SELECT attested_by FROM trrc_guest.platform_proofs ORDER BY attested_at DESC,recorded_at DESC LIMIT 1;'),'pg_cron:trrc_guest_attest');
+  const before=await sql('SELECT count(*) FROM trrc_guest.jobs;');
+  await assert.rejects(journal.enqueue({...request,idemKey:'ops-expired-statement-01'}),e=>e.code==='BUDGET_UNVERIFIED');
+  assert.equal(await sql('SELECT count(*) FROM trrc_guest.jobs;'),before);
+ });
+ await gate('orphan sweep removes only old unreferenced guest objects',async()=>{
+  await sql('SELECT trrc_guest.attest_platform();');
+  const key=text=>`sha256/${sha256(text)}`,old=key('ops-orphan-old'),fresh=key('ops-orphan-fresh'),stale=key('ops-orphan-stale-tombstone'),kept=`sha256/${digest}`,keys=[old,fresh,stale,kept].map(literal).join(',');
+  assert.equal(await sql(`SELECT trrc_guest.referenced(${literal(kept)});`),'t');
+  // A stale tombstone: its holder deleted the object but died before confirming.
+  await sql(`INSERT INTO storage.objects(bucket_id,name,metadata,created_at) VALUES ('trrc-guest-evidence',${literal(old)},'{"size":3}',now()-interval '2 hours'),('trrc-guest-evidence',${literal(fresh)},'{"size":3}',now()),('trrc-guest-evidence',${literal(kept)},'{"size":1}',now()-interval '2 hours'); INSERT INTO trrc_guest.tombstones(object_key) VALUES (${literal(stale)});`);
+  const maintenance=await journal.claimMaintenance({leaseOwner:randomUUID()}),selected=await journal.orphanCandidates({lease:maintenance});
+  assert.deepEqual(selected,[old,stale].sort());
+  assert.equal(await sql(`SELECT string_agg(object_key,',' ORDER BY object_key COLLATE "C") FROM trrc_guest.tombstones WHERE object_key IN (${keys});`),[old,stale].sort().join(','));
+  const {job}=await journal.enqueue({...request,idemKey:'ops-orphan-busy-0001'}),held=await journal.claim({tokenHash,jobId:job.jobId,leaseOwner:randomUUID()});
+  await assert.rejects(journal.reserveObject({lease:held.lease,sha256:old.slice(7),bytes:3,objectKey:old}),e=>e.code==='OBJECT_BUSY');
+  await journal.fail({lease:held.lease,errorCode:'HTTP_ERROR'});
+  assert.deepEqual(await journal.confirmOrphans({lease:maintenance,keys:selected}),{removed:2});
+  assert.equal(await sql(`SELECT count(*) FROM trrc_guest.tombstones WHERE object_key IN (${keys});`),'0');
+  await sql(`DELETE FROM storage.objects WHERE name IN (${keys});`);
+  // confirm_orphans released the lease, so the next sweep can claim it.
+  const next=await journal.claimMaintenance({leaseOwner:randomUUID()});assert.ok(next?.fence>maintenance.fence);
+  assert.deepEqual(await journal.confirmOrphans({lease:next,keys:[]}),{removed:0});
+ });
+ await gate('cleanup waits one hour after terminal',async()=>{
+  // Retention (24 h lookup, 7 d otherwise) always exceeds one hour, so the hour rule is
+  // isolated by zero retention inside a rolled-back transaction; nothing persists.
+  const job=literal(published.jobId)+'::uuid',archive=literal(await sql(`SELECT archive_object_key FROM trrc_guest.publications WHERE job_id=${job};`));
+  const seen=await sql(`BEGIN;
+CREATE OR REPLACE FUNCTION trrc_guest.expires_at(j trrc_guest.jobs) RETURNS timestamptz LANGUAGE sql STABLE SET search_path = '' AS $$ select j.terminal_at $$;
+UPDATE trrc_guest.jobs SET terminal_at=now()-interval '30 minutes' WHERE job_id=${job};
+SELECT ${archive} IN (SELECT trrc_guest.candidates());
+UPDATE trrc_guest.jobs SET terminal_at=now()-interval '2 hours' WHERE job_id=${job};
+SELECT ${archive} IN (SELECT trrc_guest.candidates());
+ROLLBACK;`);
+  assert.deepEqual(seen.split('\n'),['f','t']);
+  assert.equal(await sql(`SELECT trrc_guest.expires_at(j)-j.terminal_at FROM trrc_guest.jobs j WHERE job_id=${job};`),'7 days');
  });
 }catch(error){report.error=error.message;process.exitCode=1;}
 finally{
