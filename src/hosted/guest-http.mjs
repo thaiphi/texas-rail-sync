@@ -1,7 +1,6 @@
-// Web-standard guest routes. Mounted only by explicit composition: scripts/guest-local.mjs
-// or a future reviewed hosted change. supabase/functions/trrc-explorer/index.ts never
-// supplies a guest handler. GET is read-only; only same-origin POST advance executes.
-const statuses=Object.freeze({REQUEST_INVALID:400,SOURCE_INVALID:400,TOKEN_INVALID:401,TOKEN_EXPIRED:401,ORIGIN_FORBIDDEN:403,NOT_FOUND:404,REPLAY_UNAVAILABLE:404,METHOD_NOT_ALLOWED:405,IDEMPOTENCY_CONFLICT:409,LANE_BUSY:409,TOKEN_BUSY:409,LOOKUP_UNAVAILABLE:409,SOURCE_HASH_MISMATCH:409,SOURCE_PROVENANCE_CONFLICT:409,SOURCE_SCOPE_MISMATCH:409,EVIDENCE_EXPIRED:410,REQUEST_LIMIT:413,UNSUPPORTED_MEDIA:415,QUOTA_EXCEEDED:429,TOKEN_QUOTA:429});
+// Web-standard guest routes. Mounted by scripts/guest-local.mjs or, when TRRC_GUEST_ENABLED=1, the hosted Edge bootstrap.
+// GET is read-only; only POST from the same origin or a configured exact bridged origin executes.
+const statuses=Object.freeze({REQUEST_INVALID:400,SOURCE_INVALID:400,TOKEN_INVALID:401,TOKEN_EXPIRED:401,ORIGIN_FORBIDDEN:403,NOT_FOUND:404,REPLAY_UNAVAILABLE:404,METHOD_NOT_ALLOWED:405,IDEMPOTENCY_CONFLICT:409,LANE_BUSY:409,TOKEN_BUSY:409,LOOKUP_UNAVAILABLE:409,SOURCE_HASH_MISMATCH:409,SOURCE_PROVENANCE_CONFLICT:409,SOURCE_SCOPE_MISMATCH:409,EVIDENCE_EXPIRED:410,REQUEST_LIMIT:413,UNSUPPORTED_MEDIA:415,QUOTA_EXCEEDED:429,TOKEN_QUOTA:429,STORAGE_QUOTA:429,DATABASE_QUOTA:429,EGRESS_QUOTA:429,DOWNLOAD_QUOTA:429,BUDGET_UNVERIFIED:503});
 const routeError=(code,message)=>Object.assign(Error(message),{code});
 function json(status,data){const body=new TextEncoder().encode(JSON.stringify(data));return new Response(body,{status,headers:{'content-type':'application/json; charset=utf-8','content-length':String(body.byteLength),'cache-control':'no-store','x-content-type-options':'nosniff'}});}
 async function readJson(request){
@@ -17,16 +16,19 @@ async function readJson(request){
 // Opaque token only in Authorization: Guest; never in URLs, logs or responses.
 function guestToken(request){const match=/^Guest ([A-Za-z0-9_-]{43})$/.exec(request.headers.get('authorization')??'');if(!match)throw routeError('TOKEN_INVALID','Guest token required');return match[1];}
 function idempotencyKey(request){const value=request.headers.get('idempotency-key');if(typeof value!=='string'||!/^[A-Za-z0-9_-]{16,128}$/.test(value))throw routeError('REQUEST_INVALID','Idempotency-Key header required');return value;}
-function sameOrigin(request){if(request.headers.get('origin')!==new URL(request.url).origin)throw routeError('ORIGIN_FORBIDDEN','Same-origin request required');}
+function sameOrigin(request,allowed){const origin=request.headers.get('origin');if(origin!==new URL(request.url).origin&&!allowed.includes(origin))throw routeError('ORIGIN_FORBIDDEN','Same-origin request required');}
 const enqueueRoutes=Object.freeze({'/api/guest/lookups':'enqueueLookup','/api/guest/collections':'enqueueCollection','/api/guest/replays':'enqueueReplay'});
-export function createGuestHttpHandler({service}={}){
+export function createGuestHttpHandler({service,allowedOrigins=[]}={}){
  if(typeof service?.advance!=='function')throw Error('Guest service required');
+ // Exact bridged browser origins only (the bridge already enforced same-origin); tokens authenticate.
+ if(!Array.isArray(allowedOrigins)||allowedOrigins.some(o=>typeof o!=='string'||new URL(o).origin!==o))throw Error('Allowed origins must be exact origins');
+ const allowed=Object.freeze([...allowedOrigins]);
  return async function handle(request,path=new URL(request.url).pathname){
   if(path!=='/api/guest'&&!path.startsWith('/api/guest/'))return null;
   try{
    const route=/^\/api\/guest\/jobs\/([a-f0-9-]{36})(\/advance|\/archive|\/runs\/([a-f0-9-]{36}))?$/i.exec(path),jobId=route?.[1].toLowerCase();
    if(request.method==='POST'){
-    sameOrigin(request);
+    sameOrigin(request,allowed);
     if(path==='/api/guest/session'){await readJson(request);return json(201,await service.issueSession());}
     if(enqueueRoutes[path]){const token=guestToken(request),idemKey=idempotencyKey(request),body=await readJson(request),{job,replayed}=await service[enqueueRoutes[path]]({token,idemKey,request:body});return json(replayed?200:202,{job,replayed});}
     if(route?.[2]==='/advance'){const token=guestToken(request);await readJson(request);return json(200,{job:await service.advance({token,jobId})});}

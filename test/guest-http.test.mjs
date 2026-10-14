@@ -64,3 +64,18 @@ test('the hosted bootstrap mounts guest routes only for an explicit handler; the
  assert.throws(()=>createHostedEdgeHandler({...options,guest:'enabled'}),/Hosted configuration unavailable/);
  assert.equal(/guest/i.test(await readFile(new URL('../supabase/functions/trrc-explorer/index.ts',import.meta.url),'utf8')),false);
 });
+test('budget refusals keep their own codes and 429/503 statuses instead of generic unavailability',async()=>{
+ for(const [code,status] of [['STORAGE_QUOTA',429],['DATABASE_QUOTA',429],['EGRESS_QUOTA',429],['DOWNLOAD_QUOTA',429],['BUDGET_UNVERIFIED',503]]){
+  const handler=createGuestHttpHandler({service:{advance(){},async issueSession(){throw Object.assign(Error('refused'),{code});}}});
+  const response=await handler(new Request(origin+'/api/guest/session',{method:'POST',headers:{'content-type':'application/json',origin},body:'{}'}));
+  assert.equal(response.status,status);assert.equal((await response.json()).error.code,code);
+ }
+});
+test('a configured exact origin is accepted for bridged POSTs; others stay forbidden',async()=>{
+ const service={advance(){},async issueSession(){return {token:'t'.repeat(43),expiresAt:'2026-10-15T00:00:00.000Z'};}};
+ const handler=createGuestHttpHandler({service,allowedOrigins:['https://explorer.example']});
+ const post=o=>handler(new Request('https://edge.example/api/guest/session',{method:'POST',headers:{'content-type':'application/json',origin:o},body:'{}'}));
+ assert.equal((await post('https://explorer.example')).status,201);
+ assert.equal((await post('https://evil.example')).status,403);
+ assert.throws(()=>createGuestHttpHandler({service,allowedOrigins:['https://x.example/path']}));
+});
