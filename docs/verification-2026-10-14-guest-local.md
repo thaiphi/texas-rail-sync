@@ -33,9 +33,13 @@ Driven through Chrome DevTools against `node scripts/guest-local.mjs` on `127.0.
 - The single-period failure message was confirmed live.
 - Fix for the hosted path (`2f59454`, `28a5255`, Opus-reviewed): guest source fetches allow 90 s (legacy stays 30 s), and a failure before any response is a retryable `NETWORK_ERROR`.
 
+**Official mode, after RRC recovered (14:58 CDT, with `2f59454`/`28a5255`):**
+- Lookup returned 1 candidate. Collection of UIC `000020838`, 2024-01..2024-03, succeeded (not a fixture): `rrc-2026-10-14-uic000020838-13edeb88-82e5-468b-b4a7-235adfbb7ec7`, "Verified bounded linkage".
+- "Open this dataset" shows "Guest dataset — private, expires", with reporting coverage 2024-01 – 2024-03: 1 inventory row, 3 monthly rows, no quarantine issues.
+- Downloads: the archive endpoint was fetched **once**. The TAR (1,359,360 bytes) has SHA-256 `bfdd920291c33c22fb34c417d2e8550f975fed6aaa355d2294faf84984c9f3a5`, equal to `job.result.archiveSha256`. The working tree stayed clean (nothing written to `artifacts/`, `runs/` or `lookups/`).
+
 ## Not verified locally
 
-- **Open this dataset → Downloads → TAR** in official mode. This is blocked on this machine while RRC webapps2 TLS stays slow. Task 11 Step 5 (hosted smoke test: archive SHA-256 equals `job.result.archiveSha256`) is the covering check.
 - **Deno fetch has no default connect/TLS timeout.** This comes from the Deno docs only. Task 11 Step 5 confirms whether 90 s plus one retry carries C7.
 
 ## Accepted and documented

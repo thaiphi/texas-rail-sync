@@ -28,11 +28,12 @@ export function createHostingBridge({html,fetchImpl=fetch}){
     headers.set('content-type','application/json');const authorization=request.headers.get('authorization');if(authorization&&!guestPost.test(url.pathname)&&!/^Guest /i.test(authorization))headers.set('authorization',authorization);
    }
    const upstream=await fetchImpl(backend+url.pathname+url.search,{method:request.method,headers,body,redirect:'error',signal:AbortSignal.timeout(120000)});
-   if(upstream.headers.get('content-encoding')&&!/^identity$/i.test(upstream.headers.get('content-encoding'))){await upstream.body?.cancel();return error(503,'BACKEND_UNAVAILABLE','Saved datasets are temporarily unavailable. Please retry.');}
+   // Streamed upstream.body is decoded (undici keeps the header; on the published Workers site Supabase answered gzip-encoded), so content-encoding is never forwarded.
    const resultHeaders=new Headers({'cache-control':'no-store','x-content-type-options':'nosniff'});
    for(const name of ['content-type','content-disposition']){const value=upstream.headers.get(name);if(value)resultHeaders.set(name,value);}
-   const length=upstream.headers.get('content-length');if(head&&/^\d+$/.test(length??''))resultHeaders.set('content-length',length);
+   // An encoded HEAD length is the compressed size, so it is forwarded only for identity bodies.
+   const length=upstream.headers.get('content-length'),encoding=upstream.headers.get('content-encoding');if(head&&/^\d+$/.test(length??'')&&(!encoding||/^identity$/i.test(encoding)))resultHeaders.set('content-length',length);
    return new Response(head?null:upstream.body,{status:upstream.status,headers:resultHeaders});
-  }catch{return error(503,'BACKEND_UNAVAILABLE','Saved datasets are temporarily unavailable. Please retry.');}
+  }catch(failure){console.error(JSON.stringify({event:'bridge_upstream_failed',name:String(failure?.name??'Error')}));return error(503,'BACKEND_FETCH_FAILED','Saved datasets are temporarily unavailable. Please retry.');}
  };
 }

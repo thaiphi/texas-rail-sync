@@ -36,12 +36,34 @@ test('hosting bridge sanitizes backend failures and refuses unsupported methods'
  assert.equal(failed.status,503);assert.doesNotMatch(await failed.text(),/credential secret/);
  assert.equal((await handler(new Request('https://preview.example/api/versions',{method:'DELETE'}))).status,405);
 });
-test('hosting bridge refuses unexpected encoded bodies and never forwards a stale streamed length',async()=>{
- let headers;const handler=createHostingBridge({html:'shell',fetchImpl:async(url,options)=>{headers=options.headers;return new Response('decoded',{headers:{'content-encoding':'gzip','content-length':'35'}});}});
+test('hosting bridge passes decoded bodies from gzip-labelled upstreams and never forwards encoding or a stale streamed length',async()=>{
+ let headers;const json='{"versions":[{"id":"v1"}]}';
+ const handler=createHostingBridge({html:'shell',fetchImpl:async(url,options)=>{headers=options.headers;return new Response(json,{headers:{'content-type':'application/json','content-encoding':'gzip','content-length':'35'}});}});
  const response=await handler(new Request('https://preview.example/api/versions'));
- assert.equal(headers.get('accept-encoding'),'identity');assert.equal(response.status,503);
+ assert.equal(headers.get('accept-encoding'),'identity');assert.equal(response.status,200);
+ assert.equal(response.headers.get('content-encoding'),null);assert.equal(response.headers.get('content-type'),'application/json');assert.equal(response.headers.get('content-length'),null);
+ assert.deepEqual(new Uint8Array(await response.arrayBuffer()),new TextEncoder().encode(json));
  const plain=createHostingBridge({html:'shell',fetchImpl:async()=>new Response('plain',{headers:{'content-length':'35'}})});
  const streamed=await plain(new Request('https://preview.example/api/versions'));assert.equal(streamed.headers.get('content-length'),null);assert.equal(await streamed.text(),'plain');
+});
+test('hosting bridge forwards HEAD content-length only when upstream is not encoded',async()=>{
+ const bridge=encoding=>createHostingBridge({html:'shell',fetchImpl:async()=>new Response(null,{headers:{'content-length':'10',...(encoding?{'content-encoding':encoding}:{})}})});
+ const encoded=await bridge('gzip')(new Request('https://preview.example/api/versions',{method:'HEAD'}));
+ assert.equal(encoded.status,200);assert.equal(encoded.headers.get('content-length'),null);assert.equal(encoded.headers.get('content-encoding'),null);
+ const plain=await bridge(null)(new Request('https://preview.example/api/versions',{method:'HEAD'}));
+ assert.equal(plain.headers.get('content-length'),'10');
+});
+test('hosting bridge marks fetch failures distinctly and logs only a token-free error name',async()=>{
+ const token='Guest '+'b'.repeat(43),original=console.error,lines=[];
+ console.error=(...args)=>lines.push(args.map(String).join(' '));
+ try{
+  const bridge=createHostingBridge({html:'shell',fetchImpl:async url=>{throw new TypeError(`fetch failed ${url} ${token}`);}});
+  const failed=await bridge(new Request('https://site.example/api/guest/history',{headers:{authorization:token}}));
+  assert.equal(failed.status,503);const body=await failed.json();
+  assert.equal(body.error.code,'BACKEND_FETCH_FAILED');assert.equal(body.error.message,'Saved datasets are temporarily unavailable. Please retry.');
+ }finally{console.error=original;}
+ assert.equal(lines.length,1);assert.deepEqual(JSON.parse(lines[0]),{event:'bridge_upstream_failed',name:'TypeError'});
+ assert.doesNotMatch(lines[0],/Guest|b{43}|https?:|supabase|fetch failed/);
 });
 test('hosting bridge forwards guest routes with guest auth, idempotency key and verified origin only',async()=>{
  const seen=[];const bridge=createHostingBridge({html:'<html><head></head><body></body></html>',fetchImpl:async(url,init)=>{seen.push({url,init});return new Response('{}',{status:202,headers:{'content-type':'application/json'}});}});
