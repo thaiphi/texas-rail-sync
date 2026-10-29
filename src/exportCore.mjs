@@ -5,8 +5,9 @@ import {Buffer} from 'node:buffer';
 import {loadSnapshotFromReader,buildArtifact,snapshotProvenance} from './artifact.mjs';
 import {normalize,sha256} from './normalize.mjs';
 import {createRunRecorder} from './runEvents.mjs';
-import {collectionScope,isBounded,versionLabels} from './sources.mjs';
+import {collectionScope,isBounded,isLocalOnly,versionLabels} from './sources.mjs';
 import {normalizeTests} from './testReports.mjs';
+import {normalizeSnapshotWellbore,wellboreScopeFailure} from './wellbore.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {workflowView} from '../public/workflow.js';
 const failure=(code,message)=>Object.assign(Error(message),{code});
@@ -14,8 +15,10 @@ const publishOperations=new Set(['published_new_version','verified_existing_byte
 const copies=files=>Object.fromEntries(Object.entries(files).map(([name,body])=>[name,Buffer.from(body)]));
 const sameJson=(left,right)=>isDeepStrictEqual(JSON.parse(JSON.stringify(left)),JSON.parse(JSON.stringify(right)));
 const stageStates=record=>workflowView(record).stages.map(stage=>stage.status).join('/');
-// Row counts for row-bearing sources; bhp/srt exist only in v3 snapshots.
-export const sourceCount=(snapshot,s)=>s.kind==='inventory'?snapshot.inventory.length:s.kind==='monthly'?snapshot.monthly.length:(s.kind==='bhp'||s.kind==='srt')&&snapshot.tests?snapshot.tests[s.kind].length:null;
+// Row counts for row-bearing sources; bhp/srt exist only in v3+ snapshots and the exact-API
+// casing/plugging/wellbore_inventory responses only in v4 snapshots.
+const wellboreKind={casing:'casing',plugging:'plugging',wellbore_inventory:'inventory'};
+export const sourceCount=(snapshot,s)=>s.kind==='inventory'?snapshot.inventory.length:s.kind==='monthly'?snapshot.monthly.length:(s.kind==='bhp'||s.kind==='srt')&&snapshot.tests?snapshot.tests[s.kind].length:Object.hasOwn(wellboreKind,s.kind)&&Array.isArray(snapshot.wellbore?.[wellboreKind[s.kind]])?snapshot.wellbore[wellboreKind[s.kind]].length:null;
 const loadInputs=(snapshot,inputPath)=>snapshot.sources.map(s=>({...s,path:inputPath(s.raw_file.slice(8)),count:sourceCount(snapshot,s)}));
 const qcInputs=snapshot=>snapshot.sources.filter(s=>['inventory','monthly'].includes(s.kind)).map(s=>({snapshotId:s.snapshot_id,url:s.url,sha256:s.sha256}));
 const qcOutputs=normalized=>[{name:'normalized inventory',count:normalized.inventory.length,sha256:sha256(JSON.stringify(normalized.inventory))},{name:'normalized monthly',count:normalized.monthly.length,sha256:sha256(JSON.stringify(normalized.monthly))}];
@@ -27,7 +30,15 @@ const testReportCounts=(snapshot,normalized)=>{
  if(Object.values(tests.quality.issue_counts).some(counts=>Object.keys(counts).some(flag=>flag.startsWith('source_scope:'))))throw failure('SOURCE_SCOPE_MISMATCH','Test-report rows contradict the exact-UIC query');
  return {bhp:tests.quality.bhp,srt:tests.quality.srt};
 };
-const refuseTestReports=snapshot=>{if(snapshot?.scope?.queryVersion===3)throw failure('SOURCE_INVALID','test-report versions are local-only (D7)');};
+// v4 casing/plugging (RRC-14, ADR 004 §2): a predicate contradiction fails the run; counts reconcile per dataset.
+const wellboreCounts=(snapshot,normalized)=>{
+ if(!snapshot.wellbore)return null;
+ const wellbore=normalizeSnapshotWellbore(snapshot,normalized.inventory);
+ if(wellboreScopeFailure(wellbore))throw failure('SOURCE_SCOPE_MISMATCH','Wellbore rows contradict the exact-API query');
+ return {casing:wellbore.casing.quality.counts,plugging:wellbore.plugging.quality.counts};
+};
+// D7: every local-only version class (query version 3 and up); the message text is unchanged.
+const refuseTestReports=snapshot=>{if(isLocalOnly(snapshot?.scope))throw failure('SOURCE_INVALID','test-report versions are local-only (D7)');};
 function checkReference(sourceReference){if(typeof sourceReference!=='string'||!/^[a-z0-9][a-z0-9._\/-]{0,255}$/i.test(sourceReference)||sourceReference.split('/').some(part=>!part||part==='.'||part==='..'))throw failure('SOURCE_INVALID','Invalid source reference');}
 // Trusted internal acquisition evidence (never client input): every fetched source needs
 // exactly one succeeded request and one output reference matching the loaded bytes.
@@ -102,8 +113,8 @@ async function exportCore({run,artifactId,expectedManifestSha256=null,testFixtur
   const normalized=normalize(snapshot.inventory,snapshot.monthly,snapshot.sourceIds,snapshot.scope??collectionScope);
   evidence={...evidence,counts:normalized.quality};
   scopeFailure(normalized);
-  const testReports=testReportCounts(snapshot,normalized);
-  run.succeed(stage,{...evidence,counts:normalized.quality,outputs:qcOutputs(normalized),...(testReports?{testReports}:{})});
+  const testReports=testReportCounts(snapshot,normalized),wellbore=wellboreCounts(snapshot,normalized);
+  run.succeed(stage,{...evidence,counts:normalized.quality,outputs:qcOutputs(normalized),...(testReports?{testReports}:{}),...(wellbore?{wellbore}:{})});
   stage='export';evidence={artifactId,provenance:snapshot.provenance,counts:normalized.quality};run.start(stage);
   const {built,expected}=await buildOutputs(snapshot,artifactId,normalized);
   // Prepared (C8) outputs are staged-unpublished: export stays running, nothing is saved.
@@ -142,9 +153,9 @@ export async function prepareArtifactFromReader({readBytes,sourceReference,artif
  if(live!==(acquisitionEvidence!==null))throw failure('SOURCE_INVALID',live?'Live collection preparation requires its acquisition evidence':'Acquisition evidence is accepted only for a live collection');
  const acquisition=acquisitionEvidence===null?null:structuredClone(acquisitionEvidence);
  const never=async()=>{throw failure('EXPORT_MISMATCH','Prepare never publishes');};
- // D7: the guest path stays v2, so its recorder never takes v3 labels; a v3 snapshot is refused after load.
+ // D7: the guest path stays v2, so its recorder never takes local-only (v3+) labels; such a snapshot is refused after load.
  const detected=typeof readBytes==='function'?await detectScope(readBytes):null;
- const run=recorder??exportRecorder({mode,scope:detected?.queryVersion===3?null:detected,testFixture});
+ const run=recorder??exportRecorder({mode,scope:isLocalOnly(detected)?null:detected,testFixture});
  return exportCore({run,artifactId,testFixture,sourceEvidence:{sourceReference},inputPath:name=>`${sourceReference}/${name}`,load:()=>loadSnapshotFromReader(readBytes),readPublished:never,publish:never,outputPath:(id,name)=>`artifacts/${id}/${name}`,acquisition},{prepareOnly:true,startLoad,localOnly:false});
 }
 // C9, internal trusted server/journal only; not a distributed transaction. The

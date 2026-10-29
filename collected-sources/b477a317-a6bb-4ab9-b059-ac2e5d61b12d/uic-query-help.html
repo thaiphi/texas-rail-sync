@@ -1,0 +1,774 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<HTML>
+  <HEAD>
+    <TITLE>UIC (Injection and Disposal Wells) Query How To</TITLE>
+    <META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+    <link href="../styles/ogm_style3.css" rel="stylesheet" type="text/css">
+    <META content="MSHTML 6.00.5730.11" name=GENERATOR>
+</HEAD>
+<BODY onload=window.resizeTo(640,480)><!--<body  marginwidth="0" marginheight="0"> **--><!--Skip Navigation Link for Accessibility ** Must have anchor where content starts **-->
+
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <FORM name=form2 action="" method=post>
+  <TBODY>
+  <TR>
+    <TD class=MainHeader><img src="../images/rrc_online_trans_new.gif" width="334" height="35"></TD>
+    <TD class=MainHeader noWrap align=right><INPUT class=SysMenu onclick=javascript:self.close(); type=button value=Close name=button></TD>
+    <TD class=MainHeader><IMG height=1 alt="" src="" width=4></TD>
+  </TR></FORM>
+  <TR>
+    <TD class=BorderLines colSpan=3><IMG height=3 alt="" src=""
+  width=1></TD></TR></TBODY></TABLE><!--Application Header-->
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD class=AppHeader height=26><IMG height=1 alt="" src="" width=4></TD>
+    <TD class=AppHeader width="100%">&nbsp;Expanded Web Access Help </TD>
+  </TR></TBODY></TABLE><!--Navigation Table Level 2 and 3-->
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD class=BorderLines colSpan=2><IMG height=2 alt="" src="" width=1></TD></TR><!--Level 2 navigation row-->
+  <TR>
+    <TD class=AppNavMain width="1%"><IMG height=1 alt="" src="" width=10></TD>
+    <TD class=AppNavMain>
+      <TABLE width="270" border=0 cellPadding=0 cellSpacing=0>
+        <TBODY>
+          <TR>
+            <TD width=99 height=14 vAlign=center nowrap class=AppNavMain><DIV align=center><A
+            href="Help_TOC.html" class="AppNavMain">EWA Contents</A> </DIV></TD>
+            <TD width="1" class=BorderLines><IMG height=1 alt="" src="" width=1></TD>
+            <TD width=111 vAlign=center nowrap class=AppNavMain><a href="UIC_TOC.html">UIC Contents</a> </TD>
+            <TD class=AppNavMain vAlign=center width=107><div align="center"><a href="UIC_gloss.htm">Glossary</a> </div></TD>
+            <TD width="1" class=BorderLines><IMG height=1 alt="" src=""
+        width=1></TD>
+          </TR>
+        </TBODY>
+      </TABLE></TD></TR>
+  <TR>
+    <TD class=BorderLines colSpan=2><IMG height=1 alt="" src=""
+  width=1></TD></TR></TBODY></TABLE><!--Level 3 navigation row-->
+<P>
+
+<TABLE cellSpacing=0 cellPadding=8 width="100%" border=0><!--DWLayoutTable-->
+  <TBODY>
+  <TR vAlign=top>
+    <TD width=759></TD></TR><!--Anchor for Accessibility Skip Navigation Link--><!--Anchor for Accessibility Skip Navigation Link--><A
+  name=contentstart></A><!--Main Content table-->
+  <TD vAlign=top><table border="0" cellpadding="4" cellspacing="0" class="GroupBox1" width="810">
+    <!--DWLayoutTable-->
+    <tr>
+      <td width="2" height="32"></td>
+      <br>
+      <td width="97" align="right" valign="top" nowrap><div align="right"><strong> <font size="1">Related Help:</font></strong></div></td>
+      <td width="685" valign="top" class="MainFooter"><div align="left"><a href="PDQ_General_HowTo.html"><font size="1">Production Data Query</font></a><font size="1"> | </font><a href="P-4_Purchaser_Gatherer_HowTo.html">P-4 Gatherer/Purchaser Query </a> | <a href="Severance_HowTo.html">Severance Query </a> | <a href="Gas_Proration_HowTo.html">Gas Proration Query </a> | <a href="Oil_Proration_HowTo.html">Oil Proration Query </a> | <a href="P5Organization_HowTo.html">P-5 Organization Query</a> | <a href="IWAR_results_howto.html">IWAR Query</a> | <a href="OrphanWell_HowTo.htm">Orphan Well Query</a> | <a href="InactiveWellQuery_HowTo.htm">Inactive Well Query</a> | <a href="P5Query_HowTo.htm">P-5 Renewal Query</a> </div></td>
+    </tr>
+  </table></TD>
+    </TR>
+  <TR>
+    <TD vAlign=top>
+    <H2><A name=top></A>UIC (Injection and Disposal Wells) Query </H2></TD></TR>
+  <TR>
+    <TD vAlign=top>
+      <TABLE cellSpacing=0 cellPadding=0 border=0>
+        <TBODY>
+        <TR vAlign=top>
+          <TD class=TabSelected noWrap><A
+            href="UICGeneralHowTo.html">How To</A> </TD>
+          <TD class=BorderLines><IMG height=1 alt="" src="" width=1></TD>
+          <TD class=Tab noWrap><a href="UIC_About.html">About</a> </TD>
+          <TD class=BorderLines><IMG height=1 alt="" src="" width=1></TD>
+        </TR></TBODY></TABLE>
+      <TABLE class=TabSelected cellSpacing=0 cellPadding=0 width="99%"
+        border=0><TBODY>
+        <TR>
+          <TD><IMG height=4 alt="" src="" width=1></TD></TR></TBODY></TABLE>
+      <TABLE class=GroupBox1 cellSpacing=2 cellPadding=2 width="99%" border=0>
+        <!--DWLayoutTable-->
+        <TBODY>
+        <TR>
+          <TD width=530 vAlign=top>
+            <P>This screen is accessed by selecting the UIC Data Query option from the Expanded Web Access Menu. Search for wells by: </P>
+            <UL>
+              <LI><a href="#SearchByWellType">Well Type</a>
+              <LI><a href="#SearchByDistrict">District </a>
+              <LI><A
+              href="http://webappsd2/H10/help/Internal_Well_Search_Howto.html#opt2"></A><a href="#SearchByOilLease">Oil Lease Number</a>
+              <LI><a href="#SearchByGasWellId">Gas Well Id Number</a>
+              <LI><a href="#SearchByCounty">County
+              </a>
+              <LI><a href="#SearchByField">Field </a>
+              <LI><a href="#SearchByOperator">Operator </a></LI>
+              <LI><a href="#SearchByUICNumber">UIC Number</a></LI>
+              <LI><a href="#OriginalAuthorityDate">Original Authority Date</a></LI>
+              <LI><a href="#SearchByAPI"> API  Number</a></LI>
+              <LI><a href="#TopInjectionZone">Top Injection Zone</a></LI>
+              <LI><a href="#BottomInjectionZone">Bottom Injection Zone</a></LI>
+              <LI><a href="#H1Number">H-1 Number</a></LI>
+              <LI><a href="#W14Number">W-14 Number</a></LI>
+              <LI><a href="#H10Status">H-10 Status</a></LI>
+              <LI><a href="#PermittedFluid">Permitted Fluid</a></LI>
+              <LI><a href="#InjectionType">Injection Type </a></LI>
+              <LI><a href="#SpecialConditions">Special Conditions </a></LI>
+              </UL>
+            <UL>
+              <LI>UIC Query <a href="#resultsUIC">results</a> 
+                  <ul>
+                    <li><a href="#navigating">Navigating and Sorting</a></li>
+                    <li>Lease Detail and Using the <a href="#tabs">Tabs</a>  </li>
+                  </ul>
+                </LI>
+            </UL>            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=left>&nbsp;</P>
+            <H3><STRONG><A name=SearchByWellType id="SearchByWellType"></A>UIC Search by Well Type </STRONG></H3>
+            <p>Well type refers to oil wells, gas wells, or both. Selecting Oil Wells results in a list of Oil Wells. Selecting Gas Wells produces a list of Gas Wells. Selecting Both results in a list of Oil <strong>and</strong> Gas Wells. A flag indicates if the well is a Gas Well or an Oil Well.</p>
+            <OL>
+              <LI>Select Oil Wells, Gas Wells, or Both by clicking on the corresponding radio button.
+              <LI>Click on the <strong>Submit</strong> button to view a list of UIC wells based on the selection. The system displays the<em><strong> <a href="#resultsUIC">results</a>. </strong><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search  by entering more criteria. </em>
+              </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=left>&nbsp;</P>
+            <H3><STRONG><A name=SearchByDistrict id="SearchByDistrict"></A> UIC Search by District</STRONG></H3>
+            <P>Querying by District allows you to see data for all UIC wells in the selected District. </P>
+            <OL>
+              <LI>Select the desired District from the drop down menu. (The table below shows District Numbers and the areas they encompass.) </LI>
+            </OL>
+            <TABLE class=GroupBox2 border=1 align="center" cellPadding=4 cellSpacing=0 borderColor=#666666 >
+              <TBODY>
+                <TR>
+                  <TH width=130><P align=center><strong>District Number </strong></P></TH>
+                  <TH width=188><P align=center><STRONG>District</STRONG></P></TH>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=130><P>1</P></TD>
+                  <TD vAlign=top width=188><P>San Antonio </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=130><P>2</P></TD>
+                  <TD vAlign=top width=188><P>San Antonio</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=130><P>3</P></TD>
+                  <TD vAlign=top width=188><P>Houston</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=130><P>4</P></TD>
+                  <TD vAlign=top width=188><P>Corpus Christi </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=130><P>5</P></TD>
+                  <TD vAlign=top width=188><P>Kilgore</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>6 </TD>
+                  <TD vAlign=top>Kilgore</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=130><P>7B</P></TD>
+                  <TD vAlign=top width=188><P>Abilene</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>7C</TD>
+                  <TD vAlign=top>San Angelo </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>8</TD>
+                  <TD vAlign=top>Midland</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>8A</TD>
+                  <TD vAlign=top>Midland</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>9</TD>
+                  <TD vAlign=top>Wichita Falls </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>10</TD>
+                  <TD vAlign=top>Pampa</TD>
+                </TR>
+              </TBODY>
+            </TABLE>
+            <div align="center"></div>
+            <P></P>
+            <OL start=2>
+              <LI><strong>Click on the Submit</strong> button to view a list of UIC wells in the District. The system displays the <a href="#resultsUIC">results</a>.<em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search  by entering more criteria. </em></LI>
+            </OL>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=SearchByOilLease id="SearchByOilLease"></A> </STRONG><STRONG>Search by Oil Lease Number </STRONG></H3>
+            <P>Entering an Oil Lease Number or Gas ID Number will result in a list of UIC oil wells that are located in the selected lease. </P>
+            <OL>
+              <LI>Select Lease Type (Oil, Gas or Both) at the top of the screen.
+                <P></P>
+              <LI>Select District Code. <em>(This is required when searching by Oil Lease Number.) </em>
+			   <p></p>
+              <LI>If you know the Oil Lease Number , enter it in the corresponding field and proceed to Step 5.
+                 <p></p>
+              <LI>If you do not know the Lease number, click on the <strong>Search for Lease</strong> button and use the <a href="Lease_Search.html">Lease Query</a> page to find the lease.
+The proceed to Step 5.
+                <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays a list of UIC oil wells in that lease in the <a href="#resultsUIC">results</a> table . </LI>
+            </OL>
+            <P>&nbsp;</P>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=SearchByGasWellId id="SearchByGasWellId"></A> Search by Gas Well Id </STRONG>Number</H3>
+            <P>Entering an Gas Well ID Number  results in a list of UIC gas wells that are located in the selected lease. </P>
+            <OL>
+              <LI>Select Lease Type (Gas Wells) at the top of the screen. <em>(This is required when searching by Gas Well ID.) </em>
+                  <P></P>
+              <LI>Select District Code. <em>(This is required when searching by Gas Well ID.) </em>
+              <LI>If you know the Gas Well ID, enter it in the Gas Well ID No. field and proceed to Step 5.
+                <p></p>
+              <LI>If you do not know the Lease number, click on the <strong>Search for Lease</strong> button and use the <a href="Lease_Search.html">Lease Query</a> page to find the lease.
+The proceed to Step 5.
+                <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays a list of UIC gas wells in that lease in the <a href="#resultsUIC">results</a> table . </LI>
+            </OL>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=center>&nbsp;</P>
+            <H3><STRONG><A name=SearchByCounty id="SearchByCounty"></A>Search by County </STRONG></H3>
+            <P>Entering a county will result in a list of UIC wells located in the selected county.</P>
+            <OL>
+              <LI>Select the desired County from the drop down menu.
+                  <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search   by entering more criteria.</em>
+              </OL>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=SearchByField id="SearchByField"></A>Search by Field </STRONG></H3>
+            <p>Entering  one or more Fields results in a list of UIC Wells located in the selected Field(s).</p>
+            <OL>
+              <LI>Click on <strong>Search for Field</strong> button to use the <a href="Field_Search.html">Field Query</a> screen to search for field. Once you locate the fields, click the <strong>Submit </strong> button in the Field Query screen and the system returns the Severance Query screen with those fields populated in the Fields box.
+<P></P>
+                <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>.
+            </OL>
+            <p>&nbsp;</p>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A><A
+            href="http://webappsd2/H10/help/Internal_Well_Search_Howto.html#top"></A></P>
+            <H3><STRONG><A name=SearchByOperator id="SearchByOperator"></A>Search by Operator </STRONG></H3>
+            <p>Entering an Operator(s) results in a list of UIC wells assigned to that Operator(s).</p>
+            <OL>
+              <LI>Click on <strong>Search for Operator </strong> button to use the <a href="Operator_Search.html">Operator Query </a>screen to locate Operators you wish to query. Once you find those Operators, click the <strong>Submit </strong> button in the Operator Query screen and the system returns the Severance Query screen with those Operators populated in the Operator field.
+                <P></P>
+                <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>.
+            </OL>
+            <p>&nbsp;</p>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=center>&nbsp;</P>
+            <H3><a name=SearchByUICNumber id="SearchByUICNumber"></a><STRONG>Search by UIC Number </STRONG></H3>
+            <p>Entering a UIC Number will  display the UIC Well assigned to the UIC Number.</p>
+            <OL>
+              <LI>Enter the UIC Permit Number. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <P></P>
+              <LI>Click on the Submit<strong></strong>. The system displays the <a href="#resultsUIC">results</a>.
+            </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A><A
+            href="http://webappsd2/H10/help/Internal_Well_Search_Howto.html#top"></A></P>
+            <H3>&nbsp;</H3>
+            <H3><STRONG><A name=OriginalAuthorityDate id="OriginalAuthorityDate"></A>Search by Original Authority Date</STRONG></H3>
+            <p>This search allows you to find a list of UIC wells that were permitted during a specific data range. </p>
+            <OL>
+              <LI>Enter the start date for the date range in the <strong>From</strong> box. (Proper format for dates is MM/DD/YYYY.)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <P></P>
+              <LI>Enter the end date for the date range   in the<strong> To </strong>box.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+            </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=center>&nbsp;</P>
+            <H3><STRONG><A name=SearchByAPI id="SearchByAPI"></A>Search by API  Number </STRONG></H3>
+            <p>Entering an API  Number   results in a list of UIC Wells assigned to the API Unique Number.</p>
+            <OL>
+              <LI>Enter the API Number.<br>
+                  <P></P>
+              <LI>Click on the Submit<strong></strong> button to view the corresponding UIC well assigned to the API  Number.
+                The system displays the <a href="#resultsUIC">results</a>.
+              </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=center><A
+            href="http://webappsd2/H10/help/Internal_Well_Search_Howto.html#top"></A></P>
+            <P align=center>&nbsp;</P>
+            <H3><STRONG><A name=TopInjectionZone id="TopInjectionZone"></A>Search by Top Injection Zone</STRONG></H3>
+            <p>This  allows you to search by   the depth the top of the permitted injection zone by entering a depth range. </p>
+            <OL>
+              <LI>Enter the lowest depth in the text box marked 'Between'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Enter the highest depth in the  second box.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+            </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=BottomInjectionZone id="BottomInjectionZone"></A>Search by Bottom Injection Zone</STRONG></H3>
+            <p>This allows you to search by the depth the bottom of the permitted injection zone by entering a depth range. </p>
+            <OL>
+              <LI>Enter the lowest depth in the text box marked 'Between'.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Enter the highest depth in the second box.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+              </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=H1Number id="H1Number"></A>Search by H-1 Number</STRONG></H3>
+            <p>This allows you to search for UIC wells by the H-1 project number assigned to the well.  <em><strong>Note: </strong>If an H-1 Number is entered, a W-14 Number cannot be entered. </em></p>
+            <OL>
+              <LI>Enter the H-1 Number.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the UIC well that corresponds to that H-1 number.
+            </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=W14Number id="W14Number"></A>Search by W-14 Number</STRONG></H3>
+            <p>This allows you to search for UIC wells by the W-14 project number assigned to the well. <em><strong>Note: </strong>If a W-14 Number is entered, an H-1 Number cannot be entered. </em></p>
+            <OL>
+              <LI>Enter the H-1 Number.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <P></P>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the UIC well that corresponds to that H-1 number.
+            </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=H10Status id="H10Status"></A>Search by H-10 Status</STRONG></H3>
+            <p>This search produces a list of UIC wells with the status that is selected. </p>
+            <OL>
+              <LI>Select an H-10 Status from the drop down menu. This list below shows the possible H-10 statuses. </LI>
+			  </OL>
+
+
+
+			                     
+                  <TABLE class=GroupBox2 width="319" border=1 align="center" cellPadding=4 cellSpacing=0 borderColor=#666666 >
+                    <TBODY>
+                      <TR>
+                        <TH width=307><P align=center><strong>H-10 Status </strong></P></TH>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top width=307><P>All Choices </P></TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top width=307><P>Active</P></TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top width=307><P>Active Storage Service </P></TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top width=307><P>Alternative Monitoring (out of service) </P></TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top width=307><P>Authorized by RRC to Inject but not yet drilled </P></TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>Authorized for Storage, but not yet drilled </TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top width=307><P>Drilled, but not yet in storage service </P></TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>No H10 Report </TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>Other</TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>Permit Cancelled </TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>Plugged</TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>Temporarily Abandoned </TD>
+                      </TR>
+                      <TR>
+                        <TD vAlign=top>Temporarily Abandoned/Shut-In </TD>
+                      </TR>
+                    </TBODY>
+                  </TABLE>
+                  <P></P>
+              <OL start=2>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+</OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3><STRONG><A name=PermittedFluid id="PermittedFluid"></A>Search by Permitted Fluid</STRONG></H3>
+            <p>This search results in a list of UIC wells that are approved to inject the Permitted Fluid Type that is selected. </p>
+            <OL>
+              <LI>Select the Permitted Fluid Type.</LI>
+            </OL>
+                               
+            <TABLE class=GroupBox2 width="319" border=1 align="center" cellPadding=4 cellSpacing=0 borderColor=#666666>
+              <TBODY>
+                <TR>
+                  <TH width=307><P align=center><STRONG>Permitted Fluid</STRONG></P></TH>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Air</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Brackish Water </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>CO2</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Fresh Water </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Gas</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>LPG</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>NORM</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Polymer</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Salt Water </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Other</TD>
+                </TR>
+              </TBODY>
+            </TABLE>
+            <P></P>
+            <OL start=2>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+            </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=center>&nbsp;</P>
+            <H3><STRONG><A name=InjectionType id="InjectionType"></A>Search by Injection Type</STRONG></H3>
+            <p>This search produces a list of UIC wells with the Injection Type that is selected. </p>
+            <OL>
+              <LI>Select an Injection Type from the drop down menu. This list below shows the possible Injection Types. </LI>
+            </OL>
+                               
+            <TABLE class=GroupBox2 width="319" border=1 align="center" cellPadding=4 cellSpacing=0 borderColor=#666666>
+              <TBODY>
+                <TR>
+                  <TH width=307><P align=center><strong>Injection Type  </strong></P></TH>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Disposal into Nonproductive Zone (W-14) </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Disposal into Productive Zone (H-1) </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Secondary or Tertiary Recovery (Injection Well) </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Other</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>R95 Liquid Storage-Salt Formation </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>R96 Gas Storage-Reservoir </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>R97 Gas Storage-Salt Formation </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Brine Mining </TD>
+                </TR>
+              </TBODY>
+            </TABLE>
+            <P></P>
+            <OL start=2>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+              </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <P align=center>&nbsp;</P>
+            <H3><STRONG><A name=SpecialConditions id="SpecialConditions"></A>Search by Special Conditions</STRONG></H3>
+            <p>This search produces a list of UIC wells with the Special Condition that is selected. </p>
+            <OL>
+              <LI>Select a Special Condition from the drop down menu. This list below shows the possible Special Conditions. </LI>
+            </OL>
+                               
+            <TABLE class=GroupBox2 width="319" border=1 align="center" cellPadding=4 cellSpacing=0 borderColor=#666666>
+              <TBODY>
+                <TR>
+                  <TH width=307><P align=center><strong>Special Conditions </strong></P></TH>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Annual Pressure Test </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Cement Squeeze </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Block Squeeze </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Squeeze Perforations </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Bridge Plug </P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Fluid Source Limit </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top width=307><P>Plug</P></TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Permit Expires </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Gas Plant </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Other</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Commercial</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Annual Radioactive Tracer Survey </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Block Squeeze SX </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Measure Fluid Level </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Annual Temperature Survey </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Annual Downhole Survey </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Semi-Annual Pressure Test (H-5) </TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Monitor the Tubing-Casing Annual Pressure</TD>
+                </TR>
+                <TR>
+                  <TD vAlign=top>Monitor</TD>
+                </TR>
+              </TBODY>
+            </TABLE>
+            <P></P>
+            <OL start=2>
+              <LI>Click on the <strong>Submit</strong> button. The system displays the <a href="#resultsUIC">results</a>. <em><strong>Note:</strong> The system will not display more than 10,000 records. It may be necessary to refine your search by entering more criteria.</em>
+              </OL>
+            <H3 align=left>&nbsp;</H3>
+            <P align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></P>
+            <H3>&nbsp;</H3>
+            <h2 align=left><a name="resultsUIC"></a>UIC Query Results</h2>
+            <p> The header at the top of the results page for each UIC query lists all of the search criteria used. The results displayed in the table are: </p>
+            <ul>
+              <li> UIC Number </li>
+              <li> API Number </li>
+              <li> Well Type </li>
+              <li> Operator Name </li>
+              <li> District </li>
+              <li> Lease Name</li>
+              <li> Lease Number</li>
+              <li> Well Number</li>
+              <li> County</li>
+              <li> Field Name</li>
+            </ul>
+            <p>Clicking on the UIC No. field displays detailed UIC information:</p>
+            <ul>
+              <li>UIC No.</li>
+              <li>API No.</li>
+              <li>Well No.</li>
+              <li>Original Authority Date</li>
+              <li>H-1 No.</li>
+              <li>H-1 Date</li>
+              <li>W-14 Date</li>
+              <li>W-14 No.</li>
+              <li>Permit Canceled Date    </li>
+              <li>W-3 Plugged Date</li>
+              <li>Injection Type</li>
+              <li>Special Conditions</li>
+              <li>H-10 Status</li>
+              <li>Permitted Fluid(s)</li>
+              <li>Other Permitted Fluid(s)</li>
+              <li>Reported Fluid(s)</li>
+              <li>Other Reported Fluid(s)</li>
+              <li>Activated Flag</li>
+              <li>Max Liguid Injection Pressure (PSI)</li>
+              <li>Max Gas Injection Pressure (PSI)</li>
+              <li>Max Liquid Injection Volume (BBLS/Day)</li>
+              <li>Max Gas Injection Volume (MCF/Day)</li>
+              <li>Approved Packer Depth</li>
+              <li>Top Injection Zone</li>
+              <li>Bottom Injection Zone </li>
+              <li>H-5 Schedule Date</li>
+              <li>H-5 Due Date</li>
+              <li>H-5 Received Date</li>
+              <li>Last H-5 Date</li>
+              <li>Last H-5 Type</li>
+              <li>Last H-5 Results</li>
+              <li>H-5 Test Frequency</li>
+              <li>Tbg-Csg Ann Mon. </li>
+              <li>TCAM Credit Date </li>
+              <li>TCAM Reported Reading Per Month </li>
+            </ul>
+            <p align="center"><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></p>
+            <p align="center">&nbsp;</p>
+            <h3><a name="navigating" id="navigating"></a>Navigating and Sorting</h3>
+            <p>The results table may contain multiple results spread over several pages. To navigate the results table: </p>
+            <ul>
+              <li>Use the &quot;Next&quot; and &quot;Previous&quot; links to move forward and back through the pages of results.
+                  <p></p>
+              </li>
+              <li>Click on the Page number link to view a particular results page.
+                  <p></p>
+              </li>
+              <li>Select how many results are displayed per page by selecting an option from the Page Size dropdown. The default is ten items per page. <p></p></li>
+              <li>Sort the query results by clicking on any of the column headers. </li>
+            </ul>
+            <p>&nbsp; </p>
+            <P align=center>&nbsp;</P>
+            <p align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></p>
+            <p align=center>&nbsp;</p>
+            <h3 align=left><a name="tabs"></a>Lease Detail - Using the Tabs</h3>
+            <p>Each result in the UIC Query Results table will have an API number link, and a Lease Number link. When either the API Number link or the Lease Number link is selected, the Lease Detail page is displayed. The UIC link displays the UIC Detail page. </p>
+            <p>At the top of the Lease Detail page are Tabs that access more detailed information about the particular well. If the title of a tab is underlined, that indicates that the tab is &quot;active&quot; and more information is available through the tab. Using the tabs makes it possble to see this information without performing another query for the Wellbore, P4, etc. Within these pages are links that can be used to drilldown even farther. </p>
+            <p>The information that can be accessed through the Lease Detail screen for a UIC query is:</p>
+            <ul>
+              <li>UIC Tab
+                <ul>
+                  <li>UIC Detail </li>
+                </ul>
+              </li>
+              <li>Wellbore Tab
+                  <ul>
+                    <li>API Number</li>
+                  </ul>
+              </li>
+              <li>Severance Tab
+                <ul>
+                    <li>Lease</li>
+                </ul>
+              </li>
+              <li>P4
+                Tab
+                <ul>
+                  <li>Lease</li>
+                </ul>
+              </li>
+              <li>Inactive Well Tab
+                  <ul>
+                    <li>Extension Status</li>
+                  </ul>
+              </li>
+              <li>Operator Tab</li>
+            </ul>            
+            <p align=center><A
+            href="#top"><IMG
+            height=20 alt="Return to Top"
+            src="../images/arrow_top.gif" width=20
+            border=0></A></p></TD>
+        </TR>
+        </TBODY></TABLE></TD></TR>
+  <TR>
+    <TD></TD></TR></TBODY></TABLE>
+<TD class=BorderLines colspan="3"><IMG height=1
+alt="" src="" width=1></TD> <!--Footer-->
+<table border="0" cellpadding="4" cellspacing="0" class="GroupBox1" width="810">
+  <!--DWLayoutTable-->
+  <tr>
+    <td width="2" height="32"></td>
+    <br>
+    <td width="97" align="right" valign="top" nowrap><div align="right"><strong> <font size="1">Related Help:</font></strong></div></td>
+    <td width="685" valign="top" class="MainFooter"><div align="left"><a href="PDQ_General_HowTo.html"><font size="1">Production Data Query</font></a><font size="1"> | </font><a href="P-4_Purchaser_Gatherer_HowTo.html">P-4 Gatherer/Purchaser Query </a> | <a href="Severance_HowTo.html">Severance Query </a> | <a href="Gas_Proration_HowTo.html">Gas Proration Query </a> | <a href="Oil_Proration_HowTo.html">Oil Proration Query </a> | <a href="P5Organization_HowTo.html">P-5 Organization Query</a> | <a href="IWAR_results_howto.html">IWAR Query</a> | <a href="OrphanWell_HowTo.htm">Orphan Well Query</a> | <a href="InactiveWellQuery_HowTo.htm">Inactive Well Query</a> | <a href="P5Query_HowTo.htm">P-5 Renewal Query</a> </div></td>
+  </tr>
+</table>
+</P></BODY></HTML>

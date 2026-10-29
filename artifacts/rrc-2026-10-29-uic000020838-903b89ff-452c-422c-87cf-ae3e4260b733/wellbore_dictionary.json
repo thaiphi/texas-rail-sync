@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "row_grain": {
+    "casing": "one retained official casing row (u9m4-xnh6); the source repeats a casing string in each filing (record_sequence), so a row is a string as reported in one filing",
+    "plugging": "one retained official plugging row (wfzn-9fje)"
+  },
+  "missing_value": "CSV empty cell / JSON null for absent numbers, dates or on_top_record. Zero remains zero. String absence is empty string.",
+  "date_policy": "Only YYYY-MM-DDT00:00:00.000 values with a valid calendar date are parsed to YYYY-MM-DD; the original text is always kept in the matching _text column.",
+  "unit_policy": "Units are cited from the official documents below with their CONFIRMED or INFERRED label; values are shown as reported with no unit, datum or depth conversion.",
+  "window": "Exact api_no of the selected inventory row (basis inventory_api_no); not limited to the reporting period.",
+  "documents": [
+    {
+      "name": "wellbore-wba091.pdf",
+      "url": "https://www.rrc.texas.gov/media/cx2i4xrm/wba091_well-bore-database.pdf",
+      "supports": "WBA091 well bore database manual (May 20, 2019): casing segment, plug record, elevation and elevation code list"
+    },
+    {
+      "name": "form-w2.pdf",
+      "url": "https://www.rrc.texas.gov/media/sdbph42m/w-2-0114.pdf",
+      "supports": "Form W-2 Rev. 01/2014: casing record units (in., ft., sacks) and total depth"
+    },
+    {
+      "name": "form-w3.pdf",
+      "url": "https://www.rrc.texas.gov/media/lw0bmny4/w-3p.pdf",
+      "supports": "Form W-3 Rev. 08/2019: plug depth units (ft.), sacks per plug, date well plugged"
+    }
+  ],
+  "conflicts": {
+    "C2": "cmt_sacks: WBA091 allows cement in sacks, cubic yards or cubic feet; the ODP column names sacks with no measurement code. Nothing is converted.",
+    "C3": "The plugging view's depth_reference and depth_reference_code have no Form W-3 item; their origin is unstated.",
+    "C4": "The W-3 has a calculated and a measured plug top; the ODP keeps only plug_top_depth, and which one it holds is unstated.",
+    "C5": "toc 0.0 may mean surface or not reported; zero is kept as zero.",
+    "C6": "Sentinel-like extremes (for example toc 4000300.0, csg_size 99.625, completion dates to 2070, w3_date from 1893) are kept as published; there is no plausibility rule.",
+    "C7": "The ODP casing description states one row per API per casing string, but the source repeats strings in each filing (record_sequence); the row grain is restated below."
+  },
+  "order": {
+    "casing": "record_sequence,id",
+    "plugging": "record_sequence,id"
+  },
+  "tables": {
+    "casing": [
+      "source_row_key",
+      "source_api_id",
+      "wellbore_link_status",
+      "source_id",
+      "api_no",
+      "record_sequence",
+      "on_top_record",
+      "completion_date",
+      "completion_date_text",
+      "csg_size",
+      "hole_size",
+      "csg_depth",
+      "toc",
+      "multi_stg_depth",
+      "cmt_sacks",
+      "total_depth_g1w2",
+      "depth_reference",
+      "depth_reference_code",
+      "source_snapshot_id",
+      "quality_flags"
+    ],
+    "plugging": [
+      "source_row_key",
+      "source_api_id",
+      "wellbore_link_status",
+      "source_id",
+      "api_no",
+      "record_sequence",
+      "on_top_record",
+      "w3_date",
+      "w3_date_text",
+      "plug_top_depth",
+      "plug_bottom_depth",
+      "plug_cmt_sacks",
+      "total_depth_w3",
+      "depth_reference",
+      "depth_reference_code",
+      "source_snapshot_id",
+      "quality_flags"
+    ]
+  },
+  "fields": {
+    "source_row_key": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Dataset snapshot plus 1-based raw response ordinal; retained duplicates stay distinct",
+      "source_field": null,
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "source_api_id": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "The selected inventory row's own api_no string (ADR 004 wellbore domain); rows link to this wellbore, never directly to a UIC",
+      "source_field": "api_no (inventory givw-z9t4)",
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "wellbore_link_status": {
+      "units": "enum",
+      "status": "calculated",
+      "definition": "matched / none / ambiguous for this dataset's inventory_api_no link, repeated on every row",
+      "source_field": "api_no",
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions. inventory_api_no link status (ADR 004 §2); not a statement about the well."
+    },
+    "source_id": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original source id kept as a string",
+      "source_field": "id",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. The only observed unique row key; a repeated id is flagged duplicate_source_id and quarantined."
+    },
+    "api_no": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original api_no exactly as published; equal to source_api_id by string comparison only",
+      "source_field": "api_no",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Never padded, trimmed or converted. An eight-digit API cannot distinguish sidetracks or recompletions."
+    },
+    "record_sequence": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original record_sequence shown verbatim",
+      "source_field": "record_sequence",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Filing sequence shared by several rows; not a row key; repeats are normal. Meaning UNSTATED by any official source; not chronological in observed data."
+    },
+    "on_top_record": {
+      "units": "boolean",
+      "status": "public reported",
+      "definition": "true or false only where the source publishes it; otherwise empty",
+      "source_field": "on_top_record",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. True only where the source sets it; absent in source is shown empty and is not false; never derived from sequence or date. Meaning UNSTATED by any official source."
+    },
+    "completion_date": {
+      "units": "date",
+      "status": "public reported",
+      "definition": "completion_date as YYYY-MM-DD when the source value is a valid calendar date at T00:00:00.000; otherwise empty",
+      "source_field": "completion_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Which source date this is is not documented (completion, W-2/G-1 or file date; WBA091 p.2-15 lists several). Values are shown as published with no plausibility rule (C6)."
+    },
+    "completion_date_text": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original completion_date text exactly as published",
+      "source_field": "completion_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "csg_size": {
+      "units": "in",
+      "status": "public reported",
+      "definition": "Casing size as published",
+      "source_field": "csg_size",
+      "basis": "official_document:form-w2.pdf, p.2 item 36 \"Casing Size (in.)\"; wellbore-wba091.pdf, p.2-21 WB-CAS-INCH",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit. Decimal inches as published; the legacy fraction-to-decimal conversion is INFERRED. Extremes such as 99.625 are kept as published (C6)."
+    },
+    "hole_size": {
+      "units": "in",
+      "status": "public reported",
+      "definition": "Hole size as published",
+      "source_field": "hole_size",
+      "basis": "official_document:form-w2.pdf, p.2 item 36 \"Hole Size (in.)\"; wellbore-wba091.pdf, p.2-22 WB-HOLE-INCH",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit. Extremes such as 100.0 are kept as published (C6)."
+    },
+    "csg_depth": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Casing setting depth as published",
+      "source_field": "csg_depth",
+      "basis": "official_document:form-w2.pdf, p.2 item 36 \"Setting Depth (ft.)\"; wellbore-wba091.pdf, p.2-21 WB-CASING-DEPTH-SET",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit. Depth basis is not stated."
+    },
+    "toc": {
+      "units": "ft (INFERRED)",
+      "status": "public reported",
+      "definition": "Top of cement as published: \"minimum depth up to which cement was circulated\" (WBA091 p.2-22)",
+      "source_field": "toc",
+      "basis": "official_document:wellbore-wba091.pdf, p.2-22 WB-TOP-OF-CEMENT-CASING; form-w2.pdf, p.2 item 36 \"Top of Cement\" (no unit)",
+      "note": "ODP publishes no column descriptions. CONFIRMED meaning; unit INFERRED from the other form depth columns. Zero kept as zero; whether 0 means surface or not reported is undocumented (C5). Values such as 4000300.0 are kept as published (C6)."
+    },
+    "multi_stg_depth": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Multi-stage cementing tool depth as published",
+      "source_field": "multi_stg_depth",
+      "basis": "official_document:form-w2.pdf, p.2 item 36 \"Multi-Stage Tool Depth (ft.)\"; wellbore-wba091.pdf, p.2-21 WB-MLTI-STG-TOOL-DPTH",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit. The source omits empty values, so missing:multi_stg_depth is expected on most rows (accepted)."
+    },
+    "cmt_sacks": {
+      "units": "sacks",
+      "status": "public reported",
+      "definition": "Cement amount for the string as published",
+      "source_field": "cmt_sacks",
+      "basis": "official_document:form-w2.pdf, p.2 item 36 \"Cement Amount (sacks)\"; wellbore-wba091.pdf, p.2-21 WB-AMOUNT-OF-CEMENT",
+      "note": "ODP publishes no column descriptions. CONFIRMED on the form. WBA091 p.2-22 allows sacks, cubic yards or cubic feet, but the ODP column names sacks with no measurement code; whether legacy records were converted or excluded is not stated (C2)."
+    },
+    "total_depth_g1w2": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Total depth reported on the G-1/W-2 as published",
+      "source_field": "total_depth_g1w2",
+      "basis": "official_document:form-w2.pdf, p.1 item 31 \"Total Depth (ft.)\"",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit."
+    },
+    "depth_reference": {
+      "units": "ft above mean sea level (INFERRED mapping)",
+      "status": "public reported",
+      "definition": "Well elevation as published",
+      "source_field": "depth_reference",
+      "basis": "official_document:wellbore-wba091.pdf, p.2-15 WB-ELEVATION",
+      "note": "ODP publishes no column descriptions. WBA091 p.2-15 defines the elevation as \"MEASUREMENT OF FEET ABOVE MEAN SEA LEVEL OF WELL\"; mapping it to this ODP column is INFERRED. No datum conversion and no depth arithmetic. The plugging view's value has no Form W-3 item and its origin is unstated (C3). 9999.0 may be a legacy fill value (C6)."
+    },
+    "depth_reference_code": {
+      "units": "source code",
+      "status": "public reported",
+      "definition": "Original depth_reference_code shown verbatim",
+      "source_field": "depth_reference_code",
+      "basis": "official_document:wellbore-wba091.pdf, p.2-15 WB-ELEVATION-CODE",
+      "note": "ODP publishes no column descriptions. Shown verbatim; meaning undocumented in ODP metadata. GL, DF, KB, RT and GR are CONFIRMED elevation reference points (WBA091 p.2-15); every other code: meaning not stated."
+    },
+    "source_snapshot_id": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Dataset ID plus raw response SHA256 prefix",
+      "source_field": null,
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "quality_flags": {
+      "units": "list",
+      "status": "calculated",
+      "definition": "Pipe-delimited issues; issues may overlap",
+      "source_field": null,
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "w3_date": {
+      "units": "date",
+      "status": "public reported",
+      "definition": "w3_date as YYYY-MM-DD when the source value is a valid calendar date at T00:00:00.000; otherwise empty",
+      "source_field": "w3_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Which source date this is is not documented (Form W-3 item 15 date or the W-3 filed date; WBA091 p.2-41). Values are shown as published with no plausibility rule (C6)."
+    },
+    "w3_date_text": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original w3_date text exactly as published",
+      "source_field": "w3_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "plug_top_depth": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Plug top depth as published",
+      "source_field": "plug_top_depth",
+      "basis": "official_document:form-w3.pdf, p.1 items 24-25 \"Calculated Top of Plug (ft.)\" / \"Measured Top of Plug (if tagged) (ft.)\"; wellbore-wba091.pdf, p.2-47",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit. The W-3 has a calculated and a measured plug top; the ODP keeps one, and which one is not stated (C4)."
+    },
+    "plug_bottom_depth": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Plug bottom depth as published",
+      "source_field": "plug_bottom_depth",
+      "basis": "official_document:form-w3.pdf, p.1 item 21 \"Depth to Bottom of Tubing or Drill Pipe (ft.)\"; wellbore-wba091.pdf, p.2-47 WB-BOTTOM-TUBE-PIPE-DEPTH",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit; the mapping to this column is INFERRED from the field name."
+    },
+    "plug_cmt_sacks": {
+      "units": "sacks",
+      "status": "public reported",
+      "definition": "Cement used for this plug as published",
+      "source_field": "plug_cmt_sacks",
+      "basis": "official_document:form-w3.pdf, p.1 item 22 \"Sacks of Cement Used (each plug)\"; wellbore-wba091.pdf, p.2-47 WB-NBR-OF-CEMENT-SACKS",
+      "note": "ODP publishes no column descriptions. CONFIRMED unit."
+    },
+    "total_depth_w3": {
+      "units": "ft (INFERRED)",
+      "status": "public reported",
+      "definition": "Total depth reported on the W-3 as published: \"maximum depth of the plugged bore\" (WBA091 p.2-41)",
+      "source_field": "total_depth_w3",
+      "basis": "official_document:wellbore-wba091.pdf, p.2-41 WB-PLUG-TOTAL-DEPTH; form-w3.pdf, p.1 \"Total Depth\" (no unit)",
+      "note": "ODP publishes no column descriptions. CONFIRMED meaning; unit INFERRED from the other W-3 depth items. A published zero is kept as zero; the meaning of a zero total depth is not stated by the source."
+    }
+  }
+}

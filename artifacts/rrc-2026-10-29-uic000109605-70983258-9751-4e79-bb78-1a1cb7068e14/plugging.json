@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000109605-70983258-9751-4e79-bb78-1a1cb7068e14",
+  "dataset": "plugging",
+  "scope": {
+    "query_version": 4,
+    "source_api_id": "38934609",
+    "wellbore_limit": 1000,
+    "wellbore_inventory_limit": 25,
+    "order": "record_sequence,id",
+    "returned": 7,
+    "status": "returned_below_cap",
+    "window": "exact api_no; not limited to reporting period"
+  },
+  "link": {
+    "inventory_source_record_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+    "source_api_id": "38934609",
+    "basis": "inventory_api_no",
+    "status": "matched",
+    "reason": null,
+    "inventory_query": {
+      "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=api_no%3D%2738934609%27&%24limit=25&%24order=uic_number%2Capi_no",
+      "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e",
+      "rows": 1
+    },
+    "wellbore_query": {
+      "url": "https://data.texas.gov/resource/wfzn-9fje.json?%24where=api_no%3D%2738934609%27&%24limit=1000&%24order=record_sequence%2Cid",
+      "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f",
+      "rows": 7
+    },
+    "candidates": [
+      {
+        "candidate_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+        "selected": true,
+        "uic_number": "000109605",
+        "api_no": "38934609",
+        "operator_number": "609265",
+        "district_code": "08",
+        "lease_number": "46166",
+        "lease_name": "TRIPPET SWD",
+        "well_no_display": "1",
+        "w14_number": "14479"
+      }
+    ],
+    "wellbore_row_count": 7
+  },
+  "rows": [
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:1",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202285",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 4508,
+      "plug_bottom_depth": 4629,
+      "plug_cmt_sacks": 100,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:2",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202286",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 3270,
+      "plug_bottom_depth": 3400,
+      "plug_cmt_sacks": 42,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:3",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202287",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 1835,
+      "plug_bottom_depth": 2019,
+      "plug_cmt_sacks": 30,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:4",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202288",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 1215,
+      "plug_bottom_depth": 1610,
+      "plug_cmt_sacks": 165,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:5",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202289",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 793,
+      "plug_bottom_depth": 975,
+      "plug_cmt_sacks": 76,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:6",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202290",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 293,
+      "plug_bottom_depth": 475,
+      "plug_cmt_sacks": 76,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:7",
+      "source_api_id": "38934609",
+      "wellbore_link_status": "matched",
+      "source_id": "1202291",
+      "api_no": "38934609",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "w3_date": "2024-12-21",
+      "w3_date_text": "2024-12-21T00:00:00.000",
+      "plug_top_depth": 3,
+      "plug_bottom_depth": 12,
+      "plug_cmt_sacks": 4,
+      "total_depth_w3": 6515,
+      "depth_reference": 2849,
+      "depth_reference_code": "KB",
+      "source_snapshot_id": "wfzn-9fje:629daf9ed4d1cd17",
+      "quality_flags": []
+    }
+  ],
+  "quality": {
+    "counts": {
+      "raw": 7,
+      "parsed": 7,
+      "accepted": 7,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "issue_counts": {},
+    "dispositions": [
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:2",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:3",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:4",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:5",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:6",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:7",
+        "disposition": "accepted"
+      }
+    ],
+    "duplicate_policy": "Every source row retained. The only duplicate rule is a repeated source id within one response: every occurrence is flagged duplicate_source_id and quarantined. Rows identical apart from id, record_sequence or date (the same string re-filed) are normal and unflagged. No preferred row is selected or merged.",
+    "empty_result_policy": "No plugging rows were returned by the exact-API query; this does not show whether the well is or is not plugged.",
+    "presence_policy": "Only whether rows were returned is stated. Rows returned or not returned say nothing about casing, cementing or plugging status.",
+    "record_sequence_policy": "record_sequence is a filing sequence shared by several rows; it is not a row key, repeats are normal and never flagged, and it is kept verbatim without being used for ordering beyond the source order (record_sequence,id).",
+    "on_top_record_policy": "on_top_record is true only where the source sets it; absent in source is shown empty (not false) with no flag; a non-boolean value is a quarantined parse failure; it is never derived from record_sequence or a date."
+  }
+}

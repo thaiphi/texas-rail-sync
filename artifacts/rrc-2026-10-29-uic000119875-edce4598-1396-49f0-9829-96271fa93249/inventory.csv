@@ -1,0 +1,2 @@
+source_record_key,uic_number,api_no,operator_number,district_code,lease_number,lease_name,well_no_display,county,county_basis,injection_type_code,permit_liquid_pressure_limit_psi,permit_liquid_volume_limit_bpd,permitted_top_depth_ft,permitted_bottom_depth_ft,w14_number,w14_date,permit_canceled_date,plugged_date,source_snapshot_id,quality_flags
+rrc:uic:givw-z9t4:7e3a35971cc41cb3:1,000119875,38940222,801148,08,58872,TYWIN SWD 57-19,1,Reeves,API county code 389; not independent location verification,2,1450,40000,2900,6300,,,,,givw-z9t4:7e3a35971cc41cb3,

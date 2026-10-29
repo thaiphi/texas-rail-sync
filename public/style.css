@@ -28,3 +28,4 @@ body{background:#f5f8fc}.rail{width:220px;background:#102b43;color:white}.rail-m
 .snapshot-metrics .metric-icon{display:none}
 .portfolio-link{display:inline-block;margin-bottom:.5rem;font-size:.875rem;color:inherit;text-decoration:underline}
 .tests-table{margin-top:18px}.tests-table tr.quarantined td,.tests-table tr.quarantined th{background:#fff5db}.tests-table th[scope=row]{font-weight:400;position:static}.tests-dictionary{margin-top:14px;font-size:13px}
+.wellbore-link{border:1px solid var(--line);border-radius:4px;margin:12px 0;padding:10px 12px}.wellbore-link h4{margin:0 0 6px}.wellbore-link .facts{font-size:13px}.wellbore-link dd{overflow-wrap:anywhere}.wellbore-link .scroll-table{margin-top:10px}

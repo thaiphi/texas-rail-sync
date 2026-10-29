@@ -52,7 +52,7 @@ async function startUI({hash='#find',failPinned=false,failRegistry=false,verify,
  const auxiliaryLinks=['Export dataset','Inspect version & provenance'].map(label=>({textContent:label,href:'#exports',getAttribute(name){return this[name];}}));
  const env={document:{getElementById:element,querySelector:element,querySelectorAll:selector=>selector==='#dataset-workspace a[href^="#"]'?auxiliaryLinks:[]},window:{addEventListener:(name,handler)=>{handlers[name]=handler;},scrollTo(){},matchMedia:()=>({matches:false})},location:{hash},fetch:async path=>({ok:!((typeof failRegistry==='function'?failRegistry():failRegistry)&&path==='/api/versions'),json:async()=>path==='/artifact-path.json'?{artifact_id:original.artifactId,path:pins.path}:path==='/artifact-integrity.json'?pins:{versions:[pins,requested]}}),loadPinnedArtifact:async()=>{if(failPinned)throw Error('Pinned hash mismatch');return original;},loadVerifiedVersion:async value=>verify?verify(value,next):(value.artifactId===original.artifactId?original:next),mountCollection:options=>{hooks=options;},createLatestRequest,clearDatasetEvidence,historyState,...nav,chart:()=>'',fmt:formatNumber,escape:escapeHtml,mountWorkflow:async()=>({refresh(){},forDataset(){},showHistory(){},clearDataset:message=>workflowSpy?.(message)}),facts,filterInventory,dispositionRows,sourceUrl,countText};
  env.createAnalyticsHandoff=options=>{handoff.onState=options.onState;return handoff;};
- env.document.querySelector=selector=>selector.startsWith('meta[')?null:element(selector);Object.assign(env,{renderTestsView,testReportsCollected,loadVerifiedSidecar,PORTFOLIO_URL:'',createLegacyCollectionApi:()=>({mode:'local'}),createGuestCollectionApi:()=>({mode:'guest'}),createGuestClient:()=>({})});
+ env.document.querySelector=selector=>selector.startsWith('meta[')?null:element(selector);Object.assign(env,{renderTestsView,testReportsCollected,renderWellboreView,wellboreCollected,loadVerifiedSidecar,PORTFOLIO_URL:'',createLegacyCollectionApi:()=>({mode:'local'}),createGuestCollectionApi:()=>({mode:'guest'}),createGuestClient:()=>({})});
  const code=(await readFile(new URL('../public/app.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,''),AsyncFunction=Object.getPrototypeOf(async()=>{}).constructor;await new AsyncFunction(...Object.keys(env),code)(...Object.values(env));return {element,env,route:()=>handlers.hashchange(),pagehide:()=>handlers.pagehide({persisted:true}),hooks,auxiliaryLinks,handoff,downloadLinks};
 }
 
@@ -131,6 +131,7 @@ test('auxiliary workspace links follow the requested version when publication ve
  ui.env.location.hash='#dataset/rrc-not-available/records';ui.route();await new Promise(setImmediate);assert.equal(ui.element('snapshot').textContent,'Unavailable');for(const link of ui.auxiliaryLinks)assert.equal(link.href,'#dataset/rrc-not-available/downloads',link.textContent);
 });
 import {renderTestsView,testReportsCollected} from '../public/tests-view.js';
+import {renderWellboreView,wellboreCollected} from '../public/wellbore-view.js';
 import {loadVerifiedSidecar} from '../public/artifact-integrity.js';
 
 test('verified original example remains discoverable when the version registry fails',async()=>{

@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/u9m4-xnh6.json",
+  "retrieved_at": "2026-10-29T19:04:29.565Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "caefb4d415b2762221f5e3a1ecdfc3c45e8c826cb3f7c678c9768c6b7d81ab64",
+  "bytes": 26705,
+  "testFixture": false,
+  "app_token_used": true
+}

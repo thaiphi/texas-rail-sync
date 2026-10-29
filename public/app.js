@@ -1,5 +1,6 @@
 import {loadPinnedArtifact,loadVerifiedVersion,loadVerifiedSidecar} from './artifact-integrity.js';
 import {renderTestsView,testReportsCollected} from './tests-view.js';
+import {renderWellboreView,wellboreCollected} from './wellbore-view.js';
 import {mountCollection,createLatestRequest} from './collection.js';
 import {clearDatasetEvidence,historyState} from './dataset-state.js';
 import {chart,formatNumber as fmt,escapeHtml as escape} from './inspection.js';
@@ -31,8 +32,9 @@ const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
  if(event.code&&event.state==='rejected')$('analytics-status').textContent+=' '+String(event.message??event.code).slice(0,300);
  updateAnalyticsControls();
 }});
-// Test-report (query version 3) versions stay out of Analytics until the receiver accepts additive files (D10).
-function analyticsReady(){return Boolean(data&&!savedView&&data.manifest?.scope?.query_version!==3&&analyticsPins?.artifactId===data.artifactId&&currentRoute.screen==='workspace'&&currentRoute.tab==='downloads'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId));}
+// Local-only versions (query version 3 test reports, 4 wellbore) stay out of Analytics until the receiver accepts additive files (D10).
+const localOnlyVersion=manifest=>Number.isInteger(manifest?.scope?.query_version)&&manifest.scope.query_version>=3;
+function analyticsReady(){return Boolean(data&&!savedView&&!localOnlyVersion(data.manifest)&&analyticsPins?.artifactId===data.artifactId&&currentRoute.screen==='workspace'&&currentRoute.tab==='downloads'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId));}
 function updateAnalyticsControls(){
  $('analytics-start').disabled=!analyticsReady()||analyticsActive();$('analytics-cancel').hidden=!analyticsActive();
 }
@@ -50,7 +52,7 @@ function route(focus=false){
  for(const name of ['find','datasets','history','help'])$(name+'-view').hidden=currentRoute.screen!==name;
  $('dataset-workspace').hidden=!workspace;
  $('error').hidden=!workspace||!$('error').textContent;
- for(const [tab,view] of [['overview','overview'],['records','records'],['tests','tests'],['quality','quality'],['sources','sources'],['downloads','exports'],['collection','collection-details']])$(view+'-view').hidden=!workspace||currentRoute.tab!==tab;
+ for(const [tab,view] of [['overview','overview'],['records','records'],['tests','tests'],['wellbore','wellbore'],['quality','quality'],['sources','sources'],['downloads','exports'],['collection','collection-details']])$(view+'-view').hidden=!workspace||currentRoute.tab!==tab;
  for(const link of document.querySelectorAll('[data-route]')){if(link.dataset.route===(workspace?'datasets':currentRoute.screen))link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  for(const link of document.querySelectorAll('[data-tab]')){link.href=id?datasetRoute(id,link.dataset.tab):'#datasets';if(workspace&&link.dataset.tab===currentRoute.tab)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  if(workspace&&id)updateWorkspaceLinks(id);
@@ -111,15 +113,15 @@ function renderExports(integrity){
  analyticsPins=integrity;
  const inventoryUics=[...new Set(data.inventory.map(row=>row.uic_number))],historyUics=[...new Set(data.injectionMonthly.map(row=>row.uic_number))],months=data.injectionMonthly.map(row=>row.period_start).sort();
  $('analytics-scope').textContent=`Whole version ${data.artifactId}: ${inventoryUics.length} inventory UICs, ${historyUics.length} history UICs, ${data.injectionMonthly.length} monthly rows${months.length?`, reporting ${months[0].slice(0,7)} – ${months.at(-1).slice(0,7)}`:', reporting coverage unavailable'}. Filters and the selected well do not narrow this transfer.`;
- updateAnalyticsControls();if(manifest.scope.query_version===3)$('analytics-status').textContent='Test-report versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
+ updateAnalyticsControls();if(localOnlyVersion(manifest))$('analytics-status').textContent='Test-report versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
  $('version-details').innerHTML=facts([['Record class','Public reported — verified version pins'],['History readiness',manifest.real_history_status],['Inventory / monthly',`${data.inventory.length} / ${data.injectionMonthly.length}`],['Query period',`${manifest.scope.start} – ${manifest.scope.end??'no upper bound recorded'}`],['Schema',manifest.schema_version],['Transformation',manifest.transformation_version]]);
  $('version-provenance').innerHTML=facts([['Artifact ID',data.artifactId],['Retrieved (local)',localTime(manifest.sources[0]?.retrieved_at)],['Manifest SHA-256',integrity.manifestSha256],['Payload SHA-256',integrity.normalizedSha256],['Consumer handoff','Acknowledgement unrecorded']]);
  const descriptions={'inventory.csv':`${data.inventory.length} inventory records`,'injection_monthly.csv':`${data.injectionMonthly.length} retained monthly rows`,'manifest.json':'Source URLs, versions and hashes','quality_report.json':'Dispositions, counts and quality evidence','data_dictionary.json':'Field definitions, units and formulas','normalized.json':'Complete typed artifact for Analytics'};
- const testDescriptions={'tests.json':'BHP/SRT test-report rows, scope and quality','tests_bhp.csv':'Retained BHP test-report rows','tests_srt.csv':'Retained SRT test-report rows','tests_dictionary.json':'Test-report columns, units, basis and notes'};
+ const testDescriptions={'tests.json':'BHP/SRT test-report rows, scope and quality','tests_bhp.csv':'Retained BHP test-report rows','tests_srt.csv':'Retained SRT test-report rows','tests_dictionary.json':'Test-report columns, units, basis and notes','casing.json':'Casing rows, exact-API link, scope and quality','casing.csv':'Retained casing filing rows','plugging.json':'Plugging rows, exact-API link, scope and quality','plugging.csv':'Retained plugging filing rows','wellbore_dictionary.json':'Casing/plugging columns, units, basis and notes'};
  $('downloads').innerHTML=[...Object.entries(descriptions),...Object.entries(testDescriptions).filter(([name])=>Object.hasOwn(manifest.files,name))].map(([name,description])=>`<a href="${escape(fileHref(name))}" download="${name}">↓ ${name}<small>${escape(description)}${manifest.files[name]?' · '+fmt(manifest.files[name].bytes)+' bytes':''}</small></a>`).join('');
  $('downloads').insertAdjacentHTML('afterbegin',`<a href="${escape(tarHref())}" download="${escape(data.artifactId)}.tar">↓ Complete version · TAR archive<small>All contract files, original sources, selection evidence and publication pins, verified before download.</small></a>`);
  const evidenceFiles=Object.keys(manifest.files).filter(name=>name.startsWith('sources/'));
- if(evidenceFiles.length)$('downloads').innerHTML+=`<details><summary>Whole-version source and selection evidence · ${evidenceFiles.length} files</summary><p class="note">Keep these files under sources/ together with all six contract downloads. Available lookup, selection, acquisition and retrieval sidecars permit independent offline replay.</p>${evidenceFiles.map(name=>`<a href="${escape(fileHref(name))}" download="${escape(name.split('/').at(-1))}">↓ ${escape(name)}</a>`).join('')}${[2,3].includes(manifest.scope.query_version)?`<a href="${escape(fileHref('version-pins.json'))}" download="version-pins.json">↓ Publication pins</a>`:''}</details>`;
+ if(evidenceFiles.length)$('downloads').innerHTML+=`<details><summary>Whole-version source and selection evidence · ${evidenceFiles.length} files</summary><p class="note">Keep these files under sources/ together with all six contract downloads. Available lookup, selection, acquisition and retrieval sidecars permit independent offline replay.</p>${evidenceFiles.map(name=>`<a href="${escape(fileHref(name))}" download="${escape(name.split('/').at(-1))}">↓ ${escape(name)}</a>`).join('')}${Number.isInteger(manifest.scope.query_version)&&manifest.scope.query_version>=2?`<a href="${escape(fileHref('version-pins.json'))}" download="version-pins.json">↓ Publication pins</a>`:''}</details>`;
  for(const link of $('downloads').querySelectorAll('a'))link.addEventListener('click',()=>{if(analyticsActive())analyticsHandoff.cancel();});
  $('sources').innerHTML=manifest.sources.map(source=>`<article class="panel padded source-card"><h3>${escape(source.title??source.name)}</h3><p class="note">${escape(source.kind)}</p><p>${sourceLink(source,'Open official source')}</p><p>Retrieved ${escape(localTime(source.retrieved_at))}</p><a class="button-link" href="${escape(fileHref(source.raw_file))}" download="${escape(source.raw_file.split('/').at(-1))}">View preserved response</a><details><summary>Snapshot identity and checksum</summary><p>${fmt(source.bytes)} bytes</p><p>Snapshot ${escape(source.snapshot_id)}</p><p>SHA-256 <code>${escape(source.sha256)}</code></p></details></article>`).join('');
  const quality=data.qualityReport;
@@ -146,6 +148,20 @@ async function showTests(artifact,integrity,view){
   if(testsRequest.isCurrent(ticket))target.innerHTML=renderTestsView({status:'loaded',tests,dictionary});
  }catch(error){if(testsRequest.isCurrent(ticket))target.innerHTML=`<p class="notice danger" role="alert">Test reports unavailable: ${escape(error?.message??error)}. No test-report rows are shown for this version.</p>`;}
 }
+// Wellbore tab: casing/plugging sidecars and their dictionary are verified the same way before any row is shown.
+const wellboreRequest=createLatestRequest();
+async function showWellbore(artifact,integrity,view){
+ const ticket=wellboreRequest.begin(),target=$('wellbore-content');
+ try{
+  if(!wellboreCollected(artifact.manifest)){target.innerHTML=renderWellboreView({status:'not_collected'});return;}
+  target.innerHTML=renderWellboreView({status:'loading'});
+  const path=`/artifacts/${artifact.artifactId}/`,fetchImpl=view?async request=>{const url=view.urls.get(request.slice(path.length));return url?fetch(url):{ok:false};}:fetch;
+  const json=async name=>JSON.parse(new TextDecoder().decode(await loadVerifiedSidecar(artifact,{...integrity,path},name,fetchImpl)));
+  const [casing,plugging,dictionary]=await Promise.all([json('casing.json'),json('plugging.json'),json('wellbore_dictionary.json')]);
+  for(const [doc,dataset] of [[casing,'casing'],[plugging,'plugging']]){if(doc?.artifactId!==artifact.artifactId)throw Error(`${dataset}.json version identity mismatch`);if(doc?.dataset!==dataset)throw Error(`${dataset}.json dataset mismatch`);}
+  if(wellboreRequest.isCurrent(ticket))target.innerHTML=renderWellboreView({status:'loaded',casing,plugging,dictionary});
+ }catch(error){if(wellboreRequest.isCurrent(ticket))target.innerHTML=renderWellboreView({status:'error',message:String(error?.message??error)});}
+}
 let manifest=null;
 function displayDataset(artifact,integrity){
  data=artifact;requestedVersionId=artifact.artifactId;base=integrity.path??`/artifacts/${data.artifactId}/`;$('error').textContent='';$('error').hidden=true;
@@ -158,7 +174,7 @@ function displayDataset(artifact,integrity){
  $('overview-warning').innerHTML=summary.quarantined?`<p class="notice warning">${summary.quarantined} retained rows need review. <a href="${datasetRoute(data.artifactId,'quality')}">Review affected records</a></p>`:'<p class="notice">No recorded quarantine issues. Acceptance checks do not establish engineering readiness, compliance or safe conditions.</p>';
  $('overview-content').innerHTML=`<section class="panel padded"><h3>What this dataset contains</h3><p>Well inventory with original UIC/API/operator identifiers and available permit attributes.</p><p>Monthly reported liquid and gas volumes, separate average/maximum injection pressures and calculated calendar-day rates.</p><p>Preserved public sources, quality dispositions, field dictionary and immutable version evidence.</p></section><section class="panel padded"><h3>Coverage and limitations</h3><p>Monthly query: ${escape(summary.queryPeriod)} for UIC ${escape(summary.uic)}.</p><p>${escape(data.manifest.limitations.join(' '))}</p><p>Retrieved ${escape(localTime(summary.retrievedAt))}. Retrieval is separate from reporting coverage.</p></section>`;
  $('overview-actions').innerHTML=[['records','Explore records'],['downloads','Prepare download'],['collection','View collection details']].map(([tab,label])=>`<a class="button-link ${tab==='records'?'primary':''}" href="${datasetRoute(data.artifactId,tab)}">${label}</a>`).join('');
- selected=data.inventory.find(row=>row.uic_number===data.manifest.scope.uic_number)?.source_record_key??data.inventory[0]?.source_record_key;filter();if(selected)select(selected);renderExports(integrity);void showTests(data,integrity,savedView);
+ selected=data.inventory.find(row=>row.uic_number===data.manifest.scope.uic_number)?.source_record_key??data.inventory[0]?.source_record_key;filter();if(selected)select(selected);renderExports(integrity);void showTests(data,integrity,savedView);void showWellbore(data,integrity,savedView);
  updateWorkspaceLinks(data.artifactId);
  renderLibrary();route();
 }
@@ -198,7 +214,7 @@ async function openDataset(id){
  resetAnalytics();revokeSavedUrls();
  failedVersionId=null;requestedVersionId=id;$('version-selection').value=id;const ticket=versionRequest.begin(),guest=guestPackages.get(id),pins=guest?null:availableVersions.find(version=>version.artifactId===id),saved=pins||guest?null:savedPackages.get(id);
  updateWorkspaceLinks(id);
- data=null;selected=null;testsRequest.invalidate();clearDatasetEvidence(document);$('error').textContent='';$('error').hidden=true;$('well-name').textContent='Verifying selected version…';$('snapshot').textContent='Verifying…';$('workspace-identity').textContent='Verifying selected dataset…';$('workspace-version').textContent=id;for(const control of ['search','county','operator','clear-filters'])$(control).disabled=true;
+ data=null;selected=null;testsRequest.invalidate();wellboreRequest.invalidate();clearDatasetEvidence(document);$('error').textContent='';$('error').hidden=true;$('well-name').textContent='Verifying selected version…';$('snapshot').textContent='Verifying…';$('workspace-identity').textContent='Verifying selected dataset…';$('workspace-version').textContent=id;for(const control of ['search','county','operator','clear-filters'])$(control).disabled=true;
  if(workflow&&currentRoute.tab==='collection')workflow.clearDataset('Verifying dataset; associated run evidence is unavailable.');
  try{if(!pins&&!saved&&!guest)throw Error('Requested publication pins unavailable');if(guest){const opened=await openSavedDataset(guest);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==id){for(const url of opened.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(opened.tarUrl);return;}savedView=opened;displayDataset(opened.artifact,{...guest.pins,path:`/artifacts/${id}/`});markGuestView();return;}if(saved){const opened=await openSavedDataset(saved);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==id){for(const url of opened.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(opened.tarUrl);return;}savedView=opened;displayDataset(opened.artifact,{...saved.pins,path:`/artifacts/${id}/`});markSavedView();return;}const artifact=await loadVerifiedVersion(pins);if(!versionRequest.isCurrent(ticket)||requestedVersionId!==pins.artifactId||$('version-selection').value!==requestedVersionId)return;libraryArtifacts.set(id,artifact);displayDataset(artifact,pins);}catch(error){if(!versionRequest.isCurrent(ticket))return;failedVersionId=id;$('error').hidden=currentRoute.screen!=='workspace';$('error').textContent=`Selected version unavailable: ${error.message}. Records and downloads are unavailable until verification succeeds.`;$('well-name').textContent='Dataset unavailable';$('snapshot').textContent='Unavailable';$('workspace-identity').textContent='Dataset unavailable';if(workflow&&currentRoute.screen==='workspace'&&currentRoute.tab==='collection')workflow.clearDataset('Dataset verification failed; associated run evidence is unavailable.');}
 }

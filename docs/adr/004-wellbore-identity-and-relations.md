@@ -1,6 +1,6 @@
 # ADR 004 — Wellbore identity domain and typed evidence relations
 
-Date: 2026-10-29. Status: accepted for Phases 1–2. No connector implements it yet. Phase 3 identity code requires another independent review before it merges (D4). Authority: owner approval of the expansion-review recommendations D3, D4 (as changed by v1.1), D10, D15, D21 and D22 on 2026-10-17 ([v1.0 review](../expansion-prd-review-2026-10-17.md) §9, [v1.1 review](../expansion-prd-review-v1.1-2026-10-17.md) §9). Requirements: RRC-13 to RRC-15 in the [tracker](../requirements.md). It extends [ADR 002](002-bounded-well-selection.md) and does not change any existing artifact, query or replay.
+Date: 2026-10-29. Status: accepted for Phases 1–2; amended for Phase 3 on 2026-10-29 (see "Amendment 2026-10-29"). Phase 3 (query version 4, branch `phase3/casing-plugging`) implements sections 1–2 for casing and plugging. The independent identity review that D4 requires was done on 2026-10-29 (Opus, PASS). Sections 3–4 (relation catalogue, dossier) remain for Phase 3b. Authority: owner approval of the expansion-review recommendations D3, D4 (as changed by v1.1), D10, D15, D21 and D22 on 2026-10-17 ([v1.0 review](../expansion-prd-review-2026-10-17.md) §9, [v1.1 review](../expansion-prd-review-v1.1-2026-10-17.md) §9). Requirements: RRC-13 to RRC-15 in the [tracker](../requirements.md). It extends [ADR 002](002-bounded-well-selection.md) and does not change any existing artifact, query or replay.
 
 ## Context
 
@@ -29,11 +29,15 @@ Each retained inventory row in a version that collected a wellbore dataset gets 
 
 Statuses are assigned in this order. The first rule that applies wins.
 
-1. The row's `api_no` is missing or not eight digits → `none` with reason `api_missing_or_invalid`. No query is made.
+1. The row's `api_no` is missing or not eight digits → `none` with reason `api_missing_or_invalid`. No exact-`api_no` inventory, casing or plugging query is made. The dataset metadata is still preserved.
 2. The inventory or wellbore query fails → no status is assigned and the run fails.
-3. Any response row contradicts its predicate → handled as in ADR 002: the raw bytes are retained, the row is quarantined and the version is not verified. This is never a status.
+3. A scope contradiction fails the run, as the Phase 2 connectors do, and no version is published. Its raw bytes stay in the collection's raw source folder. Scope contradictions are:
+   - any response row whose `api_no` is not the queried string;
+   - an empty exact-`api_no` inventory response;
+   - an exact-`api_no` inventory response that lacks the selected row.
+   This is never a status.
 4. The wellbore response reaches its row cap → `SOURCE_ROW_LIMIT`, and the version is not published (as for H-10).
-5. The exact-`api_no` inventory response has two or more rows → `ambiguous`. This happens, for example, when two UIC permits sit on one wellbore. If the response reaches the 25-row cap, the reason is `inventory_cap_reached`. The wellbore rows are kept and shown under the wellbore, but they are attributed to no single UIC. Every candidate inventory row is listed, along with the wellbore row count, which may be zero.
+5. The exact-`api_no` inventory response has two or more rows → `ambiguous`. This happens, for example, when two UIC permits sit on one wellbore. The reason is `multiple_inventory_rows` for 2–24 rows, and `inventory_cap_reached` if the response reaches the 25-row cap. The wellbore rows are kept and shown under the wellbore, but they are attributed to no single UIC. Every candidate inventory row is listed, along with the wellbore row count, which may be zero.
 6. The wellbore query succeeded with zero rows → `none` with reason `no_source_rows`. This does not mean "no casing exists".
 7. Otherwise → `matched`. Exactly one inventory row carries the string, and every wellbore row's `api_no` equals it.
 
@@ -55,7 +59,7 @@ Relations are derived at export from records in one version. They are determinis
 | `inventory_to_h10` | inventory `source_record_key` → monthly `source_row_key` | exact `uic_no` string equals the inventory `uic_number`. Status reuses the existing `parent_join_status` values as they are. | `exact_uic_string` | Derivable from v1-schema data; emitted only into new versions |
 | `inventory_to_test_report` | inventory `source_record_key` → BHP/SRT source row key (snapshot plus ordinal, so retained duplicates stay distinct) | exact `uic_no` string. Report identity is `report_id` plus `tracking_no` (and `test_sequence_no` for BHP). Duplicate report identities are quarantined, never merged. | `exact_uic_string` | Phase 2 |
 | `inventory_to_wellbore` | inventory `source_record_key` → `source_api_id` | section 2 | `inventory_api_no` | Phase 3 |
-| `wellbore_to_casing` / `wellbore_to_plugging` | `source_api_id` → casing/plugging source row key | exact `api_no` string. `id`, `record_sequence` and `on_top_record` are preserved; one row per string or plug is never collapsed. | `exact_api_string` | Phase 3 |
+| `wellbore_to_casing` / `wellbore_to_plugging` | `source_api_id` → casing/plugging source row key | exact `api_no` string. One relation per source row; source rows are never collapsed. The source `id` is the row key. `record_sequence` and `on_top_record` are preserved verbatim. | `exact_api_string` | Phase 3 |
 | `record_to_source_snapshot` | any record → `source_snapshot_id` | the file the record was parsed from | `source_file_hash` | Derivable now; emitted only into new versions |
 
 The following relations are **not permitted**:
@@ -74,6 +78,16 @@ The relation catalogue is a derived file inside the versioned artifact, added to
 ### 4. Selection identity (E03 and dossier)
 
 A selected well is identified by `(artifactId, source_record_key)` of the inventory row. When a wellbore view is shown, it is identified by `(artifactId, source_api_id)`. The map, tables, dossier and source inspector must use these keys. Name matching is never used. An `ambiguous` wellbore cannot be selected as one entity; its candidate inventory rows are selected individually. Selection is UI state: it never enters `manifest.files`, an evidence package or any hash (D10 as changed).
+
+## Amendment 2026-10-29 (Phase 3)
+
+The owner approved this amendment on 2026-10-29 (ruling OD-11 in the Phase 3 design). The evidence is the [Phase 3 API format proof](../verification-2026-10-29-phase3-api-format-proof.md).
+
+- **Format.** Casing and plugging `api_no` match the inventory's eight-character string exactly. Casing was proven on the three proof wells. Plugging was proven on ten wells plugged in early 2025, all matched. No transformation is needed, so section 1 stands unchanged.
+- **Row grain.** The ODP description says "one row per API # per casing string", but the source repeats the same strings in each filing. `record_sequence` is a filing sequence that several rows share; for example, API `20332896` has 4 filings of 2 strings each. A repeated `record_sequence` is therefore normal. The source `id` is the only observed unique key, and a repeated `id` is quarantined as a duplicate. `on_top_record` is not the highest sequence: it is set on sequence 3, not 4, for `20332896`. It is preserved as published and never derived.
+- **Rule 3** now fails the run on a scope contradiction instead of quarantining the row. This matches the implemented Phase 2 behaviour and the ADR 002 practice in code.
+- **Rule 5** gains the reason `multiple_inventory_rows`.
+- **Rule 1** keeps the dataset metadata even when no query can be made.
 
 ## Consequences
 

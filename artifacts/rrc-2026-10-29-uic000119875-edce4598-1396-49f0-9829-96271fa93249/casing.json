@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000119875-edce4598-1396-49f0-9829-96271fa93249",
+  "dataset": "casing",
+  "scope": {
+    "query_version": 4,
+    "source_api_id": "38940222",
+    "wellbore_limit": 1000,
+    "wellbore_inventory_limit": 25,
+    "order": "record_sequence,id",
+    "returned": 2,
+    "status": "returned_below_cap",
+    "window": "exact api_no; not limited to reporting period"
+  },
+  "link": {
+    "inventory_source_record_key": "rrc:uic:givw-z9t4:7e3a35971cc41cb3:1",
+    "source_api_id": "38940222",
+    "basis": "inventory_api_no",
+    "status": "matched",
+    "reason": null,
+    "inventory_query": {
+      "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=api_no%3D%2738940222%27&%24limit=25&%24order=uic_number%2Capi_no",
+      "sha256": "7e3a35971cc41cb3e332702e8ce54e0b443f2fb0dcfecf54fcca27c68ccdd01c",
+      "rows": 1
+    },
+    "wellbore_query": {
+      "url": "https://data.texas.gov/resource/u9m4-xnh6.json?%24where=api_no%3D%2738940222%27&%24limit=1000&%24order=record_sequence%2Cid",
+      "sha256": "651efc181fc4f292681fc7fb6d4c7a3ac83075b35c1b173710717feaceab1e9f",
+      "rows": 2
+    },
+    "candidates": [
+      {
+        "candidate_key": "rrc:uic:givw-z9t4:7e3a35971cc41cb3:1",
+        "selected": true,
+        "uic_number": "000119875",
+        "api_no": "38940222",
+        "operator_number": "801148",
+        "district_code": "08",
+        "lease_number": "58872",
+        "lease_name": "TYWIN SWD 57-19",
+        "well_no_display": "1",
+        "w14_number": ""
+      }
+    ],
+    "wellbore_row_count": 2
+  },
+  "rows": [
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:651efc181fc4f292:1",
+      "source_api_id": "38940222",
+      "wellbore_link_status": "matched",
+      "source_id": "1865461",
+      "api_no": "38940222",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "completion_date": "2023-03-12",
+      "completion_date_text": "2023-03-12T00:00:00.000",
+      "csg_size": 13.375,
+      "hole_size": 17.5,
+      "csg_depth": 502,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 420,
+      "total_depth_g1w2": 6250,
+      "depth_reference": 2911,
+      "depth_reference_code": "GL",
+      "source_snapshot_id": "u9m4-xnh6:651efc181fc4f292",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    },
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:651efc181fc4f292:2",
+      "source_api_id": "38940222",
+      "wellbore_link_status": "matched",
+      "source_id": "1865462",
+      "api_no": "38940222",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "completion_date": "2023-03-12",
+      "completion_date_text": "2023-03-12T00:00:00.000",
+      "csg_size": 9.625,
+      "hole_size": 12.25,
+      "csg_depth": 2952,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 625,
+      "total_depth_g1w2": 6250,
+      "depth_reference": 2911,
+      "depth_reference_code": "GL",
+      "source_snapshot_id": "u9m4-xnh6:651efc181fc4f292",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    }
+  ],
+  "quality": {
+    "counts": {
+      "raw": 2,
+      "parsed": 2,
+      "accepted": 2,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "issue_counts": {
+      "missing:multi_stg_depth": 2
+    },
+    "dispositions": [
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:651efc181fc4f292:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:651efc181fc4f292:2",
+        "disposition": "accepted"
+      }
+    ],
+    "duplicate_policy": "Every source row retained. The only duplicate rule is a repeated source id within one response: every occurrence is flagged duplicate_source_id and quarantined. Rows identical apart from id, record_sequence or date (the same string re-filed) are normal and unflagged. No preferred row is selected or merged.",
+    "empty_result_policy": "No casing rows were returned by the exact-API query; this does not show that no casing exists.",
+    "presence_policy": "Only whether rows were returned is stated. Rows returned or not returned say nothing about casing, cementing or plugging status.",
+    "record_sequence_policy": "record_sequence is a filing sequence shared by several rows; it is not a row key, repeats are normal and never flagged, and it is kept verbatim without being used for ordering beyond the source order (record_sequence,id).",
+    "on_top_record_policy": "on_top_record is true only where the source sets it; absent in source is shown empty (not false) with no flag; a non-boolean value is a quarantined parse failure; it is never derived from record_sequence or a date."
+  }
+}

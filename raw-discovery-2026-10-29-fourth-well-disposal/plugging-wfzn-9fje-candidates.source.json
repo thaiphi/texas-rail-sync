@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/wfzn-9fje.json?%24where=api_no+in+%28%2731745124%27%2C%2724130911%27%2C%2715100153%27%2C%2708900057%27%2C%2700943101%27%2C%2732932379%27%2C%2707132582%27%2C%2738934609%27%2C%2712736193%27%2C%2731331028%27%29&%24limit=200&%24order=api_no%2Crecord_sequence%2Cid",
+  "retrieved_at": "2026-10-29T18:01:10.969Z",
+  "http_status": 200,
+  "last_modified": "Tue, 20 Oct 2026 19:16:49 GMT",
+  "etag": "\"anVsaWV0dC4xNjgwODlfMV83MTdqbjdpWjFSZTlSUTRseEhrdzRhZDdGeFFXUQ---gzin2BJsv_tZj8SDBKXab-qAGDBXz7--gzip--gzip\"",
+  "sha256": "988ec0c5974aab76f178e845ce78e84bf2cd769ff1aa5a8b2d18c43c859d004f",
+  "bytes": 15859,
+  "testFixture": false,
+  "app_token_used": true
+}
