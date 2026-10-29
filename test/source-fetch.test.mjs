@@ -79,7 +79,8 @@ test('collection keeps exact request status and HTTP status evidence on source f
  assert.equal(abort.failure,aborted);assert.equal(abort.requests.length,1);assert.deepEqual(Object.keys(abort.requests[0]),['url','name','status']);assert.equal(abort.requests[0].status,'failed');
 });
 // Phase 1.2: optional Socrata app token, 429 throttling and the local-only retry helper.
-const TOKEN='tok-SECRET-9f3c1a77-do-not-leak';
+// Deliberately low-entropy fixture value (not a credential) so secret scanners stay quiet.
+const TOKEN='FAKE_APP_TOKEN_FOR_TESTS_ONLY';
 const rrcTarget=acquisitionTargets.find(entry=>new URL(entry.url).hostname==='www.rrc.texas.gov');
 const ok=()=>fake({body:pulled([Buffer.from('[]')],[])});
 const capture=(seen,respond=ok)=>async(url,init)=>{seen.push({url,init,header:new Headers(init?.headers).get('x-app-token')});return respond();};
