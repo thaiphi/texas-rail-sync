@@ -1,6 +1,6 @@
 # ADR 004 — Wellbore identity domain and typed evidence relations
 
-Date: 2026-10-29. Status: accepted for Phases 1–2; amended for Phase 3 on 2026-10-29 (see "Amendment 2026-10-29"). No connector implements it yet. Phase 3 identity code requires another independent review before it merges (D4). Authority: owner approval of the expansion-review recommendations D3, D4 (as changed by v1.1), D10, D15, D21 and D22 on 2026-10-17 ([v1.0 review](../expansion-prd-review-2026-10-17.md) §9, [v1.1 review](../expansion-prd-review-v1.1-2026-10-17.md) §9). Requirements: RRC-13 to RRC-15 in the [tracker](../requirements.md). It extends [ADR 002](002-bounded-well-selection.md) and does not change any existing artifact, query or replay.
+Date: 2026-10-29. Status: accepted for Phases 1–2; amended for Phase 3 on 2026-10-29 (see "Amendment 2026-10-29"). Phase 3 (query version 4, branch `phase3/casing-plugging`) implements sections 1–2 for casing and plugging. The independent identity review that D4 requires was done on 2026-10-29 (Opus, PASS). Sections 3–4 (relation catalogue, dossier) remain for Phase 3b. Authority: owner approval of the expansion-review recommendations D3, D4 (as changed by v1.1), D10, D15, D21 and D22 on 2026-10-17 ([v1.0 review](../expansion-prd-review-2026-10-17.md) §9, [v1.1 review](../expansion-prd-review-v1.1-2026-10-17.md) §9). Requirements: RRC-13 to RRC-15 in the [tracker](../requirements.md). It extends [ADR 002](002-bounded-well-selection.md) and does not change any existing artifact, query or replay.
 
 ## Context
 
