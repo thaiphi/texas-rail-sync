@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/h54t-xnbi.json",
+  "retrieved_at": "2026-10-29T07:31:55.916Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131",
+  "bytes": 33117,
+  "testFixture": false,
+  "app_token_used": true
+}

@@ -148,7 +148,9 @@ test('all committed artifact versions replay byte-identically',async()=>{
   const sourceDir=artifactId===pinnedArtifactId?resolve(rootPath,'raw'):resolve(rootPath,'artifacts',artifactId,'sources'),snapshot=await loadSnapshot(sourceDir);
   const built=await buildArtifact(snapshot,artifactId,normalize(snapshot.inventory,snapshot.monthly,snapshot.sourceIds,snapshot.scope));
   for(const [name,body] of Object.entries(built.files))assert.equal(sha256(body),sha256(await readFile(resolve(rootPath,'artifacts',artifactId,name))),artifactId+'/'+name);
-  assert.equal(built.files['tests.json'],undefined);
+  // Query-version-3 versions carry the four test sidecars (compared byte for byte above); older versions never do.
+  if(snapshot.scope?.queryVersion===3)for(const name of ['tests.json','tests_bhp.csv','tests_srt.csv','tests_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
+  else assert.equal(built.files['tests.json'],undefined);
  }
 });
 test('guest path stays v2: evidence names and URLs are frozen and v3 is refused by prepare and finalize',async t=>{

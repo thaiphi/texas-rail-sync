@@ -1,0 +1,1328 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8",
+  "inventory": [
+    {
+      "source_record_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "uic_number": "000020838",
+      "api_no": "38910201",
+      "operator_number": "103834",
+      "district_code": "08",
+      "lease_number": "17459",
+      "lease_name": "TREES, J. C. ESTATE, ET AL -A-",
+      "well_no_display": "5D",
+      "county": "Reeves",
+      "county_basis": "API county code 389; not independent location verification",
+      "injection_type_code": "1",
+      "permit_liquid_pressure_limit_psi": 2600,
+      "permit_liquid_volume_limit_bpd": 14500,
+      "permitted_top_depth_ft": 5200,
+      "permitted_bottom_depth_ft": 6100,
+      "w14_number": "7412",
+      "w14_date": "1967-02-13",
+      "permit_canceled_date": "",
+      "plugged_date": "",
+      "source_snapshot_id": "givw-z9t4:4aa137acc7b03b86",
+      "quality_flags": []
+    }
+  ],
+  "injectionMonthly": [
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:1",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777861",
+      "reporting_year": 2024,
+      "reporting_month": 1,
+      "period_start": "2024-01-01",
+      "injected_liquid_bbl": 17173,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 553.9677419354839,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:2",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777862",
+      "reporting_year": 2024,
+      "reporting_month": 2,
+      "period_start": "2024-02-01",
+      "injected_liquid_bbl": 17927,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 29,
+      "calculated_calendar_day_avg_bpd": 618.1724137931035,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:3",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777863",
+      "reporting_year": 2024,
+      "reporting_month": 3,
+      "period_start": "2024-03-01",
+      "injected_liquid_bbl": 17989,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 580.2903225806451,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:4",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777864",
+      "reporting_year": 2024,
+      "reporting_month": 4,
+      "period_start": "2024-04-01",
+      "injected_liquid_bbl": 15119,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 503.96666666666664,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:5",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777865",
+      "reporting_year": 2024,
+      "reporting_month": 5,
+      "period_start": "2024-05-01",
+      "injected_liquid_bbl": 22427,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 723.4516129032259,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:6",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777866",
+      "reporting_year": 2024,
+      "reporting_month": 6,
+      "period_start": "2024-06-01",
+      "injected_liquid_bbl": 23579,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 785.9666666666667,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:7",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777867",
+      "reporting_year": 2024,
+      "reporting_month": 7,
+      "period_start": "2024-07-01",
+      "injected_liquid_bbl": 24010,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 774.516129032258,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:8",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777868",
+      "reporting_year": 2024,
+      "reporting_month": 8,
+      "period_start": "2024-08-01",
+      "injected_liquid_bbl": 15980,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 515.483870967742,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:9",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777869",
+      "reporting_year": 2024,
+      "reporting_month": 9,
+      "period_start": "2024-09-01",
+      "injected_liquid_bbl": 15820,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 527.3333333333334,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:10",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777870",
+      "reporting_year": 2024,
+      "reporting_month": 10,
+      "period_start": "2024-10-01",
+      "injected_liquid_bbl": 16072,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 518.4516129032259,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:11",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777871",
+      "reporting_year": 2024,
+      "reporting_month": 11,
+      "period_start": "2024-11-01",
+      "injected_liquid_bbl": 16108,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 536.9333333333333,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:12",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777872",
+      "reporting_year": 2024,
+      "reporting_month": 12,
+      "period_start": "2024-12-01",
+      "injected_liquid_bbl": 19670,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 634.516129032258,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:13",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777873",
+      "reporting_year": 2025,
+      "reporting_month": 1,
+      "period_start": "2025-01-01",
+      "injected_liquid_bbl": 22695,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 732.0967741935484,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:14",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777874",
+      "reporting_year": 2025,
+      "reporting_month": 2,
+      "period_start": "2025-02-01",
+      "injected_liquid_bbl": 19623,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 28,
+      "calculated_calendar_day_avg_bpd": 700.8214285714286,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:15",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777875",
+      "reporting_year": 2025,
+      "reporting_month": 3,
+      "period_start": "2025-03-01",
+      "injected_liquid_bbl": 20142,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 649.741935483871,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:16",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777876",
+      "reporting_year": 2025,
+      "reporting_month": 4,
+      "period_start": "2025-04-01",
+      "injected_liquid_bbl": 18143,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 604.7666666666667,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:17",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777877",
+      "reporting_year": 2025,
+      "reporting_month": 5,
+      "period_start": "2025-05-01",
+      "injected_liquid_bbl": 20487,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 660.8709677419355,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:18",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777878",
+      "reporting_year": 2025,
+      "reporting_month": 6,
+      "period_start": "2025-06-01",
+      "injected_liquid_bbl": 18728,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 624.2666666666667,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:19",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777879",
+      "reporting_year": 2025,
+      "reporting_month": 7,
+      "period_start": "2025-07-01",
+      "injected_liquid_bbl": 14727,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 475.06451612903226,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:20",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777880",
+      "reporting_year": 2025,
+      "reporting_month": 8,
+      "period_start": "2025-08-01",
+      "injected_liquid_bbl": 13205,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 425.96774193548384,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:21",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777881",
+      "reporting_year": 2025,
+      "reporting_month": 9,
+      "period_start": "2025-09-01",
+      "injected_liquid_bbl": 9283,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 309.43333333333334,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:22",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777882",
+      "reporting_year": 2025,
+      "reporting_month": 10,
+      "period_start": "2025-10-01",
+      "injected_liquid_bbl": 9358,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 301.8709677419355,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:23",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777883",
+      "reporting_year": 2025,
+      "reporting_month": 11,
+      "period_start": "2025-11-01",
+      "injected_liquid_bbl": 9096,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 303.2,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:24",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777884",
+      "reporting_year": 2025,
+      "reporting_month": 12,
+      "period_start": "2025-12-01",
+      "injected_liquid_bbl": 8776,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 283.0967741935484,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:25",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777885",
+      "reporting_year": 2026,
+      "reporting_month": 1,
+      "period_start": "2026-01-01",
+      "injected_liquid_bbl": 8134,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 262.38709677419354,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:26",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777886",
+      "reporting_year": 2026,
+      "reporting_month": 2,
+      "period_start": "2026-02-01",
+      "injected_liquid_bbl": 5087,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 28,
+      "calculated_calendar_day_avg_bpd": 181.67857142857142,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:27",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777887",
+      "reporting_year": 2026,
+      "reporting_month": 3,
+      "period_start": "2026-03-01",
+      "injected_liquid_bbl": 8041,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 31,
+      "calculated_calendar_day_avg_bpd": 259.38709677419354,
+      "most_recent_record": "0",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:28",
+      "parent_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+      "parent_join_status": "matched",
+      "uic_number": "000020838",
+      "source_report_id": "3777888",
+      "reporting_year": 2026,
+      "reporting_month": 4,
+      "period_start": "2026-04-01",
+      "injected_liquid_bbl": 4799,
+      "injected_gas_mcf": 0,
+      "reported_avg_injection_pressure_psi": 900,
+      "reported_max_injection_pressure_psi": 900,
+      "calendar_days": 30,
+      "calculated_calendar_day_avg_bpd": 159.96666666666667,
+      "most_recent_record": "1",
+      "source_snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+      "quality_flags": []
+    }
+  ],
+  "qualityReport": {
+    "inventory": {
+      "raw": 1,
+      "parsed": 1,
+      "accepted": 1,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "monthly": {
+      "raw": 28,
+      "parsed": 28,
+      "accepted": 28,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "parent_join": {
+      "matched": 28,
+      "unmatched": 0,
+      "ambiguous": 0
+    },
+    "issue_counts": {},
+    "dispositions": [
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:2",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:3",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:4",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:5",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:6",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:7",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:8",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:9",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:10",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:11",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:12",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:13",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:14",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:15",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:16",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:17",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:18",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:19",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:20",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:21",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:22",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:23",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:24",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:25",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:26",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:27",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:28",
+        "disposition": "accepted"
+      }
+    ],
+    "annulus_fields": "not supplied by ODP dataset; not inferred",
+    "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+    "scope": "Bounded inventory candidates and one UIC monthly history; no statewide coverage or current operating-status assertion."
+  },
+  "dataDictionary": {
+    "schema_version": 1,
+    "row_grain": {
+      "inventory": "one retained official source inventory row",
+      "injection_monthly": "one retained official source monthly row, including conflicts/revisions"
+    },
+    "missing_value": "CSV empty cell / JSON null for absent numbers. Zero remains zero. String identifier absence is empty string.",
+    "pressure_basis": "Reported injection pressure, psi as named by RRC manual pp.40–41 (PDF pp.41–42). No datum conversion, BHP, reservoir pressure, or injectivity claim.",
+    "annulus": "Not available in ODP dataset qq2j-f2zm; no annulus columns are generated.",
+    "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+    "units_source": {
+      "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+      "pdf_pages": [
+        18,
+        41,
+        42
+      ],
+      "note": "Official UIC manual defines liquid barrels, gas MCF, monthly average/maximum psi; public UIC query help names permit limits PSI and BBLS/day."
+    },
+    "fields": {
+      "source_record_key": {
+        "units": "string",
+        "status": "calculated",
+        "definition": "Snapshot plus 1-based raw inventory ordinal; never shortened API"
+      },
+      "uic_number": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original nine-character UIC parent/control ID; preserves leading zeros"
+      },
+      "api_no": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original API_NO exactly as source supplies it (eight digits here); never used as join key"
+      },
+      "operator_number": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source operator_number; identifier values preserved as strings"
+      },
+      "district_code": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source district_code; identifier values preserved as strings"
+      },
+      "lease_number": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source lease_number; identifier values preserved as strings"
+      },
+      "lease_name": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source lease_name; identifier values preserved as strings"
+      },
+      "well_no_display": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source well_no_display; identifier values preserved as strings"
+      },
+      "county": {
+        "units": "name",
+        "status": "calculated",
+        "definition": "Reeves only for source API county prefix 389; other county codes are labeled without inferring an unverified county name."
+      },
+      "county_basis": {
+        "units": "text",
+        "status": "calculated",
+        "definition": "Explicit origin of county label"
+      },
+      "injection_type_code": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source injection_type_code; identifier values preserved as strings"
+      },
+      "permit_liquid_pressure_limit_psi": {
+        "units": "psi",
+        "status": "public reported",
+        "definition": "ODP max_liq_inj_pressure; regulatory authorized maximum, not sustainable capacity"
+      },
+      "permit_liquid_volume_limit_bpd": {
+        "units": "bbl/day",
+        "status": "public reported",
+        "definition": "ODP bbl_vol_inj; authorized maximum liquid volume, not sustainable capacity"
+      },
+      "permitted_top_depth_ft": {
+        "units": "ft",
+        "status": "public reported",
+        "definition": "ODP top_inj_zone; permitted injection interval top"
+      },
+      "permitted_bottom_depth_ft": {
+        "units": "ft",
+        "status": "public reported",
+        "definition": "ODP bot_inj_zone; permitted injection interval bottom"
+      },
+      "w14_number": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source w14_number; identifier values preserved as strings"
+      },
+      "w14_date": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source w14_date; identifier values preserved as strings"
+      },
+      "permit_canceled_date": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source permit_canceled_date; identifier values preserved as strings"
+      },
+      "plugged_date": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original source plugged_date; identifier values preserved as strings"
+      },
+      "source_snapshot_id": {
+        "units": "string",
+        "status": "calculated",
+        "definition": "Dataset ID plus raw response SHA256 prefix"
+      },
+      "quality_flags": {
+        "units": "list",
+        "status": "calculated",
+        "definition": "Pipe-delimited issues; issues may overlap"
+      },
+      "source_row_key": {
+        "units": "string",
+        "status": "calculated",
+        "definition": "Snapshot plus 1-based raw monthly ordinal; preserves duplicate source IDs"
+      },
+      "parent_key": {
+        "units": "string",
+        "status": "calculated",
+        "definition": "Unique UIC inventory source_record_key if and only if exact string UIC matches one retained parent"
+      },
+      "parent_join_status": {
+        "units": "enum",
+        "status": "calculated",
+        "definition": "matched / unmatched / ambiguous"
+      },
+      "source_report_id": {
+        "units": "string",
+        "status": "public reported",
+        "definition": "Original ODP monthly id, retained without assuming global uniqueness"
+      },
+      "reporting_year": {
+        "units": "year",
+        "status": "calculated",
+        "definition": "Year extracted from source formatted_date"
+      },
+      "reporting_month": {
+        "units": "month",
+        "status": "calculated",
+        "definition": "Month extracted from source formatted_date"
+      },
+      "period_start": {
+        "units": "date",
+        "status": "calculated",
+        "definition": "Calendar month start from formatted_date; not a daily observation"
+      },
+      "injected_liquid_bbl": {
+        "units": "bbl/month",
+        "status": "public reported",
+        "definition": "ODP vol_liq, monthly total liquid volume"
+      },
+      "injected_gas_mcf": {
+        "units": "MCF/month",
+        "status": "public reported",
+        "definition": "ODP vol_gas, monthly total gas volume"
+      },
+      "reported_avg_injection_pressure_psi": {
+        "units": "psi",
+        "status": "public reported",
+        "definition": "ODP inj_press_avg; separate reported average injection pressure"
+      },
+      "reported_max_injection_pressure_psi": {
+        "units": "psi",
+        "status": "public reported",
+        "definition": "ODP inj_press_max; separate reported maximum injection pressure"
+      },
+      "calendar_days": {
+        "units": "days",
+        "status": "calculated",
+        "definition": "Actual Gregorian days in reporting month"
+      },
+      "calculated_calendar_day_avg_bpd": {
+        "units": "bbl/day",
+        "status": "calculated",
+        "definition": "injected_liquid_bbl / calendar_days; not measured daily operating rate or operating-day rate"
+      },
+      "most_recent_record": {
+        "units": "source code",
+        "status": "public reported",
+        "definition": "Original ODP flag; meaning not documented by metadata, no revision-selection inference"
+      }
+    }
+  },
+  "manifest": {
+    "artifact_id": "rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8",
+    "schema_version": 1,
+    "transformation_version": "rrc-odp-v2.1.0",
+    "real_history_status": "verified_bounded_linkage",
+    "scope": {
+      "query_version": 3,
+      "uic_number": "000020838",
+      "start": "2024-01-01",
+      "end": "2026-09-30",
+      "inventory_limit": 25,
+      "inventory_returned": 1,
+      "monthly_limit": 1000,
+      "monthly_returned": 28,
+      "pagination": "Complete bounded response below cap; no statewide coverage",
+      "test_report_limit": 1000
+    },
+    "source_revisions": {
+      "inventory_rows_updated_at": 1793135402,
+      "monthly_rows_updated_at": 1792530308
+    },
+    "sources": [
+      {
+        "snapshot_id": "givw-z9t4:4aa137acc7b03b86",
+        "name": "candidate-inventory",
+        "title": "RRC-UIC well location",
+        "kind": "inventory",
+        "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+        "retrieved_at": "2026-10-29T07:31:51.593Z",
+        "http_status": 200,
+        "last_modified": "Tue, 27 Oct 2026 21:09:46 GMT",
+        "etag": "\"aW5kaWEuMTgxODQ3XzNfMTIwQVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+        "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+        "bytes": 591,
+        "testFixture": false,
+        "raw_file": "sources/candidate-inventory.json"
+      },
+      {
+        "snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+        "name": "candidate-monthly",
+        "title": "RRC-UIC H10 Injection Monitoring",
+        "kind": "monthly",
+        "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+        "retrieved_at": "2026-10-29T07:31:51.716Z",
+        "http_status": 200,
+        "last_modified": "Tue, 20 Oct 2026 19:24:45 GMT",
+        "etag": "\"anVsaWV0dC4xNjgwOThfMl81OE8za1JWNUN0and3Uktzb243ZFVuZjhQSEdhdw---gziuLyejDxzLFYWqWksr12B35m6ImN--gzip--gzip\"",
+        "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9",
+        "bytes": 6741,
+        "testFixture": false,
+        "raw_file": "sources/candidate-monthly.json"
+      },
+      {
+        "snapshot_id": "inventory-metadata:0839163287547e5a",
+        "name": "inventory-metadata",
+        "title": "RRC-UIC well location",
+        "kind": "metadata",
+        "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+        "retrieved_at": "2026-10-29T07:31:51.376Z",
+        "http_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+        "bytes": 47527,
+        "testFixture": false,
+        "raw_file": "sources/inventory-metadata.json"
+      },
+      {
+        "snapshot_id": "monthly-metadata:a925d48738efaa2f",
+        "name": "monthly-metadata",
+        "title": "RRC-UIC H10 Injection Monitoring",
+        "kind": "metadata",
+        "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+        "retrieved_at": "2026-10-29T07:31:51.461Z",
+        "http_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "sha256": "a925d48738efaa2ffddc4469306d1e6a842ebc9a33e93d5e1f8e9285df9eefe7",
+        "bytes": 21609,
+        "testFixture": false,
+        "raw_file": "sources/monthly-metadata.json"
+      },
+      {
+        "snapshot_id": "uic-manual.pdf:09f3744d1ae5ea6b",
+        "name": "uic-manual.pdf",
+        "kind": "documentation",
+        "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+        "retrieved_at": "2026-10-29T07:31:52.858Z",
+        "http_status": 200,
+        "last_modified": "Tue, 02 Jun 2026 17:37:44 GMT",
+        "etag": "\"1dcf2b684d89489\"",
+        "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+        "bytes": 1077385,
+        "testFixture": false,
+        "raw_file": "sources/uic-manual.pdf"
+      },
+      {
+        "snapshot_id": "rrc-resources.html:237547a1903f2c7f",
+        "name": "rrc-resources.html",
+        "kind": "documentation",
+        "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+        "retrieved_at": "2026-10-29T07:31:53.304Z",
+        "http_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+        "bytes": 49035,
+        "testFixture": false,
+        "raw_file": "sources/rrc-resources.html"
+      },
+      {
+        "snapshot_id": "uic-query-help.html:563b33af66a36b52",
+        "name": "uic-query-help.html",
+        "kind": "documentation",
+        "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+        "retrieved_at": "2026-10-29T07:31:53.508Z",
+        "http_status": 200,
+        "last_modified": "Fri, 17 Apr 2026 15:25:08 GMT",
+        "etag": null,
+        "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+        "bytes": 42272,
+        "testFixture": false,
+        "raw_file": "sources/uic-query-help.html"
+      },
+      {
+        "snapshot_id": "lookup:4aa137acc7b03b86",
+        "name": "lookup-inventory",
+        "kind": "selection",
+        "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+        "retrieved_at": "2026-10-29T07:31:51.203Z",
+        "http_status": 200,
+        "last_modified": "Tue, 27 Oct 2026 21:09:46 GMT",
+        "etag": "\"aW5kaWEuMTgxODQ3XzNfMTIwQVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+        "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+        "bytes": 591,
+        "testFixture": false,
+        "app_token_used": true,
+        "raw_file": "sources/lookup-inventory.json"
+      },
+      {
+        "snapshot_id": "qxfy-wcfs:37517e5f3dc66819",
+        "name": "candidate-bhp",
+        "title": "RRC-UIC Bottom Hole Pressure Test Results",
+        "kind": "bhp",
+        "url": "https://data.texas.gov/resource/qxfy-wcfs.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no%2Ctest_sequence_no",
+        "retrieved_at": "2026-10-29T07:31:53.826Z",
+        "http_status": 200,
+        "last_modified": "Tue, 20 Oct 2026 19:14:00 GMT",
+        "etag": "\"aW5kaWEuMTgxODI5XzNfODVhS2VfcHBUY1BSOS1mTW9EQ3FrQ1VKNVFXRWM---gziq5Nzy2IsJS_NTYsaNWIbfU5cfu9w--gzip--gzip\"",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "bytes": 3,
+        "testFixture": false,
+        "raw_file": "sources/candidate-bhp.json"
+      },
+      {
+        "snapshot_id": "h54t-xnbi:37517e5f3dc66819",
+        "name": "candidate-srt",
+        "title": "RRC-UIC Step Rate Test Results",
+        "kind": "srt",
+        "url": "https://data.texas.gov/resource/h54t-xnbi.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no",
+        "retrieved_at": "2026-10-29T07:31:53.939Z",
+        "http_status": 200,
+        "last_modified": "Thu, 01 Oct 2026 12:32:19 GMT",
+        "etag": "\"anVsaWV0dC4xNjc2NTlfM185NHRQT0U5UzhYV2FYT0pjdDl1ZGlZSUVZcGlQdw---gzimdDUovca0-nlr8txUee8JoH-JT_--gzip--gzip\"",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "bytes": 3,
+        "testFixture": false,
+        "raw_file": "sources/candidate-srt.json"
+      },
+      {
+        "snapshot_id": "bhp-metadata:2e0bf6e6ed2522d7",
+        "name": "bhp-metadata",
+        "title": "RRC-UIC Bottom Hole Pressure Test Results",
+        "kind": "metadata",
+        "url": "https://data.texas.gov/api/views/qxfy-wcfs.json",
+        "retrieved_at": "2026-10-29T07:31:53.639Z",
+        "http_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "sha256": "2e0bf6e6ed2522d7c1778936c149f5deaeae031bc8d4022030927fcc5c7a50d0",
+        "bytes": 19789,
+        "testFixture": false,
+        "raw_file": "sources/bhp-metadata.json"
+      },
+      {
+        "snapshot_id": "srt-metadata:6d3409f8eea667a4",
+        "name": "srt-metadata",
+        "title": "RRC-UIC Step Rate Test Results",
+        "kind": "metadata",
+        "url": "https://data.texas.gov/api/views/h54t-xnbi.json",
+        "retrieved_at": "2026-10-29T07:31:53.721Z",
+        "http_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131",
+        "bytes": 33117,
+        "testFixture": false,
+        "raw_file": "sources/srt-metadata.json"
+      },
+      {
+        "snapshot_id": "srt-guidelines.html:caef891d686288af",
+        "name": "srt-guidelines.html",
+        "kind": "documentation",
+        "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+        "retrieved_at": "2026-10-29T07:31:54.064Z",
+        "http_status": 200,
+        "last_modified": null,
+        "etag": null,
+        "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+        "bytes": 46388,
+        "testFixture": false,
+        "raw_file": "sources/srt-guidelines.html"
+      },
+      {
+        "snapshot_id": "bhp-permian-nto.pdf:728baacda48c9f0d",
+        "name": "bhp-permian-nto.pdf",
+        "kind": "documentation",
+        "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+        "retrieved_at": "2026-10-29T07:31:54.299Z",
+        "http_status": 200,
+        "last_modified": "Tue, 02 Jun 2026 17:37:01 GMT",
+        "etag": "\"1dcf2b66b2557b0\"",
+        "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+        "bytes": 183088,
+        "testFixture": false,
+        "raw_file": "sources/bhp-permian-nto.pdf"
+      }
+    ],
+    "documentation": [
+      {
+        "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+        "purpose": "Official RRC identifies ODP datasets and row grain"
+      },
+      {
+        "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+        "purpose": "Official H-10 units and source field definitions"
+      },
+      {
+        "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+        "purpose": "Permit constraints PSI and BBLS/day"
+      }
+    ],
+    "files": {
+      "inventory.csv": {
+        "sha256": "2b32fa67ad128173558d967f15b11f170b59d14b84e11f65a22db632417facd5",
+        "bytes": 589
+      },
+      "injection_monthly.csv": {
+        "sha256": "e1b6bc561a840cf99ea25cb36f7d82576e83558765adb0c2044727bbbae056f0",
+        "bytes": 5513
+      },
+      "quality_report.json": {
+        "sha256": "5e0f6bc787d1c8f05474967a0b69e0ebdd02e0f15e682bffc79277f285f923ba",
+        "bytes": 3828
+      },
+      "data_dictionary.json": {
+        "sha256": "ac6f25adff0bbf5639aecc944d11e0da9b67bd9e5c9ddfaf4f745fffc6c14446",
+        "bytes": 7403
+      },
+      "sources/candidate-inventory.json": {
+        "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+        "bytes": 591
+      },
+      "sources/candidate-inventory.source.json": {
+        "sha256": "846de922d5086549ffbc1968eb77cee26a53200ccc1d3d01d09c40a7b2c06cac",
+        "bytes": 531
+      },
+      "sources/candidate-monthly.json": {
+        "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9",
+        "bytes": 6741
+      },
+      "sources/candidate-monthly.source.json": {
+        "sha256": "e3f82ea4724b080717f406293ed76f11f9e6997e26975d64a8bb68ee090fd07a",
+        "bytes": 640
+      },
+      "sources/inventory-metadata.json": {
+        "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+        "bytes": 47527
+      },
+      "sources/inventory-metadata.source.json": {
+        "sha256": "4ccecf1daea1728554ba949e4be4e3eb203be04c0e6b228a6c42de8190584b3c",
+        "bytes": 320
+      },
+      "sources/monthly-metadata.json": {
+        "sha256": "a925d48738efaa2ffddc4469306d1e6a842ebc9a33e93d5e1f8e9285df9eefe7",
+        "bytes": 21609
+      },
+      "sources/monthly-metadata.source.json": {
+        "sha256": "c5db7df5657fc152a114a5b3a8d9778fc17f621933e248e6058515c5da0a5fe0",
+        "bytes": 320
+      },
+      "sources/uic-manual.pdf": {
+        "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+        "bytes": 1077385
+      },
+      "sources/uic-manual.source.json": {
+        "sha256": "3e7b4025e247e3665f63e3aa29d1289b85f80ac78b6db97c68b06a736310fd30",
+        "bytes": 387
+      },
+      "sources/rrc-resources.html": {
+        "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+        "bytes": 49035
+      },
+      "sources/rrc-resources.source.json": {
+        "sha256": "636e8152bb4e603f6154f060a38cbf8167dabce7c84cf6bd634a430eda72be04",
+        "bytes": 373
+      },
+      "sources/uic-query-help.html": {
+        "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+        "bytes": 42272
+      },
+      "sources/uic-query-help.source.json": {
+        "sha256": "69cbdee5c008853827091bf6f20c8adc111c6f1c9b372099c3354e534ed17a89",
+        "bytes": 361
+      },
+      "sources/acquisition.json": {
+        "sha256": "a23a6ba52ae840259fa3ee7e87a0d811d8fe06a91a8c0271160f5ec323706e34",
+        "bytes": 1946
+      },
+      "sources/selection.json": {
+        "sha256": "4014b600ea19794c4b0f76ab49441d2bdaf79b7355a7990c0ef5ebc86f62eaf2",
+        "bytes": 192
+      },
+      "sources/lookup.json": {
+        "sha256": "33ebe0ea4064781bfd0d7ac8f840cc3437eb39f0c26e4001e9c0f3da484b40be",
+        "bytes": 605
+      },
+      "sources/lookup-metadata.json": {
+        "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+        "bytes": 47527
+      },
+      "sources/lookup-metadata.source.json": {
+        "sha256": "423f1dbc67177ba49f55081ed2c2933e383331a1cf1ab3b48de29ad86bdf2bba",
+        "bytes": 320
+      },
+      "sources/lookup-inventory.json": {
+        "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+        "bytes": 591
+      },
+      "sources/lookup-inventory.source.json": {
+        "sha256": "8e8a78c9685f25cec278c59e8bff7839ae804746b5f380b8b05aa4645e84c754",
+        "bytes": 531
+      },
+      "sources/candidate-bhp.json": {
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "bytes": 3
+      },
+      "sources/candidate-bhp.source.json": {
+        "sha256": "6998428fede2e96c2d4decb978125386a0dd6fd237aacb229295e6839b86f390",
+        "bytes": 549
+      },
+      "sources/candidate-srt.json": {
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "bytes": 3
+      },
+      "sources/candidate-srt.source.json": {
+        "sha256": "de11fdb9794109935557d80368782e272e9d6431da5aaabaf397ee9e60d2c55a",
+        "bytes": 532
+      },
+      "sources/bhp-metadata.json": {
+        "sha256": "2e0bf6e6ed2522d7c1778936c149f5deaeae031bc8d4022030927fcc5c7a50d0",
+        "bytes": 19789
+      },
+      "sources/bhp-metadata.source.json": {
+        "sha256": "86f1e311d9a8c29cf7b36b928b38c7014e11041bf7ac5372ae4fe60a20b240a1",
+        "bytes": 320
+      },
+      "sources/srt-metadata.json": {
+        "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131",
+        "bytes": 33117
+      },
+      "sources/srt-metadata.source.json": {
+        "sha256": "bfe37d0b99ec9aba235b4034e464ec8eed796af4567f301fa41cec727753daef",
+        "bytes": 320
+      },
+      "sources/srt-guidelines.html": {
+        "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+        "bytes": 46388
+      },
+      "sources/srt-guidelines.source.json": {
+        "sha256": "76b90fb68a81ee3f386b8e02d08babaf5cbd0ce3ace64176f9bdc25ff84c6c84",
+        "bytes": 470
+      },
+      "sources/bhp-permian-nto.pdf": {
+        "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+        "bytes": 183088
+      },
+      "sources/bhp-permian-nto.source.json": {
+        "sha256": "654e4066eb16edb405b64971ee4acad6583f9442061c6a147e22c97e94197c6b",
+        "bytes": 447
+      },
+      "tests.json": {
+        "sha256": "486bed107516d92ac705aae4a7ec9c0f2565a50c34a9414d86e492dc44ffa4fa",
+        "bytes": 1497
+      },
+      "tests_bhp.csv": {
+        "sha256": "f39b3e6be7af1a2835e881c5b52e9ac36c000ea7ec9b0f12c59967b1ce1b01fb",
+        "bytes": 287
+      },
+      "tests_srt.csv": {
+        "sha256": "7b55e53f9deda08c816c269ae8496c049f513f757b85c59130dafecaed44af7b",
+        "bytes": 409
+      },
+      "tests_dictionary.json": {
+        "sha256": "690574e58f75535d546dd14a1ab51c8bf7e480f0b2674e0eb501ef0cfd9699d4",
+        "bytes": 14226
+      }
+    },
+    "limitations": [
+      "One explicitly selected UIC with an inclusive bounded reporting period; exact-UIC inventory revalidated against preserved lookup identity.",
+      "ODP supplies no annulus pressure or original H-10 document revision ID.",
+      "Source reports are not independently validated measurements.",
+      "Current status, sustainable capacity and BHP are not inferred.",
+      "BHP/SRT test-report sidecars are exact-UIC report inventories not limited to the reporting period: one row per source record (the source does not document how many rows one test produces), without test documents or pressure series; psia and psig are kept as labelled and never converted."
+    ],
+    "selection": {
+      "lookupId": "4247c14f-4d16-4182-bde3-a2b05930994d",
+      "sourceRecordKey": "lookup:1",
+      "ordinal": 1,
+      "lookupSha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+    },
+    "provenance": {
+      "classification": "public_reported",
+      "basis": "recorded_official_acquisition_v2"
+    },
+    "testFixture": false,
+    "normalized_payload_sha256": "3ebb4384a71999359b85c19c27a37a4cd7c51f2a485f095eac32ca32ec35578b",
+    "normalized_payload_hash_method": "SHA256 of UTF-8 JSON.stringify({schemaVersion,artifactId,inventory,injectionMonthly,qualityReport,dataDictionary}), in this key order, excluding manifest to avoid circularity"
+  }
+}
