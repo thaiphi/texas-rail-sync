@@ -5,7 +5,7 @@ Work in the independent `texas-rrc-explorer` repository. Its scope is bounded of
 - New datasets are local only until a separate hosted-parity decision is made.
 - Analytics, permitting (E05, full E12) and portfolio implementation belong to their own sibling repositories.
 - Do not expand into GIS (including well bottom location `uumf-5r4y`), statewide extraction or scheduled refresh without an authorized task, and do not invent public observations.
-- Locally, a Socrata app token is read from the environment (`SOCRATA_APP_TOKEN`) and sent only as a header. Never write its value to any file, log or commit. Hosted tokens are not authorized (D7).
+- Locally, a Socrata app token is read from the environment (`TRRC_SOCRATA_APP_TOKEN`) and sent only as a header. Never write its value to any file, log or commit. Hosted tokens are not authorized (D7).
 
 Read [README.md](README.md), [SPEC.md](SPEC.md), [SOURCE_PROOF.md](SOURCE_PROOF.md) and [GATES.md](GATES.md) for the current contract and evidence. Preserve raw source bytes, original identifiers, missing-versus-zero distinctions, dictionary/QC/provenance, old artifact versions and disclosed source limitations. Use direct Node checks; an acquisition or export run that changes files needs scope in the authorized brief.
 
