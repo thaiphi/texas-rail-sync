@@ -35,6 +35,8 @@ A regression test enforces it.
 
 Version 3 cannot be sent to Analytics until its receiver accepts additive files (D10, Phase 6). Until then, **new local collections cannot be handed to Analytics**; the three existing versions still can.
 
+**Live proof.** The live proof for UIC 000020838, 000111186 and 000119875 is pending.
+
 **Browser.** The Tests tab verifies each sidecar against the manifest's SHA-256 and byte count before showing it. A version without sidecars says test reports were not collected.
 
 ## October 29 source-access and identity addendum (Phase 1)

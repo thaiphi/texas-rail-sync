@@ -18,7 +18,12 @@ async function localOnly(path){
   // Raw source folders of v3 collections (including failed ones) carry BHP/SRT bytes.
   if(top==='collected-sources')return (JSON.parse(await readFile(resolve(root,path,'acquisition.json'))).targets??[]).some(url=>/\/(?:qxfy-wcfs|h54t-xnbi)\.json/.test(url));
   if(top==='runs'){const record=JSON.parse(await readFile(resolve(root,path,'record.json')));const id=record.events?.find(event=>event.stage==='export'&&event.status==='succeeded')?.evidence?.artifactId;return record.pipelineVersion==='rrc-collection-v3'||Boolean(id&&v3Versions.has(id));}
- }catch(error){if(error.code!=='ENOENT')throw error;}
+ }catch(error){
+  if(error.code!=='ENOENT')throw error;
+  // Fail closed: a version, run or source folder without its evidence file (e.g. a crashed
+  // staging folder) cannot be shown not to be v3, so it is not transferred.
+  if(['artifacts','runs','collected-sources'].includes(top))return true;
+ }
  return false;
 }
 const v3Versions=new Set();
