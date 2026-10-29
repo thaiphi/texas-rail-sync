@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8",
+  "path": "/artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/",
+  "manifestSha256": "e583cb24b12a2b8c32c245e051f073d54fa3f3a892f8e92ef64cfdc3419e74f1",
+  "normalizedSha256": "36d8a871efc926eafabc46d945a1333a1bded47d8be3186aac9365106eceaef4",
+  "classification": "public_reported",
+  "realHistoryStatus": "verified_bounded_linkage"
+}

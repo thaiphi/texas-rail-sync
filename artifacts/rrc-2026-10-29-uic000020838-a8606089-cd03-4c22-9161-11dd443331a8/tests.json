@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8",
+  "scope": {
+    "query_version": 3,
+    "uic_number": "000020838",
+    "test_report_limit": 1000,
+    "order": "BHP report_id,tracking_no,test_sequence_no; SRT report_id,tracking_no",
+    "bhp_returned": 0,
+    "srt_returned": 0,
+    "bhp_status": "confirmed_empty",
+    "srt_status": "confirmed_empty",
+    "window": "exact uic_no; not limited to reporting period"
+  },
+  "bhp": [],
+  "srt": [],
+  "quality": {
+    "bhp": {
+      "raw": 0,
+      "parsed": 0,
+      "accepted": 0,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "srt": {
+      "raw": 0,
+      "parsed": 0,
+      "accepted": 0,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "parent_join": {
+      "bhp": {
+        "matched": 0,
+        "unmatched": 0,
+        "ambiguous": 0
+      },
+      "srt": {
+        "matched": 0,
+        "unmatched": 0,
+        "ambiguous": 0
+      }
+    },
+    "issue_counts": {
+      "bhp": {},
+      "srt": {}
+    },
+    "dispositions": [],
+    "duplicate_policy": "Every source row retained. Rows sharing a report identity (BHP report_id|tracking_no|test_sequence_no; SRT report_id|tracking_no) are all flagged duplicate_report_identity and quarantined; no preferred row is selected or merged.",
+    "empty_result_policy": "An empty exact-UIC response ([]) is recorded as confirmed_empty: no rows were returned by the query. It does not show that no test was conducted."
+  }
+}

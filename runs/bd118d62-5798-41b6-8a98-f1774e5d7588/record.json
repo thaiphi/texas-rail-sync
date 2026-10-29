@@ -1,0 +1,1140 @@
+{
+  "schemaVersion": 1,
+  "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+  "mode": "live_collection",
+  "testFixture": false,
+  "provenance": {
+    "classification": "public_reported",
+    "basis": "recorded_official_acquisition_v2"
+  },
+  "pipelineVersion": "rrc-collection-v3",
+  "dataSchemaVersion": 1,
+  "transformationVersion": "rrc-odp-v2.1.0",
+  "startedAt": "2026-10-29T07:31:51.223Z",
+  "endedAt": "2026-10-29T07:31:54.534Z",
+  "status": "succeeded",
+  "events": [
+    {
+      "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+      "stage": "load",
+      "stageId": "bd118d62-5798-41b6-8a98-f1774e5d7588:load",
+      "eventId": "bd118d62-5798-41b6-8a98-f1774e5d7588:1",
+      "timestamp": "2026-10-29T07:31:51.224Z",
+      "status": "running",
+      "evidence": null
+    },
+    {
+      "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+      "stage": "load",
+      "stageId": "bd118d62-5798-41b6-8a98-f1774e5d7588:load",
+      "eventId": "bd118d62-5798-41b6-8a98-f1774e5d7588:2",
+      "timestamp": "2026-10-29T07:31:54.356Z",
+      "status": "succeeded",
+      "evidence": {
+        "requests": [
+          {
+            "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+            "name": "inventory-metadata.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+            "name": "monthly-metadata.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "name": "candidate-inventory.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+            "name": "candidate-monthly.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+            "name": "uic-manual.pdf",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+            "name": "rrc-resources.html",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+            "name": "uic-query-help.html",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/api/views/qxfy-wcfs.json",
+            "name": "bhp-metadata.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/api/views/h54t-xnbi.json",
+            "name": "srt-metadata.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/resource/qxfy-wcfs.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no%2Ctest_sequence_no",
+            "name": "candidate-bhp.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://data.texas.gov/resource/h54t-xnbi.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no",
+            "name": "candidate-srt.json",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+            "name": "srt-guidelines.html",
+            "status": "succeeded",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+            "name": "bhp-permian-nto.pdf",
+            "status": "succeeded",
+            "httpStatus": 200
+          }
+        ],
+        "outputs": [
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/inventory-metadata.json",
+            "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+            "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+            "bytes": 47527,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/monthly-metadata.json",
+            "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+            "sha256": "a925d48738efaa2ffddc4469306d1e6a842ebc9a33e93d5e1f8e9285df9eefe7",
+            "bytes": 21609,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/candidate-inventory.json",
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+            "bytes": 591,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/candidate-monthly.json",
+            "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+            "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9",
+            "bytes": 6741,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/uic-manual.pdf",
+            "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+            "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+            "bytes": 1077385,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/rrc-resources.html",
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+            "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+            "bytes": 49035,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/uic-query-help.html",
+            "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+            "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+            "bytes": 42272,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/bhp-metadata.json",
+            "url": "https://data.texas.gov/api/views/qxfy-wcfs.json",
+            "sha256": "2e0bf6e6ed2522d7c1778936c149f5deaeae031bc8d4022030927fcc5c7a50d0",
+            "bytes": 19789,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/srt-metadata.json",
+            "url": "https://data.texas.gov/api/views/h54t-xnbi.json",
+            "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131",
+            "bytes": 33117,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/candidate-bhp.json",
+            "url": "https://data.texas.gov/resource/qxfy-wcfs.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no%2Ctest_sequence_no",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "bytes": 3,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/candidate-srt.json",
+            "url": "https://data.texas.gov/resource/h54t-xnbi.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "bytes": 3,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/srt-guidelines.html",
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+            "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+            "bytes": 46388,
+            "count": null
+          },
+          {
+            "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/bhp-permian-nto.pdf",
+            "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+            "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+            "bytes": 183088,
+            "count": null
+          }
+        ],
+        "provenance": {
+          "classification": "public_reported",
+          "basis": "recorded_official_acquisition_v2"
+        },
+        "inputs": [
+          {
+            "snapshot_id": "givw-z9t4:4aa137acc7b03b86",
+            "name": "candidate-inventory",
+            "title": "RRC-UIC well location",
+            "kind": "inventory",
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "retrieved_at": "2026-10-29T07:31:51.593Z",
+            "http_status": 200,
+            "last_modified": "Tue, 27 Oct 2026 21:09:46 GMT",
+            "etag": "\"aW5kaWEuMTgxODQ3XzNfMTIwQVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+            "bytes": 591,
+            "testFixture": false,
+            "raw_file": "sources/candidate-inventory.json",
+            "count": 1
+          },
+          {
+            "snapshot_id": "qq2j-f2zm:2c6ccfb8304a42c1",
+            "name": "candidate-monthly",
+            "title": "RRC-UIC H10 Injection Monitoring",
+            "kind": "monthly",
+            "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+            "retrieved_at": "2026-10-29T07:31:51.716Z",
+            "http_status": 200,
+            "last_modified": "Tue, 20 Oct 2026 19:24:45 GMT",
+            "etag": "\"anVsaWV0dC4xNjgwOThfMl81OE8za1JWNUN0and3Uktzb243ZFVuZjhQSEdhdw---gziuLyejDxzLFYWqWksr12B35m6ImN--gzip--gzip\"",
+            "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9",
+            "bytes": 6741,
+            "testFixture": false,
+            "raw_file": "sources/candidate-monthly.json",
+            "count": 28
+          },
+          {
+            "snapshot_id": "inventory-metadata:0839163287547e5a",
+            "name": "inventory-metadata",
+            "title": "RRC-UIC well location",
+            "kind": "metadata",
+            "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+            "retrieved_at": "2026-10-29T07:31:51.376Z",
+            "http_status": 200,
+            "last_modified": null,
+            "etag": null,
+            "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+            "bytes": 47527,
+            "testFixture": false,
+            "raw_file": "sources/inventory-metadata.json",
+            "count": null
+          },
+          {
+            "snapshot_id": "monthly-metadata:a925d48738efaa2f",
+            "name": "monthly-metadata",
+            "title": "RRC-UIC H10 Injection Monitoring",
+            "kind": "metadata",
+            "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+            "retrieved_at": "2026-10-29T07:31:51.461Z",
+            "http_status": 200,
+            "last_modified": null,
+            "etag": null,
+            "sha256": "a925d48738efaa2ffddc4469306d1e6a842ebc9a33e93d5e1f8e9285df9eefe7",
+            "bytes": 21609,
+            "testFixture": false,
+            "raw_file": "sources/monthly-metadata.json",
+            "count": null
+          },
+          {
+            "snapshot_id": "uic-manual.pdf:09f3744d1ae5ea6b",
+            "name": "uic-manual.pdf",
+            "kind": "documentation",
+            "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+            "retrieved_at": "2026-10-29T07:31:52.858Z",
+            "http_status": 200,
+            "last_modified": "Tue, 02 Jun 2026 17:37:44 GMT",
+            "etag": "\"1dcf2b684d89489\"",
+            "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+            "bytes": 1077385,
+            "testFixture": false,
+            "raw_file": "sources/uic-manual.pdf",
+            "count": null
+          },
+          {
+            "snapshot_id": "rrc-resources.html:237547a1903f2c7f",
+            "name": "rrc-resources.html",
+            "kind": "documentation",
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+            "retrieved_at": "2026-10-29T07:31:53.304Z",
+            "http_status": 200,
+            "last_modified": null,
+            "etag": null,
+            "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+            "bytes": 49035,
+            "testFixture": false,
+            "raw_file": "sources/rrc-resources.html",
+            "count": null
+          },
+          {
+            "snapshot_id": "uic-query-help.html:563b33af66a36b52",
+            "name": "uic-query-help.html",
+            "kind": "documentation",
+            "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+            "retrieved_at": "2026-10-29T07:31:53.508Z",
+            "http_status": 200,
+            "last_modified": "Fri, 17 Apr 2026 15:25:08 GMT",
+            "etag": null,
+            "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+            "bytes": 42272,
+            "testFixture": false,
+            "raw_file": "sources/uic-query-help.html",
+            "count": null
+          },
+          {
+            "snapshot_id": "lookup:4aa137acc7b03b86",
+            "name": "lookup-inventory",
+            "kind": "selection",
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "retrieved_at": "2026-10-29T07:31:51.203Z",
+            "http_status": 200,
+            "last_modified": "Tue, 27 Oct 2026 21:09:46 GMT",
+            "etag": "\"aW5kaWEuMTgxODQ3XzNfMTIwQVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+            "bytes": 591,
+            "testFixture": false,
+            "app_token_used": true,
+            "raw_file": "sources/lookup-inventory.json",
+            "count": null
+          },
+          {
+            "snapshot_id": "qxfy-wcfs:37517e5f3dc66819",
+            "name": "candidate-bhp",
+            "title": "RRC-UIC Bottom Hole Pressure Test Results",
+            "kind": "bhp",
+            "url": "https://data.texas.gov/resource/qxfy-wcfs.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no%2Ctest_sequence_no",
+            "retrieved_at": "2026-10-29T07:31:53.826Z",
+            "http_status": 200,
+            "last_modified": "Tue, 20 Oct 2026 19:14:00 GMT",
+            "etag": "\"aW5kaWEuMTgxODI5XzNfODVhS2VfcHBUY1BSOS1mTW9EQ3FrQ1VKNVFXRWM---gziq5Nzy2IsJS_NTYsaNWIbfU5cfu9w--gzip--gzip\"",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "bytes": 3,
+            "testFixture": false,
+            "raw_file": "sources/candidate-bhp.json",
+            "count": 0
+          },
+          {
+            "snapshot_id": "h54t-xnbi:37517e5f3dc66819",
+            "name": "candidate-srt",
+            "title": "RRC-UIC Step Rate Test Results",
+            "kind": "srt",
+            "url": "https://data.texas.gov/resource/h54t-xnbi.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no",
+            "retrieved_at": "2026-10-29T07:31:53.939Z",
+            "http_status": 200,
+            "last_modified": "Thu, 01 Oct 2026 12:32:19 GMT",
+            "etag": "\"anVsaWV0dC4xNjc2NTlfM185NHRQT0U5UzhYV2FYT0pjdDl1ZGlZSUVZcGlQdw---gzimdDUovca0-nlr8txUee8JoH-JT_--gzip--gzip\"",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "bytes": 3,
+            "testFixture": false,
+            "raw_file": "sources/candidate-srt.json",
+            "count": 0
+          },
+          {
+            "snapshot_id": "bhp-metadata:2e0bf6e6ed2522d7",
+            "name": "bhp-metadata",
+            "title": "RRC-UIC Bottom Hole Pressure Test Results",
+            "kind": "metadata",
+            "url": "https://data.texas.gov/api/views/qxfy-wcfs.json",
+            "retrieved_at": "2026-10-29T07:31:53.639Z",
+            "http_status": 200,
+            "last_modified": null,
+            "etag": null,
+            "sha256": "2e0bf6e6ed2522d7c1778936c149f5deaeae031bc8d4022030927fcc5c7a50d0",
+            "bytes": 19789,
+            "testFixture": false,
+            "raw_file": "sources/bhp-metadata.json",
+            "count": null
+          },
+          {
+            "snapshot_id": "srt-metadata:6d3409f8eea667a4",
+            "name": "srt-metadata",
+            "title": "RRC-UIC Step Rate Test Results",
+            "kind": "metadata",
+            "url": "https://data.texas.gov/api/views/h54t-xnbi.json",
+            "retrieved_at": "2026-10-29T07:31:53.721Z",
+            "http_status": 200,
+            "last_modified": null,
+            "etag": null,
+            "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131",
+            "bytes": 33117,
+            "testFixture": false,
+            "raw_file": "sources/srt-metadata.json",
+            "count": null
+          },
+          {
+            "snapshot_id": "srt-guidelines.html:caef891d686288af",
+            "name": "srt-guidelines.html",
+            "kind": "documentation",
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+            "retrieved_at": "2026-10-29T07:31:54.064Z",
+            "http_status": 200,
+            "last_modified": null,
+            "etag": null,
+            "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+            "bytes": 46388,
+            "testFixture": false,
+            "raw_file": "sources/srt-guidelines.html",
+            "count": null
+          },
+          {
+            "snapshot_id": "bhp-permian-nto.pdf:728baacda48c9f0d",
+            "name": "bhp-permian-nto.pdf",
+            "kind": "documentation",
+            "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+            "retrieved_at": "2026-10-29T07:31:54.299Z",
+            "http_status": 200,
+            "last_modified": "Tue, 02 Jun 2026 17:37:01 GMT",
+            "etag": "\"1dcf2b66b2557b0\"",
+            "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+            "bytes": 183088,
+            "testFixture": false,
+            "raw_file": "sources/bhp-permian-nto.pdf",
+            "count": null
+          }
+        ]
+      }
+    },
+    {
+      "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+      "stage": "normalize-qc",
+      "stageId": "bd118d62-5798-41b6-8a98-f1774e5d7588:normalize-qc",
+      "eventId": "bd118d62-5798-41b6-8a98-f1774e5d7588:3",
+      "timestamp": "2026-10-29T07:31:54.360Z",
+      "status": "running",
+      "evidence": null
+    },
+    {
+      "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+      "stage": "normalize-qc",
+      "stageId": "bd118d62-5798-41b6-8a98-f1774e5d7588:normalize-qc",
+      "eventId": "bd118d62-5798-41b6-8a98-f1774e5d7588:4",
+      "timestamp": "2026-10-29T07:31:54.363Z",
+      "status": "succeeded",
+      "evidence": {
+        "provenance": {
+          "classification": "public_reported",
+          "basis": "recorded_official_acquisition_v2"
+        },
+        "inputs": [
+          {
+            "snapshotId": "givw-z9t4:4aa137acc7b03b86",
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+          },
+          {
+            "snapshotId": "qq2j-f2zm:2c6ccfb8304a42c1",
+            "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+            "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9"
+          }
+        ],
+        "counts": {
+          "inventory": {
+            "raw": 1,
+            "parsed": 1,
+            "accepted": 1,
+            "quarantined": 0,
+            "excluded": 0
+          },
+          "monthly": {
+            "raw": 28,
+            "parsed": 28,
+            "accepted": 28,
+            "quarantined": 0,
+            "excluded": 0
+          },
+          "parent_join": {
+            "matched": 28,
+            "unmatched": 0,
+            "ambiguous": 0
+          },
+          "issue_counts": {},
+          "dispositions": [
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:1",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:2",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:3",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:4",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:5",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:6",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:7",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:8",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:9",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:10",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:11",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:12",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:13",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:14",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:15",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:16",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:17",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:18",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:19",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:20",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:21",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:22",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:23",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:24",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:25",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:26",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:27",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:28",
+              "disposition": "accepted"
+            }
+          ],
+          "annulus_fields": "not supplied by ODP dataset; not inferred",
+          "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+          "scope": "Bounded inventory candidates and one UIC monthly history; no statewide coverage or current operating-status assertion."
+        },
+        "outputs": [
+          {
+            "name": "normalized inventory",
+            "count": 1,
+            "sha256": "c6b0c57d5ea5fd1808b1c519aa1e6704321c6d1e4bb20a205e5214685d677e0c"
+          },
+          {
+            "name": "normalized monthly",
+            "count": 28,
+            "sha256": "ced167d932eeec59e1397c4cefe45e08b12fdec6cc94fe290f43e916d29d25ea"
+          }
+        ],
+        "testReports": {
+          "bhp": {
+            "raw": 0,
+            "parsed": 0,
+            "accepted": 0,
+            "quarantined": 0,
+            "excluded": 0
+          },
+          "srt": {
+            "raw": 0,
+            "parsed": 0,
+            "accepted": 0,
+            "quarantined": 0,
+            "excluded": 0
+          }
+        }
+      }
+    },
+    {
+      "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+      "stage": "export",
+      "stageId": "bd118d62-5798-41b6-8a98-f1774e5d7588:export",
+      "eventId": "bd118d62-5798-41b6-8a98-f1774e5d7588:5",
+      "timestamp": "2026-10-29T07:31:54.367Z",
+      "status": "running",
+      "evidence": null
+    },
+    {
+      "runId": "bd118d62-5798-41b6-8a98-f1774e5d7588",
+      "stage": "export",
+      "stageId": "bd118d62-5798-41b6-8a98-f1774e5d7588:export",
+      "eventId": "bd118d62-5798-41b6-8a98-f1774e5d7588:6",
+      "timestamp": "2026-10-29T07:31:54.534Z",
+      "status": "succeeded",
+      "evidence": {
+        "artifactId": "rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8",
+        "provenance": {
+          "classification": "public_reported",
+          "basis": "recorded_official_acquisition_v2"
+        },
+        "counts": {
+          "inventory": {
+            "raw": 1,
+            "parsed": 1,
+            "accepted": 1,
+            "quarantined": 0,
+            "excluded": 0
+          },
+          "monthly": {
+            "raw": 28,
+            "parsed": 28,
+            "accepted": 28,
+            "quarantined": 0,
+            "excluded": 0
+          },
+          "parent_join": {
+            "matched": 28,
+            "unmatched": 0,
+            "ambiguous": 0
+          },
+          "issue_counts": {},
+          "dispositions": [
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:1",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:2",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:3",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:4",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:5",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:6",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:7",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:8",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:9",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:10",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:11",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:12",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:13",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:14",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:15",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:16",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:17",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:18",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:19",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:20",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:21",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:22",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:23",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:24",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:25",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:26",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:27",
+              "disposition": "accepted"
+            },
+            {
+              "source_row_key": "rrc:h10:qq2j-f2zm:2c6ccfb8304a42c1:28",
+              "disposition": "accepted"
+            }
+          ],
+          "annulus_fields": "not supplied by ODP dataset; not inferred",
+          "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+          "scope": "Bounded inventory candidates and one UIC monthly history; no statewide coverage or current operating-status assertion."
+        },
+        "operation": "published_new_version",
+        "inputs": [
+          {
+            "snapshotId": "givw-z9t4:4aa137acc7b03b86",
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+          },
+          {
+            "snapshotId": "qq2j-f2zm:2c6ccfb8304a42c1",
+            "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+            "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9"
+          },
+          {
+            "snapshotId": "inventory-metadata:0839163287547e5a",
+            "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+            "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374"
+          },
+          {
+            "snapshotId": "monthly-metadata:a925d48738efaa2f",
+            "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+            "sha256": "a925d48738efaa2ffddc4469306d1e6a842ebc9a33e93d5e1f8e9285df9eefe7"
+          },
+          {
+            "snapshotId": "uic-manual.pdf:09f3744d1ae5ea6b",
+            "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+            "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c"
+          },
+          {
+            "snapshotId": "rrc-resources.html:237547a1903f2c7f",
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+            "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9"
+          },
+          {
+            "snapshotId": "uic-query-help.html:563b33af66a36b52",
+            "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+            "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d"
+          },
+          {
+            "snapshotId": "lookup:4aa137acc7b03b86",
+            "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1"
+          },
+          {
+            "snapshotId": "qxfy-wcfs:37517e5f3dc66819",
+            "url": "https://data.texas.gov/resource/qxfy-wcfs.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no%2Ctest_sequence_no",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+          },
+          {
+            "snapshotId": "h54t-xnbi:37517e5f3dc66819",
+            "url": "https://data.texas.gov/resource/h54t-xnbi.json?%24where=uic_no%3D%27000020838%27&%24limit=1000&%24order=report_id%2Ctracking_no",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+          },
+          {
+            "snapshotId": "bhp-metadata:2e0bf6e6ed2522d7",
+            "url": "https://data.texas.gov/api/views/qxfy-wcfs.json",
+            "sha256": "2e0bf6e6ed2522d7c1778936c149f5deaeae031bc8d4022030927fcc5c7a50d0"
+          },
+          {
+            "snapshotId": "srt-metadata:6d3409f8eea667a4",
+            "url": "https://data.texas.gov/api/views/h54t-xnbi.json",
+            "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131"
+          },
+          {
+            "snapshotId": "srt-guidelines.html:caef891d686288af",
+            "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+            "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369"
+          },
+          {
+            "snapshotId": "bhp-permian-nto.pdf:728baacda48c9f0d",
+            "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+            "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c"
+          }
+        ],
+        "outputs": [
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-inventory.json",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+            "bytes": 591,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-inventory.source.json",
+            "sha256": "846de922d5086549ffbc1968eb77cee26a53200ccc1d3d01d09c40a7b2c06cac",
+            "bytes": 531,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-monthly.json",
+            "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9",
+            "bytes": 6741,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-monthly.source.json",
+            "sha256": "e3f82ea4724b080717f406293ed76f11f9e6997e26975d64a8bb68ee090fd07a",
+            "bytes": 640,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/inventory-metadata.json",
+            "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+            "bytes": 47527,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/inventory-metadata.source.json",
+            "sha256": "4ccecf1daea1728554ba949e4be4e3eb203be04c0e6b228a6c42de8190584b3c",
+            "bytes": 320,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/monthly-metadata.json",
+            "sha256": "a925d48738efaa2ffddc4469306d1e6a842ebc9a33e93d5e1f8e9285df9eefe7",
+            "bytes": 21609,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/monthly-metadata.source.json",
+            "sha256": "c5db7df5657fc152a114a5b3a8d9778fc17f621933e248e6058515c5da0a5fe0",
+            "bytes": 320,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/uic-manual.pdf",
+            "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+            "bytes": 1077385,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/uic-manual.source.json",
+            "sha256": "3e7b4025e247e3665f63e3aa29d1289b85f80ac78b6db97c68b06a736310fd30",
+            "bytes": 387,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/rrc-resources.html",
+            "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+            "bytes": 49035,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/rrc-resources.source.json",
+            "sha256": "636e8152bb4e603f6154f060a38cbf8167dabce7c84cf6bd634a430eda72be04",
+            "bytes": 373,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/uic-query-help.html",
+            "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+            "bytes": 42272,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/uic-query-help.source.json",
+            "sha256": "69cbdee5c008853827091bf6f20c8adc111c6f1c9b372099c3354e534ed17a89",
+            "bytes": 361,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/acquisition.json",
+            "sha256": "a23a6ba52ae840259fa3ee7e87a0d811d8fe06a91a8c0271160f5ec323706e34",
+            "bytes": 1946,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/selection.json",
+            "sha256": "4014b600ea19794c4b0f76ab49441d2bdaf79b7355a7990c0ef5ebc86f62eaf2",
+            "bytes": 192,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/lookup.json",
+            "sha256": "33ebe0ea4064781bfd0d7ac8f840cc3437eb39f0c26e4001e9c0f3da484b40be",
+            "bytes": 605,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/lookup-metadata.json",
+            "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+            "bytes": 47527,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/lookup-metadata.source.json",
+            "sha256": "423f1dbc67177ba49f55081ed2c2933e383331a1cf1ab3b48de29ad86bdf2bba",
+            "bytes": 320,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/lookup-inventory.json",
+            "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+            "bytes": 591,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/lookup-inventory.source.json",
+            "sha256": "8e8a78c9685f25cec278c59e8bff7839ae804746b5f380b8b05aa4645e84c754",
+            "bytes": 531,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-bhp.json",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "bytes": 3,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-bhp.source.json",
+            "sha256": "6998428fede2e96c2d4decb978125386a0dd6fd237aacb229295e6839b86f390",
+            "bytes": 549,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-srt.json",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "bytes": 3,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/candidate-srt.source.json",
+            "sha256": "de11fdb9794109935557d80368782e272e9d6431da5aaabaf397ee9e60d2c55a",
+            "bytes": 532,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/bhp-metadata.json",
+            "sha256": "2e0bf6e6ed2522d7c1778936c149f5deaeae031bc8d4022030927fcc5c7a50d0",
+            "bytes": 19789,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/bhp-metadata.source.json",
+            "sha256": "86f1e311d9a8c29cf7b36b928b38c7014e11041bf7ac5372ae4fe60a20b240a1",
+            "bytes": 320,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/srt-metadata.json",
+            "sha256": "6d3409f8eea667a406548773a000ffe7c77218daa6445b2cb3d131579957e131",
+            "bytes": 33117,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/srt-metadata.source.json",
+            "sha256": "bfe37d0b99ec9aba235b4034e464ec8eed796af4567f301fa41cec727753daef",
+            "bytes": 320,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/srt-guidelines.html",
+            "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+            "bytes": 46388,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/srt-guidelines.source.json",
+            "sha256": "76b90fb68a81ee3f386b8e02d08babaf5cbd0ce3ace64176f9bdc25ff84c6c84",
+            "bytes": 470,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/bhp-permian-nto.pdf",
+            "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+            "bytes": 183088,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/sources/bhp-permian-nto.source.json",
+            "sha256": "654e4066eb16edb405b64971ee4acad6583f9442061c6a147e22c97e94197c6b",
+            "bytes": 447,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/inventory.csv",
+            "sha256": "2b32fa67ad128173558d967f15b11f170b59d14b84e11f65a22db632417facd5",
+            "bytes": 589,
+            "count": 1
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/injection_monthly.csv",
+            "sha256": "e1b6bc561a840cf99ea25cb36f7d82576e83558765adb0c2044727bbbae056f0",
+            "bytes": 5513,
+            "count": 28
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/quality_report.json",
+            "sha256": "5e0f6bc787d1c8f05474967a0b69e0ebdd02e0f15e682bffc79277f285f923ba",
+            "bytes": 3828,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/data_dictionary.json",
+            "sha256": "ac6f25adff0bbf5639aecc944d11e0da9b67bd9e5c9ddfaf4f745fffc6c14446",
+            "bytes": 7403,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/tests.json",
+            "sha256": "486bed107516d92ac705aae4a7ec9c0f2565a50c34a9414d86e492dc44ffa4fa",
+            "bytes": 1497,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/tests_bhp.csv",
+            "sha256": "f39b3e6be7af1a2835e881c5b52e9ac36c000ea7ec9b0f12c59967b1ce1b01fb",
+            "bytes": 287,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/tests_srt.csv",
+            "sha256": "7b55e53f9deda08c816c269ae8496c049f513f757b85c59130dafecaed44af7b",
+            "bytes": 409,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/tests_dictionary.json",
+            "sha256": "690574e58f75535d546dd14a1ab51c8bf7e480f0b2674e0eb501ef0cfd9699d4",
+            "bytes": 14226,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/normalized.json",
+            "sha256": "36d8a871efc926eafabc46d945a1333a1bded47d8be3186aac9365106eceaef4",
+            "bytes": 51392,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/manifest.json",
+            "sha256": "e583cb24b12a2b8c32c245e051f073d54fa3f3a892f8e92ef64cfdc3419e74f1",
+            "bytes": 17719,
+            "count": null
+          },
+          {
+            "path": "artifacts/rrc-2026-10-29-uic000020838-a8606089-cd03-4c22-9161-11dd443331a8/version-pins.json",
+            "sha256": "29ff870b5b9544a21a99db264613e341937f48412b1b74f77be6005c14b61c00",
+            "bytes": 467,
+            "count": null
+          }
+        ],
+        "realHistoryStatus": "verified_bounded_linkage"
+      }
+    }
+  ]
+}

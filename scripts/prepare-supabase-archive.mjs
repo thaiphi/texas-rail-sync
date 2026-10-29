@@ -8,7 +8,27 @@ const hash=b=>createHash('sha256').update(b).digest('hex');
 const destination=resolve(root,'tmp/supabase-archive-2026-10-11');
 const files=[];
 async function add(path){const bytes=await readFile(resolve(root,path));files.push({path,sha256:hash(bytes),byteCount:bytes.length,bytes});}
-async function walk(path){for(const entry of await readdir(resolve(root,path),{withFileTypes:true})){const child=path+'/'+entry.name;if(entry.isSymbolicLink())throw Error('Refusing symbolic link: '+child);if(entry.isDirectory())await walk(child);else if(entry.isFile())await add(child);else throw Error('Unsupported file: '+child);}}
+// D7: test-report (query_version 3) versions are local-only. Skip each such version, its raw collected-sources folder and
+// every run that records a v3 pipeline or exports one; each skip is logged to stderr.
+const skipped=new Set();
+async function localOnly(path){
+ const [top,name]=path.split('/');
+ try{
+  if(top==='artifacts')return JSON.parse(await readFile(resolve(root,path,'manifest.json'))).scope?.query_version===3;
+  // Raw source folders of v3 collections (including failed ones) carry BHP/SRT bytes.
+  if(top==='collected-sources')return (JSON.parse(await readFile(resolve(root,path,'acquisition.json'))).targets??[]).some(url=>/\/(?:qxfy-wcfs|h54t-xnbi)\.json/.test(url));
+  if(top==='runs'){const record=JSON.parse(await readFile(resolve(root,path,'record.json')));const id=record.events?.find(event=>event.stage==='export'&&event.status==='succeeded')?.evidence?.artifactId;return record.pipelineVersion==='rrc-collection-v3'||Boolean(id&&v3Versions.has(id));}
+ }catch(error){
+  if(error.code!=='ENOENT')throw error;
+  // Fail closed: a version, run or source folder without its evidence file (e.g. a crashed
+  // staging folder) cannot be shown not to be v3, so it is not transferred.
+  if(['artifacts','runs','collected-sources'].includes(top))return true;
+ }
+ return false;
+}
+const v3Versions=new Set();
+async function walk(path){for(const entry of await readdir(resolve(root,path),{withFileTypes:true})){const child=path+'/'+entry.name;if(entry.isSymbolicLink())throw Error('Refusing symbolic link: '+child);if(entry.isDirectory()){if(child.split('/').length===2&&await localOnly(child)){skipped.add(child);if(child.startsWith('artifacts/'))v3Versions.add(entry.name);console.error(JSON.stringify({event:'skipped_local_only_test_report_version',path:child}));continue;}await walk(child);}else if(entry.isFile())await add(child);else throw Error('Unsupported file: '+child);}}
+// artifacts first, so runs can be matched to skipped v3 version IDs.
 for(const path of ['artifacts','runs','raw','collected-sources','lookups'])await walk(path);
 for(const path of ['public/artifact-path.json','public/artifact-integrity.json'])await add(path);
 files.sort((a,b)=>a.path.localeCompare(b.path,'en'));

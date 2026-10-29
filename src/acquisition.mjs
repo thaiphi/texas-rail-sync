@@ -4,13 +4,15 @@ import {repositoryRoot,exportArtifact,saveRun} from './pipeline.mjs';
 import {loadSnapshot} from './artifact.mjs';
 import {fetchSourceWithThrottleRetry} from './sourceFetch.mjs';
 import {createRunRecorder} from './runEvents.mjs';
-import {acquisitionTargets,targetsForScope,collectionScope} from './sources.mjs';
+import {acquisitionTargets,targetsForScope,collectionScope,isBounded,versionLabels} from './sources.mjs';
+import {sourceCount} from './exportCore.mjs';
 export {acquisitionTargets} from './sources.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
 export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null,appToken=null,wait=undefined}={}){
  if(fetchImpl!==fetch&&!testFixture)throw Error('Injected network responses require explicit test-fixture mode');
- const dynamic=scope.queryVersion===2;
- const recorder=createRunRecorder({mode:'live_collection',pipelineVersion:dynamic?'rrc-collection-v2':'rrc-collection-v1',schemaVersion:1,transformationVersion:dynamic?'rrc-odp-v2.0.0':'rrc-odp-v1.0.0',testFixture});
+ // v2 and v3 share the bounded acquisition marker (schemaVersion 2); labels follow the query version.
+ const dynamic=isBounded(scope);
+ const recorder=createRunRecorder({mode:'live_collection',...versionLabels(dynamic?scope:null),schemaVersion:1,testFixture});
  const evidence={requests:[],outputs:[]};let created=false,result,targets=acquisitionTargets;
  try{
   recorder.start('load');
@@ -42,7 +44,7 @@ export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=res
   }
   await marker('succeeded');const snapshot=await loadSnapshot(sourceDir);
   recorder.classifySource(snapshot.provenance);
-  recorder.succeed('load',{...evidence,provenance:snapshot.provenance,inputs:snapshot.sources.map(s=>({...s,count:s.kind==='inventory'?snapshot.inventory.length:s.kind==='monthly'?snapshot.monthly.length:null}))});
+  recorder.succeed('load',{...evidence,provenance:snapshot.provenance,inputs:snapshot.sources.map(s=>({...s,count:sourceCount(snapshot,s)}))});
   result=await exportArtifact({sourceDir,artifactId,outputRoot,mode:'live_collection',testFixture,record:false,recorder,snapshot});
  }catch(error){
   if(error.provenance&&!recorder.snapshot().endedAt)recorder.classifySource(error.provenance);

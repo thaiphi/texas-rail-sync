@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=uic_number%3D%27000020838%27&%24limit=25&%24order=uic_number%2Capi_no",
+  "retrieved_at": "2026-10-29T07:31:51.203Z",
+  "http_status": 200,
+  "last_modified": "Tue, 27 Oct 2026 21:09:46 GMT",
+  "etag": "\"aW5kaWEuMTgxODQ3XzNfMTIwQVAzTGtvQjdEb25XLUJTcmtsTTJ5ek43LUlB---gzipJ_vvHoiKiNhgDZYek9mLQeOOiJ8--gzip--gzip\"",
+  "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+  "bytes": 591,
+  "testFixture": false,
+  "app_token_used": true
+}

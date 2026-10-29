@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/h54t-xnbi.json?%24where=uic_no%3D%27000119875%27&%24limit=1000&%24order=report_id%2Ctracking_no",
+  "retrieved_at": "2026-10-29T07:31:58.193Z",
+  "http_status": 200,
+  "last_modified": "Thu, 01 Oct 2026 12:32:19 GMT",
+  "etag": "\"anVsaWV0dC4xNjc2NTlfM185NHA3ZXN6VE81bWR2QkpRZl80cDAzVWFVOFhqbw---gzisUw8gTYBWjmsumuAOmgWHGQhSIJ--gzip--gzip\"",
+  "sha256": "ad82bac0f17a3a2809082e875e0ca22f1ea29f5157ca603b9ff2f9a053de8cde",
+  "bytes": 12235,
+  "testFixture": false,
+  "app_token_used": true
+}

@@ -1,5 +1,44 @@
 # Bounded Explorer specification v1
 
+## October 29 test-report connectors (Phase 2, RRC-13)
+
+**Scope.** Local `/api/collect` always produces query version 3 (owner decision, 2026-10-29). Version 3 adds the following to the seven v2 targets:
+- exact-`uic_no` queries on BHP `qxfy-wcfs` and SRT `h54t-xnbi`, with their view metadata (`$limit=1000`, ordered by report identity);
+- two official RRC documents, the SRT guidelines page and the December 2023 Permian monitoring notice, preserved for unit and meaning citations.
+
+Transformation: `rrc-odp-v2.1.0`, pipeline `rrc-collection-v3`.
+
+**Query rules:**
+- The test queries have no reporting-window bound.
+- Exactly 1000 rows gives `SOURCE_ROW_LIMIT`, and more gives `SOURCE_INVALID`; neither publishes.
+- An empty response is `confirmed_empty`. It never means "no test was conducted".
+
+The frozen contract is [the Phase 2 design](docs/superpowers/specs/2026-10-29-phase2-bhp-srt-design.md).
+
+**Output.** These additive sidecars are listed in `manifest.files`: `tests.json`, `tests_bhp.csv`, `tests_srt.csv` and `tests_dictionary.json`. `data_dictionary.json` and `schemaVersion: 1` are unchanged.
+- One row per retained source row; nothing is merged.
+- Dates are accepted only as `YYYY-MM-DD`, and the original text is kept.
+- psia and psig values are kept as the field names state and are never converted. The `bhp_psia` name conflicts with the PSIG unit in official Permian guidance. That conflict is disclosed, not resolved.
+- Duplicate report identities are quarantined.
+- FIRC and the `satisfactory_test` codes are shown verbatim as undocumented.
+
+**Revised acceptance criterion (disclosed revision of review §8).** The review's Phase 2 criterion said "the six v1 files … byte-identical". It cannot hold under D10, because listing sidecars changes `manifest.json`, and `normalized.json` embeds the manifest. The criterion is replaced by:
+- byte-identical `inventory.csv`, `injection_monthly.csv`, `quality_report.json` and `data_dictionary.json`;
+- an identical `normalized_payload_sha256`;
+- `manifest.json` and `normalized.json` equal to the v2 output from the same sources, except for a closed, enumerated delta (design §6).
+
+A regression test enforces it.
+
+**Hosted and Analytics.** Version 3 is local only (D7):
+- The hosted guest path stays v2, and the shared export core refuses v3 there.
+- The Supabase transfer script skips v3 versions, their runs and their raw `collected-sources` folders.
+
+Version 3 cannot be sent to Analytics until its receiver accepts additive files (D10, Phase 6). Until then, **new local collections cannot be handed to Analytics**; the three existing versions still can.
+
+**Live proof.** The live proof ran on 2026-10-29 for UIC 000020838, 000111186 and 000119875; the counts reconcile for all three (see [the proof](docs/verification-2026-10-29-phase2-live-proof.md)).
+
+**Browser.** The Tests tab verifies each sidecar against the manifest's SHA-256 and byte count before showing it. A version without sidecars says test reports were not collected.
+
 ## October 29 source-access and identity addendum (Phase 1)
 
 **Scope.** The scope now includes bounded RRC ODP wellbore and test records for explicitly selected wells (owner decision D3): BHP, SRT, casing and plugging. Requirements RRC-11 to RRC-16 track this in [requirements](docs/requirements.md). Phase 1 adds no dataset row query, artifact file or UI; Phase 1.1 preserves view metadata only, under a dated discovery directory. The statewide/GIS cut below still applies, and well bottom location is part of that cut until RRC-07 is authorized.
