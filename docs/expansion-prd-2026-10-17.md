@@ -293,7 +293,7 @@ Before each release:
 
 **External implementation concepts reviewed (not incorporated as code):**
 
-- [Volve multiwell correlation endpoint](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/src/volve/api/routes/correlation.py), [correlation canvas](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/ui/components/correlation/CorrelationCanvas.tsx), [formation track](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/ui/components/correlation/tracks/FormationTrack.tsx), [map view](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/ui/components/map/MapView.tsx).
-- [Graph/schema and relationships](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/src/volve/graph/schema_init.py), [page-linked RAG chunks](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/src/volve/ingestion/parsers/rag_chunks.py), [source license](https://github.com/gabrielserrao/spe-2026-challenge/blob/main/LICENSE). None is an official Texas RRC source; the concepts are to be independently designed, not copied.
+- Volve multiwell correlation (endpoint, canvas, formation track), map view, graph schema/relationships and page-linked document chunks. None is an official Texas RRC source; the concepts are to be independently designed, not copied.
+- Links to the individual source files were removed on October 29, 2026 (owner decision D18). The GPL-licensed source must not reach implementers through briefs that quote this PRD. The owner keeps the links privately.
 
 **Baseline reference:** User-provided `feature-inventory-2026-10-16.md` (not an externally verified live test). Current project governing documents and actual code supersede this proposal where they conflict.
