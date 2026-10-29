@@ -1,6 +1,6 @@
 # Phase 3 design — API-keyed wellbore casing and plugging connectors (RRC-14)
 
-Date: 2026-10-29. Status: **frozen for implementation except section 9** (2026-10-29). Every decision in section 13 was ruled on with its recommended option. Section 9 is completed from the OD-5 research before Task 1 is dispatched. Items marked **[OD-n]** follow those rulings.
+Date: 2026-10-29. Status: **frozen for implementation** (2026-10-29). Every decision in section 13 was ruled on with its recommended option, and section 9 is completed from the OD-5 research. Items marked **[OD-n]** follow those rulings.
 - **Authority:** owner "merge PR #8 then start the next phase" (2026-10-29); plan [review §7](../../expansion-prd-review-2026-10-17.md) Phase 3 row and §8 Phase 3 criteria; [ADR 004](../../adr/004-wellbore-identity-and-relations.md) §1–3 (normative); decisions D4 (independent identity review before merge), D7 (local only), D10 (additive sidecars, `schemaVersion: 1`); requirement RRC-14 ([tracker](../../requirements.md) row RRC-14).
 - **Evidence:** [Phase 3 API format proof](../../verification-2026-10-29-phase3-api-format-proof.md) (raw bytes in `raw-discovery-2026-10-29-api-proof/`), preserved view metadata `raw-discovery-2026-10-29/casing-u9m4-xnh6.json` and `plugging-wfzn-9fje.json`, [source discovery](../../source-discovery-2026-10-29.md).
 - **Model:** the merged [Phase 2 design](2026-10-29-phase2-bhp-srt-design.md). Every Phase 2 rule not changed here applies unchanged.
@@ -25,7 +25,7 @@ The SPEC cut this phase must respect, quoted from `SPEC.md:106`:
 
 ## 2. Targets and queries
 
-The v4 targets are the 13 v3 targets, unchanged and in the same order (`src/sources.mjs:78-86`, `:68-77`), followed by:
+The v4 targets are the 13 v3 targets, unchanged and in the same order (`src/sources.mjs:78-86`, `:68-77`). They are followed by targets 14–18 below and then documentation targets 19–21 (section 9):
 
 | # | Name | URL |
 |---|---|---|
@@ -37,7 +37,7 @@ The v4 targets are the 13 v3 targets, unchanged and in the same order (`src/sour
 
 - **Order of steps (RRC-14, do not collapse).** Uniqueness first (16), then the connector queries (17, 18), all from the inventory row's own `api_no`. Acquisition fetches in target order (`src/acquisition.mjs:35-44`), and any failure stops the run (ADR 004 §2 rule 2).
 - **Proof that these URLs are accepted.** The format proof ran target 16's exact URL form (`$limit=25`, `$order=uic_number,api_no`) and the casing/plugging form with `$order=record_sequence,id`; all nine sidecars show HTTP 200 (proof doc, "How it was run"; `raw-discovery-2026-10-29-api-proof/*.source.json`). Only `$limit` differs here (1000 instead of the proof's 50).
-- **`sourceApiId === null` [OD-1].** Targets 16–18 are omitted (15 targets). The metadata files 14–15 are still preserved, so the version visibly "collected" the wellbore datasets and can say why no query ran (ADR 004 §2 rule 1, "No query is made").
+- **`sourceApiId === null` [OD-1].** Targets 16–18 are omitted (18 targets: 1–15 and 19–21). The metadata files 14–15 are still preserved, so the version visibly "collected" the wellbore datasets and can say why no query ran (ADR 004 §2 rule 1, "No query is made").
 - **Order is total.** Unlike Phase 2 (which avoided `:id`), `id` is a real number column of both views (metadata `id`, `null=0`), and it is the only unique row key observed (proof, "Findings": "The only unique row key observed is the source `id`"). `record_sequence,id` is therefore a deterministic total order as long as `id` is unique. A duplicate `id` is quarantined (section 4.3), so a non-total order cannot pass silently.
 - **Cap.** 1000 rows per dataset query. Basis: casing `record_sequence` is at most 25 statewide and plugging at most 5 (metadata `record_sequence` `largest`). The proof well `20332896` returned 8 rows for 4 filings × 2 strings (proof doc). 1000 rows allows 40 strings in each of 25 filings, so the cap is a completeness guard, not an expected limit. Exactly 1000 rows gives `SOURCE_ROW_LIMIT`, and more than 1000 gives `SOURCE_INVALID` (ADR 004 §2 rule 4). The exact-API inventory response has its own cap of 25: more than 25 gives `SOURCE_INVALID`, and exactly 25 gives `ambiguous` with `inventory_cap_reached` (ADR rule 5; section 4.1). Nothing pages.
 - **Empty result.** `[]` from 17 or 18 is `confirmed_empty`. It means "no rows returned". It never means "no casing exists" or "not plugged" (ADR 004 §2 rule 6). An empty response from 16 is a scope contradiction (section 4.1).
@@ -140,7 +140,7 @@ The field lists are exactly the non-system columns in `raw-discovery-2026-10-29/
 - **Numbers** use the existing strict `numberField`. Numbers arrive as JSON strings (`"1547"`, `"0.0"`; proof "Findings"). Missing becomes null with `missing:<field>` (accepted), zero stays zero, and a non-numeric value is a quarantined `parse_failure`. Socrata omits null fields: `multi_stg_depth` is absent from all 12 proof casing rows (proof), so it is expected to carry `missing:multi_stg_depth` on most rows, accepted. **A published zero is kept as zero and never treated as missing.** For example, `total_depth_w3` is `"0"` on all three plug rows of API `16300331` (proof addendum). The dictionary says the meaning of a zero total depth is not stated by the source.
 - **`invalid_negative`** applies to `csg_size`, `hole_size`, `csg_depth`, `toc`, `multi_stg_depth`, `cmt_sacks`, `total_depth_g1w2`, `plug_top_depth`, `plug_bottom_depth`, `plug_cmt_sacks` and `total_depth_w3` (metadata `smallest` ≥ 0 for each). It does **not** apply to `depth_reference`, whose meaning is undocumented.
 - **Consistency flags.** Only `inconsistent:plug_top_exceeds_bottom` (when both are non-null and `plug_top_depth > plug_bottom_depth`, quarantined), the direct analogue of the SRT perforation rule (`src/testReports.mjs:48`). There is no `toc` vs `csg_depth` or `multi_stg_depth` vs `csg_depth` rule [OD-6]: the meaning of TOC, and whether `0.0` means surface or not reported, is undocumented (metadata `toc` top value `0.0`, largest `4000300.0`).
-- **`depth_reference_code`** is verbatim text, with the meaning "undocumented in ODP metadata" (v1.1 review, casing row: "`depth_reference_code` meaning undocumented"; metadata values `GL`, `GR`, `KB`, `DF`, `RT`, `DB`, …). **`depth_reference`** is a number via `numberField`, with the meaning undocumented. No datum conversion.
+- **`depth_reference_code`** is verbatim text. The ODP metadata does not document its meaning; section 9 cites WBA091 for GL, DF, KB, RT and GR and labels every other code "meaning not stated" (metadata values include `DB`, `RB`, …). **`depth_reference`** is a number via `numberField`; its meaning is an elevation above mean sea level, an INFERRED mapping (section 9). No datum conversion and no depth arithmetic.
 - **Scope flags** come from `sourceScopeFlags(kind,row,scope)` (section 3).
 - **Disposition** reuses `rowDisposition`.
 - **Reconciliation per dataset:** raw = parsed = accepted + quarantined (+ excluded = 0).
@@ -244,10 +244,37 @@ The Phase 2 test (v3 against derived v2, `test/test-reports-pipeline.test.mjs:12
 
 ## 9. Official unit and meaning documents [OD-5]
 
-No official document is cited for casing or plugging units in this design. Source discovery names the needed references (G-1/W-2 completion reports for casing, W-3 plugging records) but did not retrieve them, and this planner had no network access.
-- **Recommended:** a read-only Opus research task (web, no repository writes, like Phase 2 R7) finds the official RRC form or instruction URLs.
-- Main then amends section 2 to append them as documentation targets 19 and onward, with the standard sidecars and the existing rrc.texas.gov host rules (`src/artifact.mjs:73`), **before Task 1 starts**. Dictionary entries may then cite `official_document:<name>[, page]`.
-- If no official document is found, units stay "not stated by the source".
+The research is in [source forms](../../source-forms-2026-10-29-phase3.md) (Opus, 2026-10-29). It has full quotes, page references and CONFIRMED/INFERRED/UNSTATED labels.
+
+- **New documentation targets 19–21.** They go after target 18 and are present even when `sourceApiId` is null. Each has the standard sidecar and uses the existing rrc.texas.gov host rules (`src/artifact.mjs:73`):
+
+  | # | Name | URL | Observed 2026-10-29 |
+  |---|---|---|---|
+  | 19 | `wellbore-wba091.pdf` | https://www.rrc.texas.gov/media/cx2i4xrm/wba091_well-bore-database.pdf | HTTP 200, 804,319 bytes, WBA091 manual (updated May 20, 2019) |
+  | 20 | `form-w2.pdf` | https://www.rrc.texas.gov/media/sdbph42m/w-2-0114.pdf | HTTP 200, 59,078 bytes, Form W-2 Rev. 01/2014 |
+  | 21 | `form-w3.pdf` | https://www.rrc.texas.gov/media/lw0bmny4/w-3p.pdf | HTTP 200, 117,481 bytes, Form W-3 Rev. 08/2019 |
+
+  These are `/media/<hash>/` paths that RRC may change; Phase 2 accepted the same risk for `bhp-permian-nto.pdf`. A changed or missing document fails the collection the same way a v3 documentation target does today. Hashes are recorded per version and never pinned in code.
+- **Dictionary citations.** Each entry cites `official_document:<name>, <page/item>` with the label from the research doc.
+  - **CONFIRMED units:**
+    - ft: `csg_depth`, `multi_stg_depth`, `total_depth_g1w2`, `plug_top_depth`, `plug_bottom_depth`
+    - in: `csg_size`, `hole_size`
+    - sacks: `cmt_sacks`, `plug_cmt_sacks`
+  - **INFERRED units (said so):** ft for `toc` and `total_depth_w3`.
+  - **Meanings, labelled as in the research:**
+    - `depth_reference`: the well's elevation in feet above mean sea level (WBA091 p.2-15; the mapping to the ODP column is INFERRED).
+    - `depth_reference_code`: GL, DF, KB, RT and GR are CONFIRMED as elevation reference points; all other codes are "meaning not stated".
+    - `toc`: "minimum depth up to which cement was circulated".
+    - `total_depth_w3`: "maximum depth of the plugged bore".
+  - **UNSTATED by any official source:** `record_sequence` and `on_top_record`.
+  - **Ambiguous dates:** `completion_date` (completion, W-2/G-1 or file date) and `w3_date` (plugged or filed date). Each says "which source date this is is not documented".
+- **Disclosed conflicts** go in the dictionary and the manifest limitations. Nothing is converted.
+  - C2: WBA091 allows cement in sacks, cubic yards or cubic feet, but the ODP column gives sacks with no code.
+  - C3: the plugging view's `depth_reference` has no W-3 field.
+  - C4: the W-3 has a calculated and a measured plug top, but the ODP keeps only one.
+  - C5: `toc` `0.0` may mean surface or "not reported".
+  - C7: the stated casing row grain does not match the data.
+  - C6: sentinel-like extremes stay as published (OD-9).
 
 ## 10. Tests (must exist)
 
@@ -260,7 +287,7 @@ No official document is cited for casing or plugging units in this design. Sourc
 - **Link statuses:**
   - `matched` (1 inventory row, rows > 0);
   - `none/no_source_rows` (plugging `[]`);
-  - `none/api_missing_or_invalid` (inventory row `api_no` `''` or `'3891020'`: 15 targets, no wellbore query issued, sidecars written);
+  - `none/api_missing_or_invalid` (inventory row `api_no` `''` or `'3891020'`: 18 targets, no wellbore query issued, sidecars written);
   - `ambiguous/multiple_inventory_rows` (constructed: the selected row plus a synthetic second permit with another UIC and the same `api_no`; wellbore rows accepted and listed);
   - `ambiguous/inventory_cap_reached` (25 rows).
   - **This shared-API case must be a constructed fixture:** "None of the three APIs is shared by several inventory rows" (proof, "Inventory uniqueness").
