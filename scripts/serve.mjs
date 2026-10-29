@@ -104,4 +104,4 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   }catch{res.writeHead(404,{'content-type':'text/plain'});res.end('File not found');}
  });
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const port=Number(process.argv[2]??process.env.PORT??4174);createExplorerServer({appToken:process.env.SOCRATA_APP_TOKEN?.trim()||null}).listen(port,'127.0.0.1',()=>console.log(`Texas RRC Explorer: http://127.0.0.1:${port}`));}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const port=Number(process.argv[2]??process.env.PORT??4174);createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null}).listen(port,'127.0.0.1',()=>console.log(`Texas RRC Explorer: http://127.0.0.1:${port}`));}

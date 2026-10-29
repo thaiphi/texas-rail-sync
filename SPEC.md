@@ -6,7 +6,7 @@
 
 **Fetch contract (RRC-11).** These rules apply to the shared official fetch:
 - It may carry an optional Socrata app token, sent only as the `X-App-Token` header and only to `https://data.texas.gov`. The token is never put in a URL, so preserved query URLs stay byte-identical with or without it. The token is passed to the shared fetch as an explicit option. The fetch module never reads the environment, because it is bundled into the hosted runtime.
-- Local entrypoints read the token from `SOCRATA_APP_TOKEN`. The hosted guest path sends no token until the hosted-parity decision (D7).
+- Local entrypoints read the token from `TRRC_SOCRATA_APP_TOKEN`. The hosted guest path sends no token until the hosted-parity decision (D7).
 - Retrieval sidecars gain an `app_token_used` boolean. It is kept out of the manifest's `sources` projection, so replay stays byte-identical. The token value never appears in sidecars, errors, run records or downloads.
 - HTTP 429 fails with `SOURCE_THROTTLED` and `retryAfterMs`, parsed from `Retry-After` as delta-seconds or an HTTP-date, otherwise null. The shared fetch itself never waits. Local acquisition and lookup retry once after the parsed wait when it is at or below a fixed cap. A missing, unparseable or over-cap `Retry-After` fails at once with no wait. The guest path sends no token, treats `SOURCE_THROTTLED` as retryable and keeps its existing journal backoff.
 - Committed source sidecars and every existing version stay unchanged. The new key appears only in sidecars written after this change.
