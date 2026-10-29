@@ -49,3 +49,22 @@ The bytes are preserved unchanged in [`raw-discovery-2026-10-29-api-proof/`](../
 - **Dates are `calendar_date` timestamps** (`YYYY-MM-DDT00:00:00.000`), not the plain `YYYY-MM-DD` text of BHP/SRT.
 - **Numbers arrive as JSON strings** (`"1547"`, `"0.0"`). `on_top_record` arrives as a JSON boolean.
 - **Socrata omits null fields from the JSON**, as with BHP/SRT. `multi_stg_depth` is absent from all 12 casing rows.
+
+## Addendum: plugging format with matched rows (owner decision OD-7, 2026-10-29)
+
+None of the three proof wells has a plugging row. The owner therefore authorized two more read-only discovery queries, to find one inventory well that does. Both went through the same fetch function with the app token: HTTP 200, `app_token_used: true`, and no token value in the bytes. The bytes are in [`raw-discovery-2026-10-29-fourth-well/`](../raw-discovery-2026-10-29-fourth-well/).
+
+1. Inventory `givw-z9t4`:
+   - `$where=w3_plugged_date >= '2025-01-01' AND w3_plugged_date < '2025-07-01'`, `$limit=10`, `$order=uic_number`.
+   - It returned 10 wells, UIC 000000091 to 000000226, all injection type 3 in district 01.
+2. Plugging `wfzn-9fje`:
+   - `$where=api_no in (<the 10 inventory api_no strings>)`, `$limit=200`, `$order=api_no,record_sequence,id`.
+   - Every one of the 10 APIs returned 2–3 plug rows, each under its exact 8-character inventory string.
+
+- **Plugging format: now confirmed with matched rows.** The inventory `api_no` string matches plugging `api_no` exactly. No transformation is needed.
+- **Candidate fourth well (not yet collected): UIC 000000209, API `16300331`.**
+  - Three plug rows (ids 485464–485466), all with `record_sequence` 1 and `on_top_record: true`.
+  - `w3_date` is 2025-01-28.
+  - Plug intervals are 2881–3505, 1691–2125 and 1–1430, with 30, 20 and 130 sacks.
+- **`total_depth_w3` is `"0"` on all three rows.** That is a published zero, not an absent field. It must be kept as published and must not be read as a total depth of zero feet or treated as missing.
+- **The inventory `w3_plugged_date` (2025-03-07) differs from the plugging `w3_date` (2025-01-28) for the same API.** The source does not say what each date marks, so both are kept as published, without reconciliation.

@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=w3_plugged_date+%3E%3D+%272025-01-01%27+AND+w3_plugged_date+%3C+%272025-07-01%27&%24limit=10&%24order=uic_number",
+  "retrieved_at": "2026-10-29T16:18:08.923Z",
+  "http_status": 200,
+  "last_modified": "Tue, 27 Oct 2026 21:09:46 GMT",
+  "etag": "\"aW5kaWEuMTgxODQ3XzNfMTIwNWw0ajlxbFVoN25kU3doTjVOQ0xWU1Nhb2h3---gzipRWBbndFMifhQUPvoW2H9z3lc1Y0--gzip--gzip\"",
+  "sha256": "ea59a0228919b64453eb3a8ba3736abfcce82dc169d5c56c180299fa8fe49779",
+  "bytes": 6261,
+  "testFixture": false,
+  "app_token_used": true
+}
