@@ -27,8 +27,23 @@ test('hosting bridge proxies only supported evidence routes to the fixed backend
  let captured;const handler=createHostingBridge({html:'shell',fetchImpl:async(url,options)=>{captured={url,options};return new Response('{}',{headers:{'content-type':'application/json'}});}});
  const result=await handler(new Request('https://preview.example/api/versions',{headers:{cookie:'private=secret'}}));
  assert.equal(result.status,200);assert.equal(captured.url,'https://phxiqnsebqaalvkanljb.supabase.co/functions/v1/trrc-explorer/api/versions');
- assert.equal(captured.options.redirect,'error');assert.equal(captured.options.headers.get('cookie'),null);
+ assert.equal(captured.options.redirect,'manual');assert.equal(captured.options.headers.get('cookie'),null);
  assert.equal(await handler(new Request('https://preview.example/raw/private.json')),null);
+});
+// Cloudflare Workers (the published site) throws a TypeError for redirect:'error' before sending anything.
+const workersFetch=respond=>async(url,options)=>{if(!['follow','manual'].includes(options.redirect))throw new TypeError('Invalid redirect value');return respond(url,options);};
+test('hosting bridge reaches the backend on a Workers-style fetch that rejects redirect error mode',async()=>{
+ const handler=createHostingBridge({html:'shell',fetchImpl:workersFetch(async()=>new Response('{"versions":[]}',{headers:{'content-type':'application/json'}}))});
+ const response=await handler(new Request('https://site.example/api/versions'));
+ assert.equal(response.status,200);assert.equal(await response.text(),'{"versions":[]}');
+});
+test('hosting bridge refuses backend redirects instead of following or forwarding them',async()=>{
+ for(const upstream of [new Response(null,{status:302,headers:{location:'https://elsewhere.example/'}}),Object.defineProperty(new Response(null,{status:200}),'type',{value:'opaqueredirect'})]){
+  const handler=createHostingBridge({html:'shell',fetchImpl:workersFetch(async()=>upstream)});
+  const refused=await handler(new Request('https://site.example/api/versions'));
+  assert.equal(refused.status,502);assert.equal(refused.headers.get('location'),null);
+  const body=await refused.json();assert.equal(body.error.code,'BACKEND_REDIRECT_REFUSED');assert.equal(body.error.message,'Saved datasets are temporarily unavailable. Please retry.');
+ }
 });
 test('hosting bridge sanitizes backend failures and refuses unsupported methods',async()=>{
  const handler=createHostingBridge({html:'shell',fetchImpl:async()=>{throw Error('credential secret');}});
