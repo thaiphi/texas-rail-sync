@@ -1,4 +1,4 @@
-const tabs=['overview','records','tests','quality','sources','downloads','collection'];
+const tabs=['overview','records','tests','wellbore','quality','sources','downloads','collection'];
 const validId=id=>typeof id==='string'&&/^[a-z0-9][a-z0-9._-]{0,127}$/i.test(id)&&id!=='..';
 export function parseRoute(hash){
  const key=String(hash??'').replace(/^#/,'');
