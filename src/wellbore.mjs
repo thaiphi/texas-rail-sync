@@ -99,6 +99,8 @@ export function normalizeWellbore(wellbore,sourceIds,selected,scope,queries){
   out[dataset]={link,rows,quality:{counts:{raw:raw.length,parsed:rows.length,accepted:rows.filter(r=>rowDisposition(r)==='accepted').length,quarantined:rows.filter(r=>rowDisposition(r)==='quarantined').length,excluded:0},issue_counts:issues,
    dispositions:rows.map(r=>({source_row_key:r.source_row_key,disposition:rowDisposition(r),...(rowDisposition(r)==='quarantined'?{reasons:[...r.quality_flags]}:{})})),...policies(dataset)}};
  }
+ // ADR 004 rule 3: a scope contradiction is never a status. Callers also fail the run on it.
+ if(wellboreScopeFailure(out))for(const dataset of ['casing','plugging']){out[dataset].link.status=null;out[dataset].link.reason=null;for(const row of out[dataset].rows)row.wellbore_link_status=null;}
  return out;
 }
 // Shared by the export core and buildArtifact: selected/queries come from the loaded snapshot.

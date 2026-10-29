@@ -126,6 +126,7 @@ test('scope contradictions are violations or source_scope flags, never statuses'
  assert.deepEqual(run({inventory:[selectedRaw,{...other,api_no:'20332897'}]}).violations,['source_scope:api_no']);
  const foreign=run({casing:[casingRow({api_no:'20332897'})]});
  assert.deepEqual(foreign.violations,[]);assert.ok(foreign.casing.rows[0].quality_flags.includes('source_scope:api_no'));assert.ok(wellboreScopeFailure(foreign));
+ for(const result of [run({inventory:[other]}),run({inventory:[selectedRaw,{...other,api_no:'20332897'}]}),foreign])for(const dataset of ['casing','plugging']){assert.equal(result[dataset].link.status,null);assert.equal(result[dataset].link.reason,null);assert.ok(result[dataset].rows.every(row=>row.wellbore_link_status===null));}
  assert.ok(wellboreScopeFailure(run({inventory:[]})));assert.equal(wellboreScopeFailure(run()),false);
 });
 test('negative (b)/(d): a monthly row with the inventory api_no but a foreign uic_no stays unmatched; casing/plugging rows carry no UIC or parent key',()=>{
@@ -173,4 +174,9 @@ test('dictionary: every column covered, ft/in units only with an official-docume
  assert.deepEqual(dictionary.documents.map(document=>document.name),['wellbore-wba091.pdf','form-w2.pdf','form-w3.pdf']);
  const fixture=wellboreDictionary({testFixture:true,provenance:{classification:'test_fixture',basis:'recorded_test_fixture'}});
  assert.equal(fixture.fields.csg_depth.status,'synthetic');assert.equal(fixture.fields.source_row_key.status,'calculated');assert.match(fixture.row_grain.casing,/test fixture/);
+});
+test('pipeline and browser presence sentences stay identical',async()=>{
+ const browser=await import('../public/wellbore-view.js');
+ for(const dataset of ['casing','plugging'])for(const link of [{status:'matched',reason:null},{status:'ambiguous',reason:'multiple_inventory_rows'},{status:'ambiguous',reason:'inventory_cap_reached'},{status:'none',reason:'no_source_rows'},{status:'none',reason:'api_missing_or_invalid'}])
+  assert.equal(presenceSentence(dataset,link),browser.presenceSentence(dataset,link),`${dataset} ${link.status}/${link.reason}`);
 });
