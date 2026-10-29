@@ -21,3 +21,18 @@ export async function loadPinnedArtifact(pointer,fetchImpl=fetch){
  if(artifact.artifactId!==integrity.artifactId||manifest.artifact_id!==integrity.artifactId||JSON.stringify(artifact.manifest)!==JSON.stringify(manifest))throw Error('Pinned artifact manifest identity mismatch');
  return artifact;
 }
+// Additive sidecars (e.g. Phase 2 test reports): trust runs pins → verified manifest → manifest.files[name].
+// `artifact` must already come from loadVerifiedVersion/loadPinnedArtifact or a verified saved package.
+export async function loadVerifiedSidecar(artifact,integrity,name,fetchImpl=fetch){
+ const manifest=artifact?.manifest,files=manifest?.files;
+ if(typeof name!=='string'||!/^(?:sources\/)?[a-z0-9][a-z0-9._-]{0,127}$/i.test(name)||name.split('/').includes('..'))throw Error('Sidecar name invalid');
+ if(!files||typeof files!=='object'||!Object.hasOwn(files,name))throw Error(`Sidecar ${name} is not listed in the verified manifest`);
+ const id=artifact.artifactId;
+ if(typeof id!=='string'||integrity?.artifactId!==id||manifest.artifact_id!==id||integrity.path!==`/artifacts/${id}/`)throw Error('Sidecar version identity mismatch');
+ const expected=files[name];
+ if(!/^[a-f0-9]{64}$/i.test(expected?.sha256??'')||!Number.isSafeInteger(expected?.bytes)||expected.bytes<0)throw Error(`Sidecar ${name} manifest entry invalid`);
+ const response=await fetchImpl(integrity.path+name);if(!response?.ok)throw Error(`Sidecar ${name} unavailable`);
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ if(bytes.length!==expected.bytes||await hash(bytes)!==expected.sha256.toLowerCase())throw Error(`Sidecar ${name} hash or size mismatch`);
+ return bytes;
+}
