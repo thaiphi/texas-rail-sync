@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/uumf-5r4y.json",
+  "retrieved_at": "2026-10-29T05:10:40.445Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "4a8760c3810f9e020cfec57e04ad94bbcec21dcf94fad58ed27899bd958abf65",
+  "bytes": 12291,
+  "testFixture": false,
+  "app_token_used": false
+}

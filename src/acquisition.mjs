@@ -2,12 +2,12 @@ import {mkdir,readFile,writeFile,realpath} from 'node:fs/promises';
 import {resolve,relative,sep,isAbsolute} from 'node:path';
 import {repositoryRoot,exportArtifact,saveRun} from './pipeline.mjs';
 import {loadSnapshot} from './artifact.mjs';
-import {fetchSource} from './sourceFetch.mjs';
+import {fetchSourceWithThrottleRetry} from './sourceFetch.mjs';
 import {createRunRecorder} from './runEvents.mjs';
 import {acquisitionTargets,targetsForScope,collectionScope} from './sources.mjs';
 export {acquisitionTargets} from './sources.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
-export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null}={}){
+export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null,appToken=null,wait=undefined}={}){
  if(fetchImpl!==fetch&&!testFixture)throw Error('Injected network responses require explicit test-fixture mode');
  const dynamic=scope.queryVersion===2;
  const recorder=createRunRecorder({mode:'live_collection',pipelineVersion:dynamic?'rrc-collection-v2':'rrc-collection-v1',schemaVersion:1,transformationVersion:dynamic?'rrc-odp-v2.0.0':'rrc-odp-v1.0.0',testFixture});
@@ -33,7 +33,7 @@ export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=res
   for(const target of targets){
    const request={url:target.url,name:target.name,status:'running'};evidence.requests.push(request);
    try{
-   const {body,metadata}=await fetchSource(target,{fetchImpl,testFixture,onResponse:status=>{request.httpStatus=status;}});
+   const {body,metadata}=await fetchSourceWithThrottleRetry(target,{fetchImpl,testFixture,appToken,wait,onResponse:status=>{request.httpStatus=status;}});
    await writeFile(resolve(sourceDir,target.name),body,{flag:'wx'});
    const metadataName=target.name.replace(/\.[^.]+$/,'')+'.source.json';
    await writeFile(resolve(sourceDir,metadataName),JSON.stringify(metadata,null,2)+'\n',{flag:'wx'});

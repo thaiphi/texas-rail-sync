@@ -25,7 +25,7 @@ const v2Recorder=Object.freeze({pipelineVersion:'rrc-collection-v2',schemaVersio
 // Slow official hosts (TLS/response ~30 s+): 90 s per fetch fits Edge wall 150 s and leaseMs 180 s; several slow steps can still hit laneMs 600 s (LANE_DEADLINE).
 export const GUEST_SOURCE_TIMEOUT_MS=90_000;
 const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
-const retryable=error=>error?.code==='HTTP_ERROR'||error?.code==='NETWORK_ERROR'||error?.name==='TimeoutError'||error?.name==='AbortError';
+const retryable=error=>error?.code==='HTTP_ERROR'||error?.code==='SOURCE_THROTTLED'||error?.code==='NETWORK_ERROR'||error?.name==='TimeoutError'||error?.name==='AbortError';
 function errorCode(error){
  if(error?.code==='ENOENT')return 'EVIDENCE_UNAVAILABLE';
  if(error?.name==='TimeoutError'||error?.name==='AbortError')return 'SOURCE_TIMEOUT';

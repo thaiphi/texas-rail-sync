@@ -23,3 +23,7 @@ test('lookup returns preserved candidates and one active collection rejects conc
  const first=env.post('/api/collect',body);await begun;assert.equal((await env.post('/api/collect',body)).status,409);release();const response=await first;assert.equal(response.status,502);const result=await response.json();assert.equal(result.run.status,'failed');assert.deepEqual(result.run.events.filter(e=>e.status==='skipped').map(e=>e.stage),['normalize-qc','export']);
  assert.equal((await (await fetch(env.base+'/api/versions')).json()).versions.length,1,'fixtures cannot become available public versions');
 });
+test('a throttled lookup returns 503 SOURCE_THROTTLED without waiting when Retry-After is absent',async t=>{
+ const env=await setup(t,async()=>new Response('slow down',{status:429}));
+ const response=await env.post('/api/lookup',{kind:'uic',value:'000020838'});assert.equal(response.status,503);assert.equal((await response.json()).error.code,'SOURCE_THROTTLED');
+});

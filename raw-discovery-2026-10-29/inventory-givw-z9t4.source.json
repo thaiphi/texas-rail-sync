@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/givw-z9t4.json",
+  "retrieved_at": "2026-10-29T05:10:39.912Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "0839163287547e5ac0a197380844b0d4bba2a22aa37751ba955168952730e374",
+  "bytes": 47527,
+  "testFixture": false,
+  "app_token_used": false
+}
