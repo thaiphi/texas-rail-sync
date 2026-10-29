@@ -39,11 +39,11 @@ async function publish(files,artifactId,outputRoot){
  }finally{await lock.close();await rm(lockPath,{force:true});if(staging){bounded(staging);await rm(staging,{recursive:true,force:true});}}
 }
 export async function exportArtifact({sourceDir=resolve(repositoryRoot,'raw'),artifactId=pinnedArtifactId,outputRoot=resolve(repositoryRoot,'artifacts'),mode='offline_replay',expectedManifestSha256=null,testFixture=false,record=true,runRoot=resolve(repositoryRoot,'runs'),recorder=null,snapshot:providedSnapshot=null}={}){
- let versioned=providedSnapshot?.scope?.queryVersion===2;
- if(!recorder&&!providedSnapshot)try{bounded(sourceDir);versioned=JSON.parse(await readFile(resolve(sourceDir,'acquisition.json'))).scope?.queryVersion===2;}catch{}
+ let scope=providedSnapshot?.scope??null;
+ if(!recorder&&!providedSnapshot)try{bounded(sourceDir);scope=JSON.parse(await readFile(resolve(sourceDir,'acquisition.json'))).scope??null;}catch{}
  const sourceDirectory=relative(repositoryRoot,resolve(sourceDir)).replaceAll('\\','/');
  const checkSource=async()=>{bounded(sourceDir);await realBounded(sourceDir);};
- return runExport({run:recorder??exportRecorder({mode,versioned,testFixture}),artifactId,expectedManifestSha256,testFixture,providedSnapshot,
+ return runExport({run:recorder??exportRecorder({mode,scope,testFixture}),artifactId,expectedManifestSha256,testFixture,providedSnapshot,
   sourceEvidence:{sourceDirectory},inputPath:name=>`${sourceDirectory}/${name}`,
   load:async()=>{await checkSource();return loadSnapshot(sourceDir);},checkSource,checkOutput:()=>{bounded(outputRoot);},
   readPublished:(id,name)=>readFile(resolve(outputRoot,id,name)),publish:(files,id)=>publish(files,id,outputRoot),

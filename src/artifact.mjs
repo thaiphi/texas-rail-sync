@@ -1,4 +1,5 @@
-import {acquisitionTargets,collectionScope,sourceScopeFlags,targetsForScope} from './sources.mjs';
+import {acquisitionTargets,collectionScope,sourceScopeFlags,targetsForScope,isBounded,testReportOrder} from './sources.mjs';
+import {normalizeTests,testsDictionary,testsCsv} from './testReports.mjs';
 import {validateSelectionEvidence,sameIdentity} from './lookup.mjs';
 import {assertQualityReport} from '../public/quality-validation.js';
 import {readFile} from 'node:fs/promises';
@@ -20,6 +21,9 @@ export function snapshotProvenance(snapshot){
  if(snapshot?.testFixture===true)return {classification:'test_fixture',basis:'explicit_test_fixture'};
  return structuredClone(proof?.provenance??{classification:'unknown',basis:'source_classification_unavailable'});
 }
+const copyTests=tests=>({bhp:structuredClone(tests.bhp),srt:structuredClone(tests.srt),rawBhp:Buffer.from(tests.rawBhp),rawSrt:Buffer.from(tests.rawSrt)});
+// Test rows exist only in v3 proofs; callers can never add, remove or alter them.
+const sameTests=(actual,expected)=>expected===undefined?actual===undefined:Boolean(actual)&&isDeepStrictEqual(Object.keys(actual).sort(),['bhp','rawBhp','rawSrt','srt'])&&isDeepStrictEqual(actual.bhp,expected.bhp)&&isDeepStrictEqual(actual.srt,expected.srt)&&Buffer.isBuffer(actual.rawBhp)&&expected.rawBhp.equals(actual.rawBhp)&&Buffer.isBuffer(actual.rawSrt)&&expected.rawSrt.equals(actual.rawSrt);
 const copyBodies=bodies=>Object.fromEntries(Object.entries(bodies).map(([name,body])=>[name,Buffer.from(body)]));
 const sameBodies=(actual,expected)=>actual&&isDeepStrictEqual(Object.keys(actual).sort(),Object.keys(expected).sort())&&Object.entries(expected).every(([name,body])=>Buffer.isBuffer(actual[name])&&body.equals(actual[name]));
 // Trusted-server reader; an absent object must reject with code ENOENT.
@@ -41,7 +45,7 @@ export async function loadSnapshotFromReader(readBytes){
  const classification=await Promise.allSettled(classificationFiles.map(async name=>JSON.parse(await read(name))));
  fixtureEvidence=classification.some(result=>result.status==='fulfilled'&&result.value?.testFixture===true);
  try{acquisition=JSON.parse(await read('acquisition.json'));if(acquisition.status!=='succeeded')throw Object.assign(Error('Source acquisition is incomplete'),{code:'SOURCE_INVALID'});}catch(error){if(error.code!=='ENOENT')throw error;}
- const scope=acquisition?.scope??collectionScope,targets=targetsForScope(scope),dynamic=scope.queryVersion===2;
+ const scope=acquisition?.scope??collectionScope,targets=targetsForScope(scope),dynamic=isBounded(scope),testReports=scope.queryVersion===3;
  if(dynamic){
   const lookupFlags=await Promise.allSettled(['lookup.json','lookup-inventory.source.json','lookup-metadata.source.json'].map(async name=>JSON.parse(await read(name))));
   fixtureEvidence ||= lookupFlags.some(result=>result.status==='fulfilled'&&result.value?.testFixture===true);
@@ -58,7 +62,7 @@ export async function loadSnapshotFromReader(readBytes){
  if(monthly.length===1000)throw Object.assign(Error('Monthly response reached its row cap; completeness is unproven'),{code:'SOURCE_ROW_LIMIT'});
  const sourceIds={inventory:`givw-z9t4:${sha256(rawInventory).slice(0,16)}`,monthly:`qq2j-f2zm:${sha256(rawMonthly).slice(0,16)}`};
  const sources=[],bodies={},retrievals=[],evidenceHashes=[];
- for(const [name,kind] of [['candidate-inventory','inventory'],['candidate-monthly','monthly'],['inventory-metadata','metadata'],['monthly-metadata','metadata'],['uic-manual.pdf','documentation'],['rrc-resources.html','documentation'],['uic-query-help.html','documentation']]){
+ async function loadSource(name,kind){
   const filename=name.includes('.')?name:name+'.json';
   const metadataName=filename.replace(/\.[^.]+$/,'')+'.source.json';
   const body=await read(filename),metadataBytes=await read(metadataName),retrieval=JSON.parse(metadataBytes);
@@ -73,6 +77,7 @@ export async function loadSnapshotFromReader(readBytes){
   sources.push(source);bodies[source.raw_file]=body;
   if(dynamic)bodies['sources/'+metadataName]=metadataBytes;
  }
+ for(const [name,kind] of [['candidate-inventory','inventory'],['candidate-monthly','monthly'],['inventory-metadata','metadata'],['monthly-metadata','metadata'],['uic-manual.pdf','documentation'],['rrc-resources.html','documentation'],['uic-query-help.html','documentation']])await loadSource(name,kind);
  if(dynamic){
   const selection=JSON.parse(await read('selection.json'));
   if(!selection||JSON.stringify(Object.keys(selection).sort())!==JSON.stringify(['lookupId','lookupSha256','ordinal','sourceRecordKey'])||!Number.isSafeInteger(selection.ordinal)||selection.ordinal<1||!/^[a-f0-9]{64}$/i.test(selection.lookupSha256)||!/^[-a-f0-9]{36}$/i.test(selection.lookupId)||!/^lookup:[1-9]\d*$/.test(selection.sourceRecordKey))throw provenanceFailure('SOURCE_INVALID','Persisted selection evidence requires exact identity, ordinal and lookup hash');
@@ -82,6 +87,17 @@ export async function loadSnapshotFromReader(readBytes){
   for(const name of ['acquisition.json','selection.json','lookup.json','lookup-metadata.json','lookup-metadata.source.json','lookup-inventory.json','lookup-inventory.source.json'])bodies['sources/'+name]=await read(name);
   sources.push({snapshot_id:'lookup:'+verified.lookupSha256.slice(0,16),name:'lookup-inventory',kind:'selection',...JSON.parse(await read('lookup-inventory.source.json')),raw_file:'sources/lookup-inventory.json'});
  }
+ // v3 only (RRC-13): exact-UIC BHP/SRT report inventories, appended after the selection.
+ let tests;
+ if(testReports){
+  const rawBhp=await read('candidate-bhp.json'),rawSrt=await read('candidate-srt.json');
+  let bhp,srt;try{bhp=JSON.parse(rawBhp);srt=JSON.parse(rawSrt);}catch{throw Object.assign(Error('Test-report response is not JSON'),{code:'SOURCE_INVALID'});}
+  if(!Array.isArray(bhp)||!Array.isArray(srt)||bhp.length>scope.testReportLimit||srt.length>scope.testReportLimit)throw Object.assign(Error('Test-report bounds or row arrays invalid'),{code:'SOURCE_INVALID'});
+  if(bhp.length===scope.testReportLimit||srt.length===scope.testReportLimit)throw Object.assign(Error('Test-report response reached its row cap; completeness is unproven'),{code:'SOURCE_ROW_LIMIT'});
+  sourceIds.bhp=`qxfy-wcfs:${sha256(rawBhp).slice(0,16)}`;sourceIds.srt=`h54t-xnbi:${sha256(rawSrt).slice(0,16)}`;
+  for(const [name,kind] of [['candidate-bhp','bhp'],['candidate-srt','srt'],['bhp-metadata','metadata'],['srt-metadata','metadata'],['srt-guidelines.html','documentation'],['bhp-permian-nto.pdf','documentation']])await loadSource(name,kind);
+  tests={bhp,srt,rawBhp,rawSrt};
+ }
  const flags=[...(acquisition?[acquisition.testFixture]:[]),...retrievals.filter(s=>Object.hasOwn(s,'testFixture')).map(s=>s.testFixture)];
  if(flags.some(flag=>typeof flag!=='boolean'))throw provenanceFailure('SOURCE_PROVENANCE_UNVERIFIED','Source classification is missing or invalid');
  if(flags.includes(true)&&flags.includes(false))throw provenanceFailure('SOURCE_PROVENANCE_CONFLICT','Acquisition and source classifications disagree');
@@ -89,10 +105,10 @@ export async function loadSnapshotFromReader(readBytes){
  if(flags.includes(true))provenance={classification:'test_fixture',basis:'recorded_test_fixture'};
  else if([1,2].includes(acquisition?.schemaVersion)&&acquisition.mode==='live_collection'&&acquisition.testFixture===false&&/^[a-f0-9-]{36}$/i.test(acquisition.runId)&&retrievals.every(s=>s.testFixture===false&&typeof s.sha256==='string'&&Number.isSafeInteger(s.bytes)))provenance={classification:'public_reported',basis:dynamic?'recorded_official_acquisition_v2':'recorded_official_acquisition'};
  else if(!acquisition&&sha256(JSON.stringify(evidenceHashes.sort(([a],[b])=>a<b?-1:a>b?1:0)))===legacyPublicEvidenceSha256)provenance={classification:'public_reported',basis:'source_proof_2026_10_09_exact_bytes'};
- const snapshot={read,rawInventory,rawMonthly,inventory,monthly,sourceIds,sources,bodies,provenance,testFixture:provenance.classification==='test_fixture',scope};
+ const snapshot={read,rawInventory,rawMonthly,inventory,monthly,sourceIds,sources,bodies,provenance,testFixture:provenance.classification==='test_fixture',scope,...(tests?{tests}:{})};
  const files=new Map();
  for(const [name,pending] of cache){try{files.set(name,Buffer.from(await pending));}catch{}}
- loadedEvidence.set(read,{rawInventory:Buffer.from(rawInventory),rawMonthly:Buffer.from(rawMonthly),inventory:JSON.parse(rawInventory),monthly:JSON.parse(rawMonthly),sourceIds:structuredClone(sourceIds),sources:structuredClone(sources),bodies:copyBodies(bodies),provenance:structuredClone(provenance),scope:structuredClone(scope),read:async name=>{if(!files.has(name))throw provenanceFailure('SOURCE_INVALID','File is absent from the loaded source evidence');return Buffer.from(files.get(name));}});
+ loadedEvidence.set(read,{rawInventory:Buffer.from(rawInventory),rawMonthly:Buffer.from(rawMonthly),inventory:JSON.parse(rawInventory),monthly:JSON.parse(rawMonthly),sourceIds:structuredClone(sourceIds),sources:structuredClone(sources),bodies:copyBodies(bodies),provenance:structuredClone(provenance),scope:structuredClone(scope),...(tests?{tests:copyTests(tests)}:{}),read:async name=>{if(!files.has(name))throw provenanceFailure('SOURCE_INVALID','File is absent from the loaded source evidence');return Buffer.from(files.get(name));}});
  return snapshot;
  }catch(error){
   // Failed/incomplete fixture loads are still fixtures, including separate
@@ -107,11 +123,13 @@ export async function buildArtifact(snapshot,artifactId,normalized){
  const proof=loadedEvidence.get(snapshot.read);
  if(!proof)throw provenanceFailure('SOURCE_PROVENANCE_UNVERIFIED','Snapshot must originate from verified source loading');
  if(!isDeepStrictEqual(snapshot.provenance,proof.provenance)&&!(snapshot.testFixture&&snapshot.provenance.classification==='test_fixture'))throw provenanceFailure('SOURCE_PROVENANCE_CONFLICT','Snapshot classification contradicts loaded source evidence');
- if(!isDeepStrictEqual(snapshot.inventory,proof.inventory)||!isDeepStrictEqual(snapshot.monthly,proof.monthly)||!isDeepStrictEqual(snapshot.sourceIds,proof.sourceIds)||!isDeepStrictEqual(snapshot.scope,proof.scope)||!isDeepStrictEqual(snapshot.sources,proof.sources)||!Buffer.isBuffer(snapshot.rawInventory)||!proof.rawInventory.equals(snapshot.rawInventory)||!Buffer.isBuffer(snapshot.rawMonthly)||!proof.rawMonthly.equals(snapshot.rawMonthly)||!sameBodies(snapshot.bodies,proof.bodies))throw provenanceFailure('SOURCE_HASH_MISMATCH','Source projections contradict the preserved loaded bytes');
+ if(!isDeepStrictEqual(snapshot.inventory,proof.inventory)||!isDeepStrictEqual(snapshot.monthly,proof.monthly)||!isDeepStrictEqual(snapshot.sourceIds,proof.sourceIds)||!isDeepStrictEqual(snapshot.scope,proof.scope)||!isDeepStrictEqual(snapshot.sources,proof.sources)||!Buffer.isBuffer(snapshot.rawInventory)||!proof.rawInventory.equals(snapshot.rawInventory)||!Buffer.isBuffer(snapshot.rawMonthly)||!proof.rawMonthly.equals(snapshot.rawMonthly)||!sameBodies(snapshot.bodies,proof.bodies)||!sameTests(snapshot.tests,proof.tests))throw provenanceFailure('SOURCE_HASH_MISMATCH','Source projections contradict the preserved loaded bytes');
  assertQualityReport(normalized?.quality,{inventory:normalized?.inventory,monthly:normalized?.monthly});
  if(normalized.quality.inventory.raw!==snapshot.inventory.length||normalized.quality.monthly.raw!==snapshot.monthly.length)throw provenanceFailure('QUALITY_INVALID','Quality counts do not reconcile with loaded source rows');
  if(snapshot.inventory.some(row=>sourceScopeFlags('inventory',row,snapshot.scope).length)||snapshot.monthly.some(row=>sourceScopeFlags('monthly',row,snapshot.scope).length))throw Object.assign(Error('Source rows contradict the declared query predicates'),{code:'SOURCE_SCOPE_MISMATCH',quality:normalize(snapshot.inventory,snapshot.monthly,snapshot.sourceIds,snapshot.scope).quality});
  const canonical=normalize(proof.inventory,proof.monthly,proof.sourceIds,proof.scope);
+ const testRows=proof.tests?normalizeTests(proof.tests,proof.sourceIds,canonical.inventory,proof.scope):null;
+ if(testRows&&[...testRows.bhp,...testRows.srt].some(row=>row.quality_flags.some(flag=>flag.startsWith('source_scope:'))))throw Object.assign(Error('Test-report rows contradict the exact-UIC query'),{code:'SOURCE_SCOPE_MISMATCH'});
  if(!isDeepStrictEqual(normalized,canonical))throw provenanceFailure('QUALITY_INVALID','Normalized values, identities or quality evidence contradict preserved source rows');
  // Serialize private copies after validation: awaits below cannot admit caller
  // mutations of normalized values, metadata buffers, or source classifications.
@@ -131,7 +149,7 @@ const files={'inventory.csv':csv(normalized.inventory,inventoryColumns),'injecti
 const inventoryMetadata=JSON.parse(await read('inventory-metadata.json')),monthlyMetadata=JSON.parse(await read('monthly-metadata.json'));
 const manifest={artifact_id:artifactId,schema_version:1,transformation_version:'rrc-odp-v1.0.0',real_history_status:normalized.monthly.length&&normalized.quality.inventory.accepted===normalized.inventory.length&&normalized.quality.monthly.accepted===normalized.monthly.length&&normalized.quality.parent_join.matched===normalized.monthly.length?'verified_bounded_linkage':'incomplete',scope:{uic_number:'000020838',start:'2024-01-01',inventory_limit:5,monthly_limit:1000,monthly_returned:normalized.monthly.length,pagination:'Response below cap; bounded query not statewide extract'},source_revisions:{inventory_rows_updated_at:inventoryMetadata.rowsUpdatedAt,monthly_rows_updated_at:monthlyMetadata.rowsUpdatedAt},sources,documentation:[{url:'https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/',purpose:'Official RRC identifies ODP datasets and row grain'},{url:unitSource,purpose:'Official H-10 units and source field definitions'},{url:'https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html',purpose:'Permit constraints PSI and BBLS/day'}],files:Object.fromEntries(Object.entries(files).map(([name,body])=>[name,{sha256:sha256(body),bytes:Buffer.byteLength(body)}])),limitations:['Only one UIC monthly history acquired; five bounded inventory candidates.','ODP supplies no annulus pressure or original H-10 document revision ID.','Source reports are not independently validated measurements.','Current status, sustainable capacity and BHP are not inferred.']};
 const normalizedPayload={schemaVersion:1,artifactId,inventory:normalized.inventory,injectionMonthly:normalized.monthly,qualityReport:normalized.quality,dataDictionary:dictionary};
-if(snapshot.scope.queryVersion===2){
+if(isBounded(snapshot.scope)){
  const scope=snapshot.scope,[year,month]=scope.endMonth.split('-').map(Number);
  manifest.transformation_version='rrc-odp-v2.0.0';
  manifest.scope={query_version:2,uic_number:scope.monthlyUic,start:scope.startMonth+'-01',end:`${scope.endMonth}-${new Date(Date.UTC(year,month,0)).getUTCDate()}`,inventory_limit:25,inventory_returned:normalized.inventory.length,monthly_limit:1000,monthly_returned:normalized.monthly.length,pagination:'Complete bounded response below cap; no statewide coverage'};
@@ -141,6 +159,16 @@ if(snapshot.scope.queryVersion===2){
  for(const [name,body] of Object.entries(snapshot.bodies))manifest.files[name]={sha256:sha256(body),bytes:Buffer.byteLength(body)};
  // Dictionary changed above; update the contract file and its inventory.
  files['data_dictionary.json']=JSON.stringify(dictionary,null,2)+'\n';manifest.files['data_dictionary.json']={sha256:sha256(files['data_dictionary.json']),bytes:Buffer.byteLength(files['data_dictionary.json'])};
+}
+// v3 additive sidecars (D10): appended after every sources/ entry; the six v1 files,
+// data_dictionary.json and the normalized payload are untouched.
+if(testRows){
+ const scope=snapshot.scope,status=rows=>rows.length?'returned_below_cap':'confirmed_empty';
+ manifest.transformation_version='rrc-odp-v2.1.0';manifest.scope.query_version=3;manifest.scope.test_report_limit=scope.testReportLimit;
+ manifest.limitations.push('BHP/SRT test-report sidecars are exact-UIC report inventories not limited to the reporting period: one summary row per reported test, without test documents or pressure series; psia and psig are kept as labelled and never converted.');
+ const tests={schemaVersion:1,artifactId,scope:{query_version:3,uic_number:scope.monthlyUic,test_report_limit:scope.testReportLimit,order:`BHP ${testReportOrder.bhp}; SRT ${testReportOrder.srt}`,bhp_returned:testRows.bhp.length,srt_returned:testRows.srt.length,bhp_status:status(testRows.bhp),srt_status:status(testRows.srt),window:'exact uic_no; not limited to reporting period'},bhp:testRows.bhp,srt:testRows.srt,quality:testRows.quality};
+ const sidecars={'tests.json':JSON.stringify(tests,null,2)+'\n','tests_bhp.csv':testsCsv(testRows.bhp,'bhp'),'tests_srt.csv':testsCsv(testRows.srt,'srt'),'tests_dictionary.json':JSON.stringify(testsDictionary({testFixture:snapshot.testFixture,provenance:snapshot.provenance}),null,2)+'\n'};
+ for(const [name,body] of Object.entries(sidecars)){files[name]=body;manifest.files[name]={sha256:sha256(body),bytes:Buffer.byteLength(body)};}
 }
 // Preserve the approved legacy version's bytes; all other versions carry
 // explicit classification in the immutable consumer manifest.

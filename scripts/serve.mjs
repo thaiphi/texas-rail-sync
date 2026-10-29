@@ -4,7 +4,8 @@ import {resolve,extname,sep,basename} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {workflowView} from '../public/workflow.js';
 import {performLookup,loadSelection} from '../src/lookup.mjs';
-import {boundedScope} from '../src/sources.mjs';
+// Local /api/collect always produces query v3 (owner, 2026-10-29); the request schema is unchanged.
+import {boundedTestScope} from '../src/sources.mjs';
 import {collectPublicSnapshot} from '../src/acquisition.mjs';
 import {sha256} from '../src/normalize.mjs';
 import {randomUUID} from 'node:crypto';
@@ -59,7 +60,7 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
      if(Object.keys(body).some(key=>!['lookupId','sourceRecordKey','startMonth','endMonth'].includes(key)))throw apiError(400,'REQUEST_INVALID','Unsupported collection request field');
      if(collecting)throw apiError(409,'COLLECTION_BUSY','One collection is already active');collecting=true;
      try{
-      const selection=await loadSelection({lookupRoot,lookupId:body.lookupId,sourceRecordKey:body.sourceRecordKey}),scope=boundedScope(selection.row.uic_number,body.startMonth,body.endMonth);
+      const selection=await loadSelection({lookupRoot,lookupId:body.lookupId,sourceRecordKey:body.sourceRecordKey}),scope=boundedTestScope(selection.row.uic_number,body.startMonth,body.endMonth);
       await mkdir(sourceRoot,{recursive:true});const id=randomUUID(),artifactId=`rrc-${new Date().toISOString().slice(0,10)}-uic${scope.monthlyUic}-${id}`;
       const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture,appToken});
       const pins=JSON.parse(result.files['version-pins.json']);send(res,201,{artifactId,version:pins,run:result.record,scope:result.manifest.scope,realHistoryStatus:result.manifest.real_history_status});

@@ -44,6 +44,13 @@ export function workflowView(record,artifact=null){
    if(event.stage==='normalize-qc'){
     assertSuccessfulQuality(evidence.counts);
     for(const input of latest.get('load')?.evidence?.inputs??[]){const kind=['inventory','monthly'].includes(input.kind)?input.kind:input.name==='candidate-inventory'?'inventory':input.name==='candidate-monthly'?'monthly':null;if(kind&&input.count!==null&&input.count!==evidence.counts[kind].raw)throw Error('Invalid source/quality count reconciliation');}
+    // Additive v3 (RRC-13) evidence: BHP/SRT counts reconcile on their own; absent in v1/v2 runs.
+    const testInputs=(latest.get('load')?.evidence?.inputs??[]).filter(input=>input.kind==='bhp'||input.kind==='srt');
+    if(evidence.testReports!==undefined||testInputs.length){
+     const reports=evidence.testReports,valid=summary=>summary!==null&&typeof summary==='object'&&['raw','parsed','accepted','quarantined','excluded'].every(key=>Number.isSafeInteger(summary[key])&&summary[key]>=0)&&summary.raw===summary.parsed&&summary.parsed===summary.accepted+summary.quarantined+summary.excluded&&summary.excluded===0;
+     if(!reports||typeof reports!=='object'||JSON.stringify(Object.keys(reports).sort())!=='["bhp","srt"]'||!valid(reports.bhp)||!valid(reports.srt))throw Error('Invalid test-report quality evidence');
+     for(const input of testInputs)if(input.count!==null&&input.count!==reports[input.kind].raw)throw Error('Invalid test-report source/quality count reconciliation');
+    }
     if(!Array.isArray(evidence.outputs)||evidence.outputs.length!==2)throw Error('Invalid normalization output evidence');
     const outputKinds=new Set();
     for(const output of evidence.outputs){const kind=output?.name==='normalized inventory'?'inventory':output?.name==='normalized monthly'?'monthly':null;if(!kind||outputKinds.has(kind)||!hash(output.sha256)||!Number.isSafeInteger(output.count)||output.count<0||output.count!==evidence.counts[kind].parsed)throw Error('Invalid normalization output/quality count or hash evidence');outputKinds.add(kind);}

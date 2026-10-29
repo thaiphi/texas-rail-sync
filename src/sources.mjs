@@ -1,10 +1,19 @@
 export const collectionScope=Object.freeze({apiPrefix:'389',injectionType:'1',monthlyUic:'000020838',monthlyStart:'2024-01-01T00:00:00'});
 const inventoryQuery=new URLSearchParams({'$where':`api_no like '${collectionScope.apiPrefix}%' AND uic_type_injection='${collectionScope.injectionType}' AND permit_canceled_date IS NULL AND w3_plugged_date IS NULL`,'$limit':'5','$order':'uic_number'});
 const monthlyQuery=new URLSearchParams({'$where':`uic_no='${collectionScope.monthlyUic}' AND formatted_date >= '${collectionScope.monthlyStart}'`,'$limit':'1000','$order':'formatted_date,id'});
+// Bounded (explicitly selected UIC) collections: query v2, and v3 which adds the
+// BHP/SRT test-report targets. New v3-only behaviour is gated on queryVersion===3.
+export const isBounded=scope=>scope?.queryVersion===2||scope?.queryVersion===3;
+export function versionLabels(scope){
+ if(scope?.queryVersion===3)return {pipelineVersion:'rrc-collection-v3',transformationVersion:'rrc-odp-v2.1.0'};
+ if(scope?.queryVersion===2)return {pipelineVersion:'rrc-collection-v2',transformationVersion:'rrc-odp-v2.0.0'};
+ return {pipelineVersion:'rrc-collection-v1',transformationVersion:'rrc-odp-v1.0.0'};
+}
 export function sourceScopeFlags(kind,row,scope=collectionScope){
  const flags=[];
- if(scope.queryVersion===2){
-  if(kind==='inventory'){if(row.uic_number!==scope.monthlyUic)flags.push('source_scope:uic_number');}
+ if(isBounded(scope)){
+  if(kind==='bhp'||kind==='srt'){if(row.uic_no!==scope.monthlyUic)flags.push('source_scope:uic_no');}
+  else if(kind==='inventory'){if(row.uic_number!==scope.monthlyUic)flags.push('source_scope:uic_number');}
   else{
    if(row.uic_no!==scope.monthlyUic)flags.push('source_scope:uic_no');
    if(typeof row.formatted_date!=='string'||row.formatted_date<scope.monthlyStart||row.formatted_date>=scope.monthlyEndExclusive)flags.push('source_scope:formatted_date');
@@ -46,11 +55,32 @@ export function boundedScope(uic,startMonth,endMonth){
  const next=end+1,endExclusive=`${String(Math.floor(next/12)).padStart(4,'0')}-${String(next%12+1).padStart(2,'0')}-01T00:00:00`;
  return Object.freeze({queryVersion:2,monthlyUic:uic,startMonth,endMonth,monthlyStart:startMonth+'-01T00:00:00',monthlyEndExclusive:endExclusive,inventoryLimit:25,monthlyLimit:1000});
 }
+// v3 (local only, D7): the v2 scope plus exact-UIC BHP/SRT report queries. The test
+// queries carry no reporting-window bound; the cap exceeds each whole dataset.
+export function boundedTestScope(uic,startMonth,endMonth){
+ return Object.freeze({...boundedScope(uic,startMonth,endMonth),queryVersion:3,testReportLimit:1000});
+}
+export const testReportOrder=Object.freeze({bhp:'report_id,tracking_no,test_sequence_no',srt:'report_id,tracking_no'});
+export const officialTestDocuments=Object.freeze([
+ {name:'srt-guidelines.html',url:'https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/'},
+ {name:'bhp-permian-nto.pdf',url:'https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf'}
+].map(Object.freeze));
+function testReportTargets(uic){
+ const query=order=>new URLSearchParams({'$where':`uic_no='${uic}'`,'$limit':'1000','$order':order});
+ return [
+  {name:'bhp-metadata.json',url:'https://data.texas.gov/api/views/qxfy-wcfs.json'},
+  {name:'srt-metadata.json',url:'https://data.texas.gov/api/views/h54t-xnbi.json'},
+  {name:'candidate-bhp.json',url:`https://data.texas.gov/resource/qxfy-wcfs.json?${query(testReportOrder.bhp)}`},
+  {name:'candidate-srt.json',url:`https://data.texas.gov/resource/h54t-xnbi.json?${query(testReportOrder.srt)}`},
+  ...officialTestDocuments
+ ];
+}
 export function targetsForScope(scope=collectionScope){
- if(scope.queryVersion!==2)return acquisitionTargets;
- const checked=boundedScope(scope.monthlyUic,scope.startMonth,scope.endMonth);
+ if(!isBounded(scope))return acquisitionTargets;
+ const checked=(scope.queryVersion===3?boundedTestScope:boundedScope)(scope.monthlyUic,scope.startMonth,scope.endMonth);
  if(JSON.stringify(checked)!==JSON.stringify(scope))throw invalid('Collection scope does not match the query contract');
  const inventory=new URLSearchParams({'$where':`uic_number='${scope.monthlyUic}'`,'$limit':'25','$order':'uic_number,api_no'});
  const monthly=new URLSearchParams({'$where':`uic_no='${scope.monthlyUic}' AND formatted_date >= '${scope.monthlyStart}' AND formatted_date < '${scope.monthlyEndExclusive}'`,'$limit':'1000','$order':'formatted_date,id'});
- return acquisitionTargets.map(target=>target.name==='candidate-inventory.json'?{...target,url:`https://data.texas.gov/resource/givw-z9t4.json?${inventory}`}:target.name==='candidate-monthly.json'?{...target,url:`https://data.texas.gov/resource/qq2j-f2zm.json?${monthly}`}:target);
+ const targets=acquisitionTargets.map(target=>target.name==='candidate-inventory.json'?{...target,url:`https://data.texas.gov/resource/givw-z9t4.json?${inventory}`}:target.name==='candidate-monthly.json'?{...target,url:`https://data.texas.gov/resource/qq2j-f2zm.json?${monthly}`}:target);
+ return scope.queryVersion===3?[...targets,...testReportTargets(scope.monthlyUic)]:targets;
 }

@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto';
-import {sourceScopeFlags} from './sources.mjs';
+import {sourceScopeFlags,isBounded} from './sources.mjs';
 import {rowDisposition} from '../public/quality-validation.js';
 export const sha256=value=>createHash('sha256').update(value).digest('hex');
 export const inventoryColumns=['source_record_key','uic_number','api_no','operator_number','district_code','lease_number','lease_name','well_no_display','county','county_basis','injection_type_code','permit_liquid_pressure_limit_psi','permit_liquid_volume_limit_bpd','permitted_top_depth_ft','permitted_bottom_depth_ft','w14_number','w14_date','permit_canceled_date','plugged_date','source_snapshot_id','quality_flags'];
@@ -21,7 +21,7 @@ export function normalize(inventoryRaw,monthlyRaw,sourceIds,scope=null){
   for(const [name,value] of Object.entries({max_liq_inj_pressure:row.permit_liquid_pressure_limit_psi,bbl_vol_inj:row.permit_liquid_volume_limit_bpd,top_inj_zone:row.permitted_top_depth_ft,bot_inj_zone:row.permitted_bottom_depth_ft}))if(value!==null&&value<0)flags.push(`invalid_negative:${name}`);
   if(row.permitted_top_depth_ft!==null&&row.permitted_bottom_depth_ft!==null&&row.permitted_top_depth_ft>row.permitted_bottom_depth_ft)flags.push('inconsistent:top_exceeds_bottom');
   if(scope)flags.push(...sourceScopeFlags('inventory',r,scope));
-  if(scope?.queryVersion===2&&!str(r.api_no).startsWith('389')){row.county=`API county code ${str(r.api_no).slice(0,3)||'unavailable'}`;row.county_basis='Original source API county prefix; county name not independently verified';}
+  if(isBounded(scope)&&!str(r.api_no).startsWith('389')){row.county=`API county code ${str(r.api_no).slice(0,3)||'unavailable'}`;row.county_basis='Original source API county prefix; county name not independently verified';}
   return row;
  });
  const byUic=new Map();for(const r of inventory){const a=byUic.get(r.uic_number)??[];a.push(r);byUic.set(r.uic_number,a);}
