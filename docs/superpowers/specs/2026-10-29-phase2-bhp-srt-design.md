@@ -114,7 +114,7 @@ The test builds v3 in fixture mode, derives the v2 directory by copying the v2-n
   - A version without the sidecars shows "Test reports were not collected for this version." This covers v1/v2 and guest.
   - An empty result shows "No rows were returned by the exact-UIC query; this does not show that no test was conducted."
 - **Downloads** list the four sidecars when present.
-- **Help text:** "ODP BHP/SRT datasets are report inventories: one summary row per reported test, without test documents or pressure series. Values are shown as reported; psia and psig are kept as labelled and not interpreted."
+- **Help text:** "ODP BHP/SRT datasets are report inventories: one row per source record (the source does not document how many rows one test produces), without test documents or pressure series. Values are shown as reported; psia and psig are kept as labelled and not interpreted."
 
 ## 9. Official unit/meaning documents
 

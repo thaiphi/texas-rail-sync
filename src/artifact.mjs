@@ -165,7 +165,7 @@ if(isBounded(snapshot.scope)){
 if(testRows){
  const scope=snapshot.scope,status=rows=>rows.length?'returned_below_cap':'confirmed_empty';
  manifest.transformation_version='rrc-odp-v2.1.0';manifest.scope.query_version=3;manifest.scope.test_report_limit=scope.testReportLimit;
- manifest.limitations.push('BHP/SRT test-report sidecars are exact-UIC report inventories not limited to the reporting period: one summary row per reported test, without test documents or pressure series; psia and psig are kept as labelled and never converted.');
+ manifest.limitations.push('BHP/SRT test-report sidecars are exact-UIC report inventories not limited to the reporting period: one row per source record (the source does not document how many rows one test produces), without test documents or pressure series; psia and psig are kept as labelled and never converted.');
  const tests={schemaVersion:1,artifactId,scope:{query_version:3,uic_number:scope.monthlyUic,test_report_limit:scope.testReportLimit,order:`BHP ${testReportOrder.bhp}; SRT ${testReportOrder.srt}`,bhp_returned:testRows.bhp.length,srt_returned:testRows.srt.length,bhp_status:status(testRows.bhp),srt_status:status(testRows.srt),window:'exact uic_no; not limited to reporting period'},bhp:testRows.bhp,srt:testRows.srt,quality:testRows.quality};
  const sidecars={'tests.json':JSON.stringify(tests,null,2)+'\n','tests_bhp.csv':testsCsv(testRows.bhp,'bhp'),'tests_srt.csv':testsCsv(testRows.srt,'srt'),'tests_dictionary.json':JSON.stringify(testsDictionary({testFixture:snapshot.testFixture,provenance:snapshot.provenance}),null,2)+'\n'};
  for(const [name,body] of Object.entries(sidecars)){files[name]=body;manifest.files[name]={sha256:sha256(body),bytes:Buffer.byteLength(body)};}
