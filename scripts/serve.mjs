@@ -12,7 +12,7 @@ import {mkdir} from 'node:fs/promises';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
 const root=resolve(fileURLToPath(new URL('../',import.meta.url)));
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.csv':'text/csv; charset=utf-8','.pdf':'application/pdf'};
-export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false}={}){
+export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null}={}){
  let collecting=false,lookingUp=false;
  const apiError=(status,code,message)=>Object.assign(Error(message),{status,code});
  const send=(res,status,data,head=false)=>{const bytes=Buffer.from(JSON.stringify(data));res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':bytes.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(head?undefined:bytes);};
@@ -54,18 +54,18 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
      guardWrite(req);const body=await readBody(req);
      if(path==='/api/lookup'){
       if(lookingUp)throw apiError(409,'LOOKUP_BUSY','One lookup is already active');lookingUp=true;
-      try{const result=await performLookup({request:body,lookupRoot,fetchImpl,testFixture});send(res,200,result);}finally{lookingUp=false;}return;
+      try{const result=await performLookup({request:body,lookupRoot,fetchImpl,testFixture,appToken});send(res,200,result);}finally{lookingUp=false;}return;
      }
      if(Object.keys(body).some(key=>!['lookupId','sourceRecordKey','startMonth','endMonth'].includes(key)))throw apiError(400,'REQUEST_INVALID','Unsupported collection request field');
      if(collecting)throw apiError(409,'COLLECTION_BUSY','One collection is already active');collecting=true;
      try{
       const selection=await loadSelection({lookupRoot,lookupId:body.lookupId,sourceRecordKey:body.sourceRecordKey}),scope=boundedScope(selection.row.uic_number,body.startMonth,body.endMonth);
       await mkdir(sourceRoot,{recursive:true});const id=randomUUID(),artifactId=`rrc-${new Date().toISOString().slice(0,10)}-uic${scope.monthlyUic}-${id}`;
-      const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture});
+      const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture,appToken});
       const pins=JSON.parse(result.files['version-pins.json']);send(res,201,{artifactId,version:pins,run:result.record,scope:result.manifest.scope,realHistoryStatus:result.manifest.real_history_status});
      }finally{collecting=false;}return;
     }catch(error){
-     const status=error.status??(error.record?502:error.code==='HTTP_ERROR'?502:400),allowed=['SOURCE_INVALID','SOURCE_SCOPE_MISMATCH','SOURCE_PROVENANCE_CONFLICT','SOURCE_HASH_MISMATCH','HTTP_ERROR','SOURCE_LIMIT','SOURCE_ROW_LIMIT','REQUEST_INVALID','REQUEST_LIMIT','ORIGIN_FORBIDDEN','LOOKUP_BUSY','COLLECTION_BUSY'];
+     const status=error.status??(error.record?502:error.code==='HTTP_ERROR'?502:error.code==='SOURCE_THROTTLED'?503:400),allowed=['SOURCE_INVALID','SOURCE_SCOPE_MISMATCH','SOURCE_PROVENANCE_CONFLICT','SOURCE_HASH_MISMATCH','HTTP_ERROR','SOURCE_THROTTLED','SOURCE_LIMIT','SOURCE_ROW_LIMIT','REQUEST_INVALID','REQUEST_LIMIT','ORIGIN_FORBIDDEN','LOOKUP_BUSY','COLLECTION_BUSY'];
      const recognized=allowed.includes(error.code);send(res,status,{error:{code:recognized?error.code:'REQUEST_FAILED',message:error.record?'Collection did not complete; inspect retained run evidence.':recognized?error.message:'Requested source evidence is unavailable or invalid.'},...(error.record?{run:error.record}: {})});return;
     }
    }
@@ -104,4 +104,4 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   }catch{res.writeHead(404,{'content-type':'text/plain'});res.end('File not found');}
  });
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const port=Number(process.argv[2]??process.env.PORT??4174);createExplorerServer().listen(port,'127.0.0.1',()=>console.log(`Texas RRC Explorer: http://127.0.0.1:${port}`));}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const port=Number(process.argv[2]??process.env.PORT??4174);createExplorerServer({appToken:process.env.SOCRATA_APP_TOKEN?.trim()||null}).listen(port,'127.0.0.1',()=>console.log(`Texas RRC Explorer: http://127.0.0.1:${port}`));}

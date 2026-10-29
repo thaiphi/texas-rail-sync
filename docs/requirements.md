@@ -1,5 +1,24 @@
 # Explorer requirement evidence tracker
 
+## October 29 expansion requirements (Phase 1)
+
+These IDs come from the owner-approved expansion plan:
+- [v1.0 review](expansion-prd-review-2026-10-17.md) §7–9 and [v1.1 review](expansion-prd-review-v1.1-2026-10-17.md) §9. The owner approved D1–D22 except D19 on 2026-10-17.
+- [ADR 004](adr/004-wellbore-identity-and-relations.md) defines the identity and relation contract.
+
+Each phase still needs its own brief. New datasets are local only until a separate hosted-parity decision is made (D7). RRC-07 (GIS), RRC-08 (statewide/scheduled) and G3 stay open and are not widened by these IDs.
+
+| ID / priority | Criterion | Source item | Phase | Status |
+|---|---|---|---|---|
+| RRC-11 / P0 | **Source-access contract.** An optional Socrata app token is sent only as the `X-App-Token` header to `data.texas.gov`, only to the exact origin `https://data.texas.gov`, never in a URL. HTTP 429 becomes `SOURCE_THROTTLED`; local callers retry once after `Retry-After`, up to a cap. Sidecars record `app_token_used` but never the token value. The v1 replay stays byte-identical. A grep over `artifacts/`, `raw*/`, `runs/`, `lookups/` and `docs/` finds no token value. | D6; review §7 Phase 1.2 | 1 | Implemented on branch `phase1/source-access-contract`: 337/337 tests (baseline 325). No token is registered yet, so the token-present path has fixture evidence only. Merge pending. |
+| RRC-12 / P0 | **Source discovery.** The metadata of the seven ODP views is preserved with sidecars. One dated doc records fields and types, cadence, size estimates, the "no licence stated" finding and the official form references for units. | review §7 Phase 1.1 | 1 | Metadata preserved 2026-10-29 in `raw-discovery-2026-10-29/`; see [source discovery](source-discovery-2026-10-29.md). The form documents have not been retrieved yet. Merge pending. |
+| RRC-13 / P0 | **UIC-keyed test reports.** Exact-`uic_no` bounded queries for BHP `qxfy-wcfs` and SRT `h54t-xnbi`. Text-date parse flags; psia and psig are kept per field; rows with a duplicate report identity (`report_id` + `tracking_no`, plus `test_sequence_no` for BHP) are quarantined. Output is an additive sidecar, and the six v1 files are unchanged. The proof: for one selected UIC, raw = parsed = accepted + quarantined. | E01 (part); D8; ADR 004 §3 | 2 | Not started |
+| RRC-14 / P0 | **Wellbore identity and casing/plugging.** The format proof comes first. Then a preserved exact-`api_no` inventory query proves whether the API is unique, followed by exact-`api_no` queries from the inventory row's own `api_no`, each with a `matched`/`none`/`ambiguous` link status and basis `inventory_api_no`. Flags say only whether a record is present or absent; they draw no compliance conclusion. A negative test proves no join from API to H-10. A fixture shows inventory rows sharing an API, proven from the exact-`api_no` inventory response. | E01, E02, E04 (part); D4; ADR 004 §1–2 | 3 | Not started |
+| RRC-15 / P1 | **Relation catalogue and dossier.** A deterministic typed-relation file inside the versioned artifact. A read-only dossier per selected well, with a table of edges before any graph, and a single-well reported-depth ladder (E11a). There is no database, no formation markers and no selection state in packages. | E10, E11a; D15, D16, D20–D22; ADR 004 §3–4 | 3b | Not started |
+| RRC-16 / P1 | **Version comparison.** A read-only, network-free diff of two immutable versions of one UIC, keyed by source identity. It must leave `artifacts/` byte-identical. | E08 | 4 | Not started |
+
+Out of this repository: E05 and full E12 belong to `ai-swd-permitting` (D11, D17). E11b (multiwell correlation) is excluded (D16). E07 and E09 stay deferred under RRC-08 (D12). E03 stays under RRC-07. E06 (package v2) is Phase 6, and E12-lite (D17) gets no ID until it is briefed.
+
 ## October 10 navigation redesign
 
 The [preservation matrix](feature-preservation-2026-10-10.md) audits existing capabilities before navigation changes, including controls omitted from the four supplied images. The [redesign packet](verification-2026-10-10-navigation-redesign.md) and [independent review](review-2026-10-10-navigation-redesign.md) are the current UI evidence. This round maps RRC-01/02 to Find & collect, RRC-03/04 to Records/Data quality/Sources, RRC-05 to My datasets/Downloads, RRC-06 to global navigation and the dataset workspace, and RRC-09/10 to Collection details/Collection history. It does not change those data requirements or close RRC-07, RRC-08, G3, consumer adoption or whole-project acceptance. Prior mobile evidence below is historical; redesigned mobile acceptance requires new actual narrow captures.

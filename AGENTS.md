@@ -1,6 +1,11 @@
 # Scope
 
-Work in the independent `texas-rrc-explorer` repository: bounded official UIC/H-10 acquisition, normalization, source/identity/quality checks, versioned exports and browser inspection. Analytics and portfolio implementation belong to their own sibling repositories. Do not expand into GIS/statewide refresh or invent public observations without an authorized task.
+Work in the independent `texas-rrc-explorer` repository. Its scope is bounded official UIC, H-10 and related RRC ODP wellbore/test records for explicitly selected wells: acquisition, normalization, source/identity/quality checks, versioned exports and browser inspection.
+- The related ODP datasets are BHP `qxfy-wcfs`, SRT `h54t-xnbi`, casing `u9m4-xnh6` and plugging `wfzn-9fje`. They are queried per selected well under [ADR 004](docs/adr/004-wellbore-identity-and-relations.md) and requirements RRC-11 to RRC-16. Each phase still needs its own authorized brief.
+- New datasets are local only until a separate hosted-parity decision is made.
+- Analytics, permitting (E05, full E12) and portfolio implementation belong to their own sibling repositories.
+- Do not expand into GIS (including well bottom location `uumf-5r4y`), statewide extraction or scheduled refresh without an authorized task, and do not invent public observations.
+- Locally, a Socrata app token is read from the environment (`SOCRATA_APP_TOKEN`) and sent only as a header. Never write its value to any file, log or commit. Hosted tokens are not authorized (D7).
 
 Read [README.md](README.md), [SPEC.md](SPEC.md), [SOURCE_PROOF.md](SOURCE_PROOF.md) and [GATES.md](GATES.md) for the current contract and evidence. Preserve raw source bytes, original identifiers, missing-versus-zero distinctions, dictionary/QC/provenance, old artifact versions and disclosed source limitations. Use direct Node checks; an acquisition or export run that changes files needs scope in the authorized brief.
 

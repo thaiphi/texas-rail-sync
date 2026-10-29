@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/wfzn-9fje.json",
+  "retrieved_at": "2026-10-29T05:10:40.317Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "7d8917e1c2fdf5d9be8842fd92defc127eb24600437fdc9d5a83db99b609e1fd",
+  "bytes": 20395,
+  "testFixture": false,
+  "app_token_used": false
+}

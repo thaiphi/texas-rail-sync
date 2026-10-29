@@ -1,0 +1,509 @@
+{
+  "id" : "uumf-5r4y",
+  "name" : "RRC-Well Bottom Location",
+  "assetType" : "dataset",
+  "averageRating" : 0,
+  "createdAt" : 1771606527,
+  "description" : "It contains all the well bottom spots on the RRC GIS map.",
+  "diciBackend" : false,
+  "displayType" : "table",
+  "downloadCount" : 724,
+  "hideFromCatalog" : false,
+  "hideFromDataJson" : false,
+  "locked" : false,
+  "newBackend" : true,
+  "numberOfComments" : 0,
+  "oid" : 41969082,
+  "provenance" : "official",
+  "publicationAppendEnabled" : false,
+  "publicationDate" : 1771872092,
+  "publicationGroup" : 20286710,
+  "publicationStage" : "published",
+  "rowsUpdatedAt" : 1792702132,
+  "rowsUpdatedBy" : "j7wi-a8ef",
+  "tableId" : 20288282,
+  "totalTimesRated" : 0,
+  "viewCount" : 1222,
+  "viewLastModified" : 1792702063,
+  "viewType" : "tabular",
+  "approvals" : [ {
+    "reviewedAt" : 1771606941,
+    "reviewedAutomatically" : true,
+    "state" : "approved",
+    "submissionId" : 7367183,
+    "submissionObject" : "public_audience_request",
+    "submissionOutcome" : "change_audience",
+    "submittedAt" : 1771606941,
+    "targetAudience" : "public",
+    "workflowId" : 1858,
+    "submissionDetails" : {
+      "permissionType" : "READ"
+    },
+    "submissionOutcomeApplication" : {
+      "endedAt" : 1771606941,
+      "failureCount" : 0,
+      "startedAt" : 1771606941,
+      "status" : "success"
+    },
+    "submitter" : {
+      "id" : "j7wi-a8ef",
+      "displayName" : "RRC ODP Support"
+    }
+  } ],
+  "clientContext" : {
+    "clientContextVariables" : [ ],
+    "inheritedVariables" : { }
+  },
+  "columns" : [ {
+    "id" : 627354543,
+    "name" : "API",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "api",
+    "position" : 1,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165664661,
+    "cachedContents" : {
+      "non_null" : "1397402",
+      "largest" : "71530033",
+      "null" : "0",
+      "top" : [ {
+        "item" : "009",
+        "count" : "21946"
+      }, {
+        "item" : "485",
+        "count" : "19479"
+      }, {
+        "item" : "503",
+        "count" : "15002"
+      }, {
+        "item" : "417",
+        "count" : "10802"
+      }, {
+        "item" : "059",
+        "count" : "8843"
+      }, {
+        "item" : "201",
+        "count" : "7245"
+      }, {
+        "item" : "083",
+        "count" : "6707"
+      }, {
+        "item" : "131",
+        "count" : "6705"
+      }, {
+        "item" : "049",
+        "count" : "6572"
+      }, {
+        "item" : "487",
+        "count" : "6422"
+      }, {
+        "item" : "401",
+        "count" : "6357"
+      }, {
+        "item" : "429",
+        "count" : "6308"
+      }, {
+        "item" : "237",
+        "count" : "5571"
+      }, {
+        "item" : "133",
+        "count" : "5392"
+      }, {
+        "item" : "077",
+        "count" : "5273"
+      }, {
+        "item" : "183",
+        "count" : "5141"
+      }, {
+        "item" : "253",
+        "count" : "5110"
+      }, {
+        "item" : "097",
+        "count" : "4912"
+      }, {
+        "item" : "447",
+        "count" : "4690"
+      }, {
+        "item" : "479",
+        "count" : "4514"
+      } ],
+      "smallest" : "001",
+      "count" : "1397402",
+      "cardinality" : "1397402"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354539,
+    "name" : "GIS_LAT27",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "gis_lat27",
+    "position" : 2,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165630851,
+    "cachedContents" : {
+      "non_null" : "1397402",
+      "largest" : "4942266.24409449",
+      "null" : "0",
+      "top" : [ {
+        "item" : "31.83970278",
+        "count" : "13"
+      }, {
+        "item" : "31.98606437",
+        "count" : "10"
+      }, {
+        "item" : "32.02631111",
+        "count" : "10"
+      }, {
+        "item" : "33.5022833",
+        "count" : "8"
+      }, {
+        "item" : "30.91009996",
+        "count" : "8"
+      }, {
+        "item" : "30.91029996",
+        "count" : "8"
+      }, {
+        "item" : "30.35807515",
+        "count" : "7"
+      }, {
+        "item" : "31.85428056",
+        "count" : "6"
+      }, {
+        "item" : "30.41686667",
+        "count" : "6"
+      }, {
+        "item" : "30.72422047",
+        "count" : "6"
+      }, {
+        "item" : "31.8833",
+        "count" : "6"
+      }, {
+        "item" : "32.026775",
+        "count" : "5"
+      }, {
+        "item" : "31.84024996",
+        "count" : "5"
+      }, {
+        "item" : "28.526774",
+        "count" : "5"
+      }, {
+        "item" : "31.76688889",
+        "count" : "5"
+      }, {
+        "item" : "31.84023996",
+        "count" : "5"
+      }, {
+        "item" : "31.47928333",
+        "count" : "5"
+      }, {
+        "item" : "32.02653333",
+        "count" : "5"
+      }, {
+        "item" : "30.76512841",
+        "count" : "5"
+      }, {
+        "item" : "31.70529034",
+        "count" : "5"
+      } ],
+      "smallest" : "25.8562019",
+      "count" : "1397402",
+      "cardinality" : "1397402"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354540,
+    "name" : "GIS_LONG27",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "gis_long27",
+    "position" : 3,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165630852,
+    "cachedContents" : {
+      "non_null" : "1397402",
+      "largest" : "5012699.87631233",
+      "null" : "0",
+      "top" : [ {
+        "item" : "-102.10278333",
+        "count" : "10"
+      }, {
+        "item" : "-101.0297222",
+        "count" : "7"
+      }, {
+        "item" : "-96.37873254",
+        "count" : "7"
+      }, {
+        "item" : "-94.29560926",
+        "count" : "6"
+      }, {
+        "item" : "-104.080301",
+        "count" : "6"
+      }, {
+        "item" : "-96.7200988",
+        "count" : "6"
+      }, {
+        "item" : "-99.795489",
+        "count" : "5"
+      }, {
+        "item" : "-94.33583806",
+        "count" : "5"
+      }, {
+        "item" : "-102.100725",
+        "count" : "5"
+      }, {
+        "item" : "-102.10175278",
+        "count" : "5"
+      }, {
+        "item" : "-100.32742783",
+        "count" : "5"
+      }, {
+        "item" : "-102.63755114",
+        "count" : "5"
+      }, {
+        "item" : "-101.0338889",
+        "count" : "5"
+      }, {
+        "item" : "-101.5302778",
+        "count" : "5"
+      }, {
+        "item" : "-98.27159335",
+        "count" : "4"
+      }, {
+        "item" : "-97.5131448",
+        "count" : "4"
+      }, {
+        "item" : "-101.49861115",
+        "count" : "4"
+      }, {
+        "item" : "-101.95555127",
+        "count" : "4"
+      }, {
+        "item" : "-96.45366649",
+        "count" : "4"
+      }, {
+        "item" : "-102.29300479",
+        "count" : "4"
+      } ],
+      "smallest" : "-106.6139988",
+      "count" : "1397402",
+      "cardinality" : "1397402"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354541,
+    "name" : "GIS_LAT83",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "gis_lat83",
+    "position" : 4,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165630853,
+    "cachedContents" : {
+      "non_null" : "1397402",
+      "largest" : "36.49897217",
+      "null" : "0",
+      "top" : [ {
+        "item" : "32.02643332",
+        "count" : "10"
+      }, {
+        "item" : "31.98618999",
+        "count" : "10"
+      }, {
+        "item" : "30.35828421",
+        "count" : "7"
+      }, {
+        "item" : "31.88342467",
+        "count" : "6"
+      }, {
+        "item" : "30.7244239",
+        "count" : "6"
+      }, {
+        "item" : "30.41707507",
+        "count" : "6"
+      }, {
+        "item" : "31.83980674",
+        "count" : "5"
+      }, {
+        "item" : "32.02689722",
+        "count" : "5"
+      }, {
+        "item" : "31.97100633",
+        "count" : "5"
+      }, {
+        "item" : "35.59084742",
+        "count" : "5"
+      }, {
+        "item" : "30.76533058",
+        "count" : "5"
+      }, {
+        "item" : "28.52703635",
+        "count" : "5"
+      }, {
+        "item" : "31.70541971",
+        "count" : "5"
+      }, {
+        "item" : "32.02665555",
+        "count" : "5"
+      }, {
+        "item" : "31.44797778",
+        "count" : "5"
+      }, {
+        "item" : "31.64539663",
+        "count" : "4"
+      }, {
+        "item" : "31.76625",
+        "count" : "4"
+      }, {
+        "item" : "32.04372709",
+        "count" : "4"
+      }, {
+        "item" : "27.85415504",
+        "count" : "4"
+      }, {
+        "item" : "30.8158542",
+        "count" : "4"
+      } ],
+      "smallest" : "25.85656136",
+      "count" : "1397402",
+      "cardinality" : "1397402"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354542,
+    "name" : "GIS_LONG83",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "gis_long83",
+    "position" : 5,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165630854,
+    "cachedContents" : {
+      "non_null" : "1397402",
+      "largest" : "-93.52908652",
+      "null" : "0",
+      "top" : [ {
+        "item" : "-102.10319933",
+        "count" : "10"
+      }, {
+        "item" : "-96.3789748",
+        "count" : "7"
+      }, {
+        "item" : "-96.72035256",
+        "count" : "6"
+      }, {
+        "item" : "-94.29580288",
+        "count" : "6"
+      }, {
+        "item" : "-104.0807828",
+        "count" : "6"
+      }, {
+        "item" : "-102.63797608",
+        "count" : "5"
+      }, {
+        "item" : "-100.32783134",
+        "count" : "5"
+      }, {
+        "item" : "-102.10216875",
+        "count" : "5"
+      }, {
+        "item" : "-94.3360335",
+        "count" : "5"
+      }, {
+        "item" : "-102.10114094",
+        "count" : "5"
+      }, {
+        "item" : "-99.79581989",
+        "count" : "5"
+      }, {
+        "item" : "-96.454215",
+        "count" : "4"
+      }, {
+        "item" : "-101.95568159",
+        "count" : "4"
+      }, {
+        "item" : "-101.69836667",
+        "count" : "4"
+      }, {
+        "item" : "-97.50282552",
+        "count" : "4"
+      }, {
+        "item" : "-102.09227632",
+        "count" : "4"
+      }, {
+        "item" : "-93.9982974",
+        "count" : "4"
+      }, {
+        "item" : "-97.50563412",
+        "count" : "4"
+      }, {
+        "item" : "-102.29342774",
+        "count" : "4"
+      }, {
+        "item" : "-96.45390962",
+        "count" : "4"
+      } ],
+      "smallest" : "-108.0",
+      "count" : "1397402",
+      "cardinality" : "1397402"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  } ],
+  "grants" : [ {
+    "inherited" : false,
+    "type" : "viewer",
+    "flags" : [ "public" ]
+  } ],
+  "metadata" : {
+    "custom_fields" : {
+      "Dataset Category" : {
+        "Agency" : "Railroad Commission of Texas",
+        "Category Tile" : "Energy and Environment"
+      },
+      "Publishing Information" : {
+        "Update Frequency" : "Monthly"
+      }
+    },
+    "availableDisplayTypes" : [ "table", "fatrow", "page" ]
+  },
+  "owner" : {
+    "id" : "j7wi-a8ef",
+    "displayName" : "RRC ODP Support",
+    "profileImageUrlLarge" : "/api/users/j7wi-a8ef/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/j7wi-a8ef/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/j7wi-a8ef/profile_images/TINY",
+    "screenName" : "RRC ODP Support",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "query" : { },
+  "rights" : [ "read" ],
+  "tableAuthor" : {
+    "id" : "j7wi-a8ef",
+    "displayName" : "RRC ODP Support",
+    "profileImageUrlLarge" : "/api/users/j7wi-a8ef/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/j7wi-a8ef/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/j7wi-a8ef/profile_images/TINY",
+    "screenName" : "RRC ODP Support",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "tags" : [ "rrc", "uic", "gis", "surface location", "bottom-hole location", "shl", "bhl", "directional", "horizontal", "directionally deviated", "license and permitting" ],
+  "flags" : [ "default", "ownerMayBeContacted", "restorable", "restorePossibleForType" ]
+}

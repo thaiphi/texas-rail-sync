@@ -1,0 +1,1179 @@
+{
+  "id" : "u9m4-xnh6",
+  "name" : "RRC-Wellbore Casing",
+  "assetType" : "dataset",
+  "averageRating" : 0,
+  "createdAt" : 1771870882,
+  "description" : "Wellbore casing information as reported on RRC Form G-1/W-2; one row per API # per casing string.",
+  "diciBackend" : false,
+  "displayType" : "table",
+  "downloadCount" : 611,
+  "hideFromCatalog" : false,
+  "hideFromDataJson" : false,
+  "locked" : false,
+  "newBackend" : true,
+  "numberOfComments" : 0,
+  "oid" : 41969067,
+  "provenance" : "official",
+  "publicationAppendEnabled" : false,
+  "publicationDate" : 1771871365,
+  "publicationGroup" : 20288271,
+  "publicationStage" : "published",
+  "rowsUpdatedAt" : 1792524237,
+  "rowsUpdatedBy" : "j7wi-a8ef",
+  "tableId" : 20288271,
+  "totalTimesRated" : 0,
+  "viewCount" : 1129,
+  "viewLastModified" : 1792523767,
+  "viewType" : "tabular",
+  "approvals" : [ {
+    "reviewedAt" : 1771871366,
+    "reviewedAutomatically" : true,
+    "state" : "approved",
+    "submissionId" : 7367181,
+    "submissionObject" : "public_audience_request",
+    "submissionOutcome" : "change_audience",
+    "submittedAt" : 1771871366,
+    "targetAudience" : "public",
+    "workflowId" : 1858,
+    "submissionDetails" : {
+      "permissionType" : "READ"
+    },
+    "submissionOutcomeApplication" : {
+      "endedAt" : 1771871366,
+      "failureCount" : 0,
+      "startedAt" : 1771871366,
+      "status" : "success"
+    },
+    "submitter" : {
+      "id" : "j7wi-a8ef",
+      "displayName" : "RRC ODP Support"
+    }
+  } ],
+  "clientContext" : {
+    "clientContextVariables" : [ ],
+    "inheritedVariables" : { }
+  },
+  "columns" : [ {
+    "id" : 627354420,
+    "name" : "id",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "id",
+    "position" : 1,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664578,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "2577386",
+      "null" : "0",
+      "top" : [ {
+        "item" : "2419319",
+        "count" : "1"
+      }, {
+        "item" : "1885241",
+        "count" : "1"
+      }, {
+        "item" : "857477",
+        "count" : "1"
+      }, {
+        "item" : "616133",
+        "count" : "1"
+      }, {
+        "item" : "1222314",
+        "count" : "1"
+      }, {
+        "item" : "1221471",
+        "count" : "1"
+      }, {
+        "item" : "2316750",
+        "count" : "1"
+      }, {
+        "item" : "2053404",
+        "count" : "1"
+      }, {
+        "item" : "777925",
+        "count" : "1"
+      }, {
+        "item" : "1367410",
+        "count" : "1"
+      }, {
+        "item" : "533497",
+        "count" : "1"
+      }, {
+        "item" : "1540289",
+        "count" : "1"
+      }, {
+        "item" : "2214503",
+        "count" : "1"
+      }, {
+        "item" : "2449764",
+        "count" : "1"
+      }, {
+        "item" : "1893798",
+        "count" : "1"
+      }, {
+        "item" : "394683",
+        "count" : "1"
+      }, {
+        "item" : "1608908",
+        "count" : "1"
+      }, {
+        "item" : "1562817",
+        "count" : "1"
+      }, {
+        "item" : "554740",
+        "count" : "1"
+      }, {
+        "item" : "2171222",
+        "count" : "1"
+      } ],
+      "smallest" : "1",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354433,
+    "name" : "api_no",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "api_no",
+    "position" : 2,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165664591,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "71530030",
+      "null" : "0",
+      "top" : [ {
+        "item" : "26100403",
+        "count" : "66"
+      }, {
+        "item" : "26100498",
+        "count" : "65"
+      }, {
+        "item" : "26100444",
+        "count" : "54"
+      }, {
+        "item" : "27300068",
+        "count" : "53"
+      }, {
+        "item" : "26130926",
+        "count" : "51"
+      }, {
+        "item" : "48103498",
+        "count" : "51"
+      }, {
+        "item" : "44530864",
+        "count" : "49"
+      }, {
+        "item" : "50534071",
+        "count" : "49"
+      }, {
+        "item" : "33930512",
+        "count" : "49"
+      }, {
+        "item" : "36533936",
+        "count" : "49"
+      }, {
+        "item" : "26130760",
+        "count" : "47"
+      }, {
+        "item" : "04701286",
+        "count" : "45"
+      }, {
+        "item" : "26131401",
+        "count" : "45"
+      }, {
+        "item" : "48900054",
+        "count" : "45"
+      }, {
+        "item" : "21501915",
+        "count" : "44"
+      }, {
+        "item" : "16700918",
+        "count" : "43"
+      }, {
+        "item" : "33930743",
+        "count" : "43"
+      }, {
+        "item" : "04731206",
+        "count" : "42"
+      }, {
+        "item" : "48102965",
+        "count" : "42"
+      }, {
+        "item" : "27331278",
+        "count" : "40"
+      } ],
+      "smallest" : "00100037",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354421,
+    "name" : "csg_depth",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "csg_depth",
+    "position" : 3,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664579,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "99945",
+      "null" : "0",
+      "top" : [ {
+        "item" : "60",
+        "count" : "5690"
+      }, {
+        "item" : "100",
+        "count" : "5513"
+      }, {
+        "item" : "40",
+        "count" : "4345"
+      }, {
+        "item" : "300",
+        "count" : "3578"
+      }, {
+        "item" : "2000",
+        "count" : "3473"
+      }, {
+        "item" : "120",
+        "count" : "3453"
+      }, {
+        "item" : "400",
+        "count" : "3440"
+      }, {
+        "item" : "350",
+        "count" : "3340"
+      }, {
+        "item" : "200",
+        "count" : "3024"
+      }, {
+        "item" : "450",
+        "count" : "2875"
+      }, {
+        "item" : "1500",
+        "count" : "2792"
+      }, {
+        "item" : "250",
+        "count" : "2700"
+      }, {
+        "item" : "500",
+        "count" : "2389"
+      }, {
+        "item" : "2500",
+        "count" : "2369"
+      }, {
+        "item" : "105",
+        "count" : "2328"
+      }, {
+        "item" : "420",
+        "count" : "2280"
+      }, {
+        "item" : "3000",
+        "count" : "2267"
+      }, {
+        "item" : "320",
+        "count" : "2242"
+      }, {
+        "item" : "5000",
+        "count" : "2196"
+      }, {
+        "item" : "110",
+        "count" : "2182"
+      } ],
+      "smallest" : "1",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354422,
+    "name" : "toc",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "toc",
+    "position" : 4,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664580,
+    "cachedContents" : {
+      "non_null" : "1705469",
+      "largest" : "4000300.0",
+      "null" : "708755",
+      "top" : [ {
+        "item" : "0.0",
+        "count" : "1020289"
+      }, {
+        "item" : "4000.0",
+        "count" : "5933"
+      }, {
+        "item" : "5000.0",
+        "count" : "5917"
+      }, {
+        "item" : "3000.0",
+        "count" : "5506"
+      }, {
+        "item" : "6000.0",
+        "count" : "5154"
+      }, {
+        "item" : "2000.0",
+        "count" : "4469"
+      }, {
+        "item" : "3500.0",
+        "count" : "4239"
+      }, {
+        "item" : "8000.0",
+        "count" : "3848"
+      }, {
+        "item" : "1000.0",
+        "count" : "3835"
+      }, {
+        "item" : "5500.0",
+        "count" : "3802"
+      }, {
+        "item" : "4500.0",
+        "count" : "3727"
+      }, {
+        "item" : "7000.0",
+        "count" : "3571"
+      }, {
+        "item" : "1500.0",
+        "count" : "3236"
+      }, {
+        "item" : "500.0",
+        "count" : "3009"
+      }, {
+        "item" : "2500.0",
+        "count" : "2875"
+      }, {
+        "item" : "1200.0",
+        "count" : "2831"
+      }, {
+        "item" : "6500.0",
+        "count" : "2650"
+      }, {
+        "item" : "100.0",
+        "count" : "2323"
+      }, {
+        "item" : "5200.0",
+        "count" : "1983"
+      }, {
+        "item" : "4200.0",
+        "count" : "1981"
+      } ],
+      "smallest" : "0.0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354423,
+    "name" : "multi_stg_depth",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "multi_stg_depth",
+    "position" : 5,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664581,
+    "cachedContents" : {
+      "non_null" : "97067",
+      "largest" : "96369.0",
+      "null" : "2317157",
+      "top" : [ {
+        "item" : "4000.0",
+        "count" : "219"
+      }, {
+        "item" : "5000.0",
+        "count" : "129"
+      }, {
+        "item" : "4500.0",
+        "count" : "128"
+      }, {
+        "item" : "5500.0",
+        "count" : "125"
+      }, {
+        "item" : "3000.0",
+        "count" : "119"
+      }, {
+        "item" : "1850.0",
+        "count" : "103"
+      }, {
+        "item" : "2000.0",
+        "count" : "100"
+      }, {
+        "item" : "3500.0",
+        "count" : "98"
+      }, {
+        "item" : "4800.0",
+        "count" : "95"
+      }, {
+        "item" : "6000.0",
+        "count" : "92"
+      }, {
+        "item" : "2500.0",
+        "count" : "90"
+      }, {
+        "item" : "3996.0",
+        "count" : "89"
+      }, {
+        "item" : "3992.0",
+        "count" : "88"
+      }, {
+        "item" : "4015.0",
+        "count" : "84"
+      }, {
+        "item" : "4002.0",
+        "count" : "82"
+      }, {
+        "item" : "4007.0",
+        "count" : "81"
+      }, {
+        "item" : "5200.0",
+        "count" : "81"
+      }, {
+        "item" : "3993.0",
+        "count" : "81"
+      }, {
+        "item" : "4006.0",
+        "count" : "80"
+      }, {
+        "item" : "4498.0",
+        "count" : "80"
+      } ],
+      "smallest" : "1.0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354424,
+    "name" : "cmt_sacks",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "cmt_sacks",
+    "position" : 6,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664582,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "94912",
+      "null" : "0",
+      "top" : [ {
+        "item" : "0",
+        "count" : "306523"
+      }, {
+        "item" : "300",
+        "count" : "63050"
+      }, {
+        "item" : "250",
+        "count" : "50264"
+      }, {
+        "item" : "200",
+        "count" : "48963"
+      }, {
+        "item" : "400",
+        "count" : "47093"
+      }, {
+        "item" : "350",
+        "count" : "44026"
+      }, {
+        "item" : "500",
+        "count" : "39616"
+      }, {
+        "item" : "150",
+        "count" : "39121"
+      }, {
+        "item" : "100",
+        "count" : "32857"
+      }, {
+        "item" : "600",
+        "count" : "32031"
+      }, {
+        "item" : "450",
+        "count" : "28569"
+      }, {
+        "item" : "700",
+        "count" : "25848"
+      }, {
+        "item" : "800",
+        "count" : "23543"
+      }, {
+        "item" : "1000",
+        "count" : "23419"
+      }, {
+        "item" : "900",
+        "count" : "20829"
+      }, {
+        "item" : "125",
+        "count" : "20193"
+      }, {
+        "item" : "225",
+        "count" : "20028"
+      }, {
+        "item" : "650",
+        "count" : "19780"
+      }, {
+        "item" : "275",
+        "count" : "19466"
+      }, {
+        "item" : "550",
+        "count" : "19302"
+      } ],
+      "smallest" : "0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354425,
+    "name" : "csg_size",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "csg_size",
+    "position" : 7,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664583,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "99.625",
+      "null" : "0",
+      "top" : [ {
+        "item" : "5.5",
+        "count" : "514790"
+      }, {
+        "item" : "8.625",
+        "count" : "476087"
+      }, {
+        "item" : "9.625",
+        "count" : "348819"
+      }, {
+        "item" : "4.5",
+        "count" : "316571"
+      }, {
+        "item" : "13.375",
+        "count" : "157398"
+      }, {
+        "item" : "7.0",
+        "count" : "148903"
+      }, {
+        "item" : "10.75",
+        "count" : "109466"
+      }, {
+        "item" : "2.375",
+        "count" : "88675"
+      }, {
+        "item" : "2.875",
+        "count" : "55809"
+      }, {
+        "item" : "7.625",
+        "count" : "51524"
+      }, {
+        "item" : "16.0",
+        "count" : "16690"
+      }, {
+        "item" : "5.0",
+        "count" : "16293"
+      }, {
+        "item" : "2.0",
+        "count" : "13690"
+      }, {
+        "item" : "11.75",
+        "count" : "13512"
+      }, {
+        "item" : "12.75",
+        "count" : "12999"
+      }, {
+        "item" : "3.5",
+        "count" : "7942"
+      }, {
+        "item" : "20.0",
+        "count" : "7605"
+      }, {
+        "item" : "6.0",
+        "count" : "5869"
+      }, {
+        "item" : "10.0",
+        "count" : "4820"
+      }, {
+        "item" : "6.625",
+        "count" : "3724"
+      } ],
+      "smallest" : "0.0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354426,
+    "name" : "hole_size",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "hole_size",
+    "position" : 8,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664584,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "100.0",
+      "null" : "0",
+      "top" : [ {
+        "item" : "12.25",
+        "count" : "576530"
+      }, {
+        "item" : "7.875",
+        "count" : "494772"
+      }, {
+        "item" : "0.0",
+        "count" : "337319"
+      }, {
+        "item" : "8.75",
+        "count" : "212179"
+      }, {
+        "item" : "11.0",
+        "count" : "156785"
+      }, {
+        "item" : "17.5",
+        "count" : "148787"
+      }, {
+        "item" : "6.75",
+        "count" : "82280"
+      }, {
+        "item" : "8.5",
+        "count" : "67059"
+      }, {
+        "item" : "9.875",
+        "count" : "62813"
+      }, {
+        "item" : "14.75",
+        "count" : "44327"
+      }, {
+        "item" : "13.5",
+        "count" : "23929"
+      }, {
+        "item" : "15.0",
+        "count" : "16231"
+      }, {
+        "item" : "6.25",
+        "count" : "15759"
+      }, {
+        "item" : "13.75",
+        "count" : "11887"
+      }, {
+        "item" : "12.5",
+        "count" : "11531"
+      }, {
+        "item" : "6.125",
+        "count" : "11372"
+      }, {
+        "item" : "6.5",
+        "count" : "10890"
+      }, {
+        "item" : "10.625",
+        "count" : "7789"
+      }, {
+        "item" : "8.625",
+        "count" : "6945"
+      }, {
+        "item" : "20.0",
+        "count" : "6503"
+      } ],
+      "smallest" : "0.0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354427,
+    "name" : "total_depth_g1w2",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "total_depth_g1w2",
+    "position" : 9,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664585,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "41462",
+      "null" : "0",
+      "top" : [ {
+        "item" : "0",
+        "count" : "38896"
+      }, {
+        "item" : "8000",
+        "count" : "5107"
+      }, {
+        "item" : "9000",
+        "count" : "5013"
+      }, {
+        "item" : "6500",
+        "count" : "4971"
+      }, {
+        "item" : "5000",
+        "count" : "4783"
+      }, {
+        "item" : "7500",
+        "count" : "4626"
+      }, {
+        "item" : "8500",
+        "count" : "4584"
+      }, {
+        "item" : "3200",
+        "count" : "4525"
+      }, {
+        "item" : "3300",
+        "count" : "4392"
+      }, {
+        "item" : "4500",
+        "count" : "4370"
+      }, {
+        "item" : "9500",
+        "count" : "4338"
+      }, {
+        "item" : "7000",
+        "count" : "4276"
+      }, {
+        "item" : "6000",
+        "count" : "4097"
+      }, {
+        "item" : "7300",
+        "count" : "4077"
+      }, {
+        "item" : "10500",
+        "count" : "4045"
+      }, {
+        "item" : "7200",
+        "count" : "4020"
+      }, {
+        "item" : "3400",
+        "count" : "3934"
+      }, {
+        "item" : "11000",
+        "count" : "3847"
+      }, {
+        "item" : "8200",
+        "count" : "3823"
+      }, {
+        "item" : "4800",
+        "count" : "3691"
+      } ],
+      "smallest" : "0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354428,
+    "name" : "completion_date",
+    "dataTypeName" : "calendar_date",
+    "description" : "",
+    "fieldName" : "completion_date",
+    "position" : 10,
+    "renderTypeName" : "calendar_date",
+    "tableColumnId" : 165664586,
+    "cachedContents" : {
+      "non_null" : "2227538",
+      "largest" : "2070-09-05T00:00:00.000",
+      "null" : "186686",
+      "top" : [ {
+        "item" : "2022-02-01T00:00:00.000",
+        "count" : "753"
+      }, {
+        "item" : "2023-02-01T00:00:00.000",
+        "count" : "749"
+      }, {
+        "item" : "2017-08-01T00:00:00.000",
+        "count" : "701"
+      }, {
+        "item" : "2022-04-01T00:00:00.000",
+        "count" : "645"
+      }, {
+        "item" : "2024-01-03T00:00:00.000",
+        "count" : "623"
+      }, {
+        "item" : "1984-03-01T00:00:00.000",
+        "count" : "539"
+      }, {
+        "item" : "2023-01-02T00:00:00.000",
+        "count" : "480"
+      }, {
+        "item" : "2025-01-03T00:00:00.000",
+        "count" : "447"
+      }, {
+        "item" : "1982-02-01T00:00:00.000",
+        "count" : "441"
+      }, {
+        "item" : "1984-06-01T00:00:00.000",
+        "count" : "429"
+      }, {
+        "item" : "1981-12-01T00:00:00.000",
+        "count" : "428"
+      }, {
+        "item" : "1982-04-01T00:00:00.000",
+        "count" : "427"
+      }, {
+        "item" : "1983-06-01T00:00:00.000",
+        "count" : "418"
+      }, {
+        "item" : "1982-10-01T00:00:00.000",
+        "count" : "416"
+      }, {
+        "item" : "1983-12-01T00:00:00.000",
+        "count" : "405"
+      }, {
+        "item" : "2005-07-01T00:00:00.000",
+        "count" : "396"
+      }, {
+        "item" : "1981-07-01T00:00:00.000",
+        "count" : "381"
+      }, {
+        "item" : "2024-01-02T00:00:00.000",
+        "count" : "376"
+      }, {
+        "item" : "1982-03-10T00:00:00.000",
+        "count" : "376"
+      }, {
+        "item" : "1980-04-01T00:00:00.000",
+        "count" : "366"
+      } ],
+      "smallest" : "1900-01-03T00:00:00.000",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : { }
+  }, {
+    "id" : 627354429,
+    "name" : "depth_reference",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "depth_reference",
+    "position" : 11,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664587,
+    "cachedContents" : {
+      "non_null" : "1911464",
+      "largest" : "9999.0",
+      "null" : "502760",
+      "top" : [ {
+        "item" : "12.0",
+        "count" : "3049"
+      }, {
+        "item" : "25.0",
+        "count" : "2682"
+      }, {
+        "item" : "2670.0",
+        "count" : "2541"
+      }, {
+        "item" : "2665.0",
+        "count" : "2357"
+      }, {
+        "item" : "17.0",
+        "count" : "2338"
+      }, {
+        "item" : "40.0",
+        "count" : "2324"
+      }, {
+        "item" : "13.0",
+        "count" : "2315"
+      }, {
+        "item" : "2667.0",
+        "count" : "2250"
+      }, {
+        "item" : "2664.0",
+        "count" : "2240"
+      }, {
+        "item" : "2663.0",
+        "count" : "2230"
+      }, {
+        "item" : "2681.0",
+        "count" : "2205"
+      }, {
+        "item" : "2700.0",
+        "count" : "2164"
+      }, {
+        "item" : "2660.0",
+        "count" : "2160"
+      }, {
+        "item" : "22.0",
+        "count" : "2132"
+      }, {
+        "item" : "10.0",
+        "count" : "2130"
+      }, {
+        "item" : "2666.0",
+        "count" : "2111"
+      }, {
+        "item" : "26.0",
+        "count" : "2091"
+      }, {
+        "item" : "2710.0",
+        "count" : "2087"
+      }, {
+        "item" : "16.0",
+        "count" : "2076"
+      }, {
+        "item" : "2675.0",
+        "count" : "2050"
+      } ],
+      "smallest" : "0.0",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354430,
+    "name" : "depth_reference_code",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "depth_reference_code",
+    "position" : 12,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165664588,
+    "cachedContents" : {
+      "non_null" : "1911464",
+      "largest" : "WF",
+      "null" : "502760",
+      "top" : [ {
+        "item" : "GL",
+        "count" : "786222"
+      }, {
+        "item" : "GR",
+        "count" : "779848"
+      }, {
+        "item" : "KB",
+        "count" : "211709"
+      }, {
+        "item" : "DF",
+        "count" : "128562"
+      }, {
+        "item" : "RT",
+        "count" : "4411"
+      }, {
+        "item" : "DB",
+        "count" : "205"
+      }, {
+        "item" : "RB",
+        "count" : "47"
+      }, {
+        "item" : "RK",
+        "count" : "40"
+      }, {
+        "item" : "GE",
+        "count" : "32"
+      }, {
+        "item" : "GI",
+        "count" : "27"
+      }, {
+        "item" : "DR",
+        "count" : "25"
+      }, {
+        "item" : "GD",
+        "count" : "21"
+      }, {
+        "item" : "CR",
+        "count" : "18"
+      }, {
+        "item" : "FR",
+        "count" : "16"
+      }, {
+        "item" : "DE",
+        "count" : "13"
+      }, {
+        "item" : "GT",
+        "count" : "10"
+      }, {
+        "item" : "EL",
+        "count" : "9"
+      }, {
+        "item" : "GF",
+        "count" : "9"
+      }, {
+        "item" : "KV",
+        "count" : "8"
+      }, {
+        "item" : "DP",
+        "count" : "7"
+      } ],
+      "smallest" : "AR",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : { }
+  }, {
+    "id" : 627354431,
+    "name" : "record_sequence",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "record_sequence",
+    "position" : 13,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165664589,
+    "cachedContents" : {
+      "non_null" : "2414224",
+      "largest" : "25",
+      "null" : "0",
+      "top" : [ {
+        "item" : "1",
+        "count" : "1392746"
+      }, {
+        "item" : "2",
+        "count" : "605576"
+      }, {
+        "item" : "3",
+        "count" : "231333"
+      }, {
+        "item" : "4",
+        "count" : "97912"
+      }, {
+        "item" : "5",
+        "count" : "44197"
+      }, {
+        "item" : "6",
+        "count" : "20771"
+      }, {
+        "item" : "7",
+        "count" : "9792"
+      }, {
+        "item" : "8",
+        "count" : "5172"
+      }, {
+        "item" : "9",
+        "count" : "2780"
+      }, {
+        "item" : "10",
+        "count" : "1536"
+      }, {
+        "item" : "11",
+        "count" : "911"
+      }, {
+        "item" : "12",
+        "count" : "505"
+      }, {
+        "item" : "13",
+        "count" : "334"
+      }, {
+        "item" : "14",
+        "count" : "227"
+      }, {
+        "item" : "15",
+        "count" : "135"
+      }, {
+        "item" : "16",
+        "count" : "98"
+      }, {
+        "item" : "17",
+        "count" : "60"
+      }, {
+        "item" : "18",
+        "count" : "50"
+      }, {
+        "item" : "19",
+        "count" : "38"
+      }, {
+        "item" : "20",
+        "count" : "20"
+      } ],
+      "smallest" : "1",
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 627354432,
+    "name" : "on_top_record",
+    "dataTypeName" : "checkbox",
+    "description" : "",
+    "fieldName" : "on_top_record",
+    "position" : 14,
+    "renderTypeName" : "checkbox",
+    "tableColumnId" : 165664590,
+    "cachedContents" : {
+      "non_null" : "1506681",
+      "null" : "907543",
+      "top" : [ {
+        "item" : true,
+        "count" : "1506681"
+      } ],
+      "count" : "2414224",
+      "cardinality" : "2414224"
+    },
+    "format" : { }
+  } ],
+  "grants" : [ {
+    "inherited" : false,
+    "type" : "viewer",
+    "flags" : [ "public" ]
+  } ],
+  "metadata" : {
+    "custom_fields" : {
+      "Dataset Category" : {
+        "Agency" : "Railroad Commission of Texas",
+        "Category Tile" : "Energy and Environment"
+      },
+      "Publishing Information" : {
+        "Update Frequency" : "Monthly"
+      }
+    },
+    "availableDisplayTypes" : [ "table", "fatrow", "page" ]
+  },
+  "owner" : {
+    "id" : "j7wi-a8ef",
+    "displayName" : "RRC ODP Support",
+    "profileImageUrlLarge" : "/api/users/j7wi-a8ef/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/j7wi-a8ef/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/j7wi-a8ef/profile_images/TINY",
+    "screenName" : "RRC ODP Support",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "query" : { },
+  "rights" : [ "read" ],
+  "tableAuthor" : {
+    "id" : "j7wi-a8ef",
+    "displayName" : "RRC ODP Support",
+    "profileImageUrlLarge" : "/api/users/j7wi-a8ef/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/j7wi-a8ef/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/j7wi-a8ef/profile_images/TINY",
+    "screenName" : "RRC ODP Support",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "tags" : [ "rrc", "uic", "wellbore", "completion", "casing", "cementing", "cemented", "downhole", "zonal isolation", "license and permitting" ],
+  "flags" : [ "default", "ownerMayBeContacted", "restorable", "restorePossibleForType" ]
+}
