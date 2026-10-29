@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000111186-b477a317-a6bb-4ab9-b059-ac2e5d61b12d",
+  "scope": {
+    "query_version": 4,
+    "uic_number": "000111186",
+    "test_report_limit": 1000,
+    "order": "BHP report_id,tracking_no,test_sequence_no; SRT report_id,tracking_no",
+    "bhp_returned": 8,
+    "srt_returned": 0,
+    "bhp_status": "returned_below_cap",
+    "srt_status": "confirmed_empty",
+    "window": "exact uic_no; not limited to reporting period"
+  },
+  "bhp": [
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:1",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1127",
+      "tracking_no": "41897000",
+      "test_sequence_no": "1.0",
+      "report_conducted_date": "2014-11-28",
+      "report_conducted_date_text": "2014-11-28",
+      "report_received_date": null,
+      "report_received_date_text": "",
+      "bhp_psia": 2830,
+      "test_depth_ft": 6100,
+      "gradient_psi_ft": 0.4639,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": [
+        "missing:report_received_date"
+      ]
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:2",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1128",
+      "tracking_no": "41897000",
+      "test_sequence_no": "2.0",
+      "report_conducted_date": "2015-05-18",
+      "report_conducted_date_text": "2015-05-18",
+      "report_received_date": null,
+      "report_received_date_text": "",
+      "bhp_psia": 2763,
+      "test_depth_ft": 6000,
+      "gradient_psi_ft": 0.4605,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": [
+        "missing:report_received_date"
+      ]
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:3",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1129",
+      "tracking_no": "41897000",
+      "test_sequence_no": "3.0",
+      "report_conducted_date": "2015-11-10",
+      "report_conducted_date_text": "2015-11-10",
+      "report_received_date": null,
+      "report_received_date_text": "",
+      "bhp_psia": 2712,
+      "test_depth_ft": 5900,
+      "gradient_psi_ft": 0.4597,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": [
+        "missing:report_received_date"
+      ]
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:4",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1130",
+      "tracking_no": "41897000",
+      "test_sequence_no": "4.0",
+      "report_conducted_date": "2016-11-17",
+      "report_conducted_date_text": "2016-11-17",
+      "report_received_date": null,
+      "report_received_date_text": "",
+      "bhp_psia": 2698,
+      "test_depth_ft": 5900,
+      "gradient_psi_ft": 0.4573,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": [
+        "missing:report_received_date"
+      ]
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:5",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1131",
+      "tracking_no": "41897000",
+      "test_sequence_no": "5.0",
+      "report_conducted_date": "2019-11-19",
+      "report_conducted_date_text": "2019-11-19",
+      "report_received_date": null,
+      "report_received_date_text": "",
+      "bhp_psia": 2785,
+      "test_depth_ft": 5898,
+      "gradient_psi_ft": 0.4722,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": [
+        "missing:report_received_date"
+      ]
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:6",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1277",
+      "tracking_no": "41897000",
+      "test_sequence_no": "6.0",
+      "report_conducted_date": "2021-03-08",
+      "report_conducted_date_text": "2021-03-08",
+      "report_received_date": "2021-03-23",
+      "report_received_date_text": "2021-03-23",
+      "bhp_psia": 2785,
+      "test_depth_ft": 5898,
+      "gradient_psi_ft": 0.4722,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:7",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1278",
+      "tracking_no": "41897000",
+      "test_sequence_no": "7.0",
+      "report_conducted_date": "2023-01-19",
+      "report_conducted_date_text": "2023-01-19",
+      "report_received_date": "2023-03-06",
+      "report_received_date_text": "2023-03-06",
+      "bhp_psia": 2833,
+      "test_depth_ft": 5898,
+      "gradient_psi_ft": 0.48,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:8",
+      "parent_key": "rrc:uic:givw-z9t4:cd3bff29576e586f:1",
+      "parent_join_status": "matched",
+      "uic_number": "000111186",
+      "source_report_id": "1320",
+      "tracking_no": "41897",
+      "test_sequence_no": "1.0",
+      "report_conducted_date": "2023-12-27",
+      "report_conducted_date_text": "2023-12-27",
+      "report_received_date": "2024-02-01",
+      "report_received_date_text": "2024-02-01",
+      "bhp_psia": 2814,
+      "test_depth_ft": 5900,
+      "gradient_psi_ft": 0.4769,
+      "tested_formation": "Rodessa",
+      "source_snapshot_id": "qxfy-wcfs:4172811855939afb",
+      "quality_flags": []
+    }
+  ],
+  "srt": [],
+  "quality": {
+    "bhp": {
+      "raw": 8,
+      "parsed": 8,
+      "accepted": 8,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "srt": {
+      "raw": 0,
+      "parsed": 0,
+      "accepted": 0,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "parent_join": {
+      "bhp": {
+        "matched": 8,
+        "unmatched": 0,
+        "ambiguous": 0
+      },
+      "srt": {
+        "matched": 0,
+        "unmatched": 0,
+        "ambiguous": 0
+      }
+    },
+    "issue_counts": {
+      "bhp": {
+        "missing:report_received_date": 5
+      },
+      "srt": {}
+    },
+    "dispositions": [
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:2",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:3",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:4",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:5",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:6",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:7",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:4172811855939afb:8",
+        "disposition": "accepted"
+      }
+    ],
+    "duplicate_policy": "Every source row retained. Rows sharing a report identity (BHP report_id|tracking_no|test_sequence_no; SRT report_id|tracking_no) are all flagged duplicate_report_identity and quarantined; no preferred row is selected or merged.",
+    "empty_result_policy": "An empty exact-UIC response ([]) is recorded as confirmed_empty: no rows were returned by the query. It does not show that no test was conducted."
+  }
+}

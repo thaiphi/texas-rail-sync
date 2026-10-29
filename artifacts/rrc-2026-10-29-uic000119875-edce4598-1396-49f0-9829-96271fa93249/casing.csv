@@ -1,0 +1,3 @@
+source_row_key,source_api_id,wellbore_link_status,source_id,api_no,record_sequence,on_top_record,completion_date,completion_date_text,csg_size,hole_size,csg_depth,toc,multi_stg_depth,cmt_sacks,total_depth_g1w2,depth_reference,depth_reference_code,source_snapshot_id,quality_flags
+rrc:casing:u9m4-xnh6:651efc181fc4f292:1,38940222,matched,1865461,38940222,1,true,2023-03-12,2023-03-12T00:00:00.000,13.375,17.5,502,0,,420,6250,2911,GL,u9m4-xnh6:651efc181fc4f292,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:651efc181fc4f292:2,38940222,matched,1865462,38940222,1,true,2023-03-12,2023-03-12T00:00:00.000,9.625,12.25,2952,0,,625,6250,2911,GL,u9m4-xnh6:651efc181fc4f292,missing:multi_stg_depth

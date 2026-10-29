@@ -1,0 +1,2 @@
+source_row_key,parent_key,parent_join_status,uic_number,source_report_id,tracking_no,test_sequence_no,report_conducted_date,report_conducted_date_text,report_received_date,report_received_date_text,bhp_psia,test_depth_ft,gradient_psi_ft,tested_formation,source_snapshot_id,quality_flags
+rrc:bhp:qxfy-wcfs:43ea2e41d8307b5d:1,rrc:uic:givw-z9t4:7e3a35971cc41cb3:1,matched,000119875,1565,51855000,,,,,,,,,,qxfy-wcfs:43ea2e41d8307b5d,missing:report_conducted_date|missing:report_received_date|missing:bhp_psia|missing:test_depth_ft|missing:gradient_psi_ft

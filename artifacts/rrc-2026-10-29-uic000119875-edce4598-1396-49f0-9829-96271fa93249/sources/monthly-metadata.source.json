@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/qq2j-f2zm.json",
+  "retrieved_at": "2026-10-29T19:04:22.297Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "5a8f4613073c69db44924eb481c3e2a7e209b1e077b208fb4f73610a450ac7d0",
+  "bytes": 21609,
+  "testFixture": false,
+  "app_token_used": true
+}

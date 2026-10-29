@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "row_grain": {
+    "bhp": "one retained official BHP report-inventory row (qxfy-wcfs)",
+    "srt": "one retained official SRT report-inventory row (h54t-xnbi)"
+  },
+  "missing_value": "CSV empty cell / JSON null for absent numbers or dates. Zero remains zero. String absence is empty string.",
+  "date_policy": "Only valid YYYY-MM-DD dates are parsed; the original text is always kept in the matching _text column.",
+  "unit_policy": "Units come from the ODP field-name suffix unless an entry cites an official document. Values are shown as reported; psia and psig are kept as labelled and never converted.",
+  "window": "Exact uic_no; not limited to the reporting period.",
+  "documents": [
+    {
+      "name": "srt-guidelines.html",
+      "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+      "supports": "SRT purpose, fracture (parting) pressure, fracture gradient in psi/ft, ISIP recorded at shut-in, stepped injection rates"
+    },
+    {
+      "name": "bhp-permian-nto.pdf",
+      "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+      "supports": "BHP method and unit, p.1; Permian districts 7C, 8, 8A and Fisher County only; states \"Operator shall report pressure (PSIG)\""
+    }
+  ],
+  "not_cited": "Form W-7 (oil and gas wells, not UIC), conference slides and the versioned review spreadsheet are not used as evidence.",
+  "order": {
+    "bhp": "report_id,tracking_no,test_sequence_no",
+    "srt": "report_id,tracking_no"
+  },
+  "tables": {
+    "bhp": [
+      "source_row_key",
+      "parent_key",
+      "parent_join_status",
+      "uic_number",
+      "source_report_id",
+      "tracking_no",
+      "test_sequence_no",
+      "report_conducted_date",
+      "report_conducted_date_text",
+      "report_received_date",
+      "report_received_date_text",
+      "bhp_psia",
+      "test_depth_ft",
+      "gradient_psi_ft",
+      "tested_formation",
+      "source_snapshot_id",
+      "quality_flags"
+    ],
+    "srt": [
+      "source_row_key",
+      "parent_key",
+      "parent_join_status",
+      "uic_number",
+      "source_report_id",
+      "tracking_no",
+      "srt_received_date",
+      "srt_received_date_text",
+      "test_date",
+      "test_date_text",
+      "satisfactory_test_code",
+      "top_perf_ft",
+      "bottom_perf_ft",
+      "formation_tested",
+      "min_inj_rate_bpm",
+      "max_inj_rate_bpm",
+      "isip_psig",
+      "formation_frac_press_psig",
+      "frac_inj_rate_capacity_bpd",
+      "surface_pressure_firc_psig",
+      "fracture_gradient_psi_ft",
+      "comments",
+      "source_snapshot_id",
+      "quality_flags"
+    ]
+  },
+  "fields": {
+    "source_row_key": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Dataset snapshot plus 1-based raw response ordinal; retained duplicates stay distinct",
+      "source_field": null,
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "parent_key": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Inventory source_record_key when the exact uic_no string matches exactly one retained inventory parent (ADR 004 inventory_to_test_report)",
+      "source_field": "uic_no",
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "parent_join_status": {
+      "units": "enum",
+      "status": "calculated",
+      "definition": "matched / unmatched / ambiguous by exact UIC string",
+      "source_field": "uic_no",
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "uic_number": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original nine-character uic_no; preserves leading zeros",
+      "source_field": "uic_no",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "source_report_id": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original report_id kept as a string; part of the report identity",
+      "source_field": "report_id",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Identity value; meaning undocumented."
+    },
+    "tracking_no": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original tracking_no kept as a string; part of the report identity",
+      "source_field": "tracking_no",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Identity value; meaning undocumented."
+    },
+    "test_sequence_no": {
+      "units": "string",
+      "status": "public reported",
+      "definition": "Original test_sequence_no kept as a string; part of the BHP report identity",
+      "source_field": "test_sequence_no",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Identity value; meaning undocumented."
+    },
+    "report_conducted_date": {
+      "units": "date",
+      "status": "public reported",
+      "definition": "report_conducted_date when it is a valid YYYY-MM-DD date; otherwise empty",
+      "source_field": "report_conducted_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "report_conducted_date_text": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original report_conducted_date text exactly as published",
+      "source_field": "report_conducted_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "report_received_date": {
+      "units": "date",
+      "status": "public reported",
+      "definition": "report_received_date when it is a valid YYYY-MM-DD date; otherwise empty",
+      "source_field": "report_received_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "report_received_date_text": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original report_received_date text exactly as published",
+      "source_field": "report_received_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "bhp_psia": {
+      "units": "psia as named by the ODP field",
+      "status": "public reported",
+      "definition": "Reported bottom hole pressure as published",
+      "source_field": "bhp_psia",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Official RRC Permian guidance (bhp-permian-nto.pdf p.1) states BHP is reported in PSIG; the ODP field name says psia. The conflict is unresolved; the value is shown as published and never converted. That guidance covers Permian districts 7C, 8, 8A and Fisher County only."
+    },
+    "test_depth_ft": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Reported test depth as published",
+      "source_field": "test_depth_ft",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Reported depth; depth basis unstated (measured or true vertical depth is not documented)."
+    },
+    "gradient_psi_ft": {
+      "units": "psi/ft",
+      "status": "public reported",
+      "definition": "Reported BHP gradient as published",
+      "source_field": "gradient_psi_ft",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Meaning unstated; not the SRT fracture gradient."
+    },
+    "tested_formation": {
+      "units": "name",
+      "status": "public reported",
+      "definition": "Original tested_formation text",
+      "source_field": "tested_formation",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "source_snapshot_id": {
+      "units": "string",
+      "status": "calculated",
+      "definition": "Dataset ID plus raw response SHA256 prefix",
+      "source_field": null,
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "quality_flags": {
+      "units": "list",
+      "status": "calculated",
+      "definition": "Pipe-delimited issues; issues may overlap",
+      "source_field": null,
+      "basis": "calculated",
+      "note": "ODP publishes no column descriptions."
+    },
+    "srt_received_date": {
+      "units": "date",
+      "status": "public reported",
+      "definition": "srt_received_date when it is a valid YYYY-MM-DD date; otherwise empty",
+      "source_field": "srt_received_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "srt_received_date_text": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original srt_received_date text exactly as published",
+      "source_field": "srt_received_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "test_date": {
+      "units": "date",
+      "status": "public reported",
+      "definition": "test_date when it is a valid YYYY-MM-DD date; otherwise empty",
+      "source_field": "test_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "test_date_text": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original test_date text exactly as published",
+      "source_field": "test_date",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "satisfactory_test_code": {
+      "units": "source code",
+      "status": "public reported",
+      "definition": "Original satisfactory_test value shown verbatim",
+      "source_field": "satisfactory_test",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Values 0/1 shown verbatim; code meaning undocumented."
+    },
+    "top_perf_ft": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Reported top perforation depth as published",
+      "source_field": "top_perf_ft",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Depth basis unstated."
+    },
+    "bottom_perf_ft": {
+      "units": "ft",
+      "status": "public reported",
+      "definition": "Reported bottom perforation depth as published",
+      "source_field": "bottom_perf_ft",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Depth basis unstated."
+    },
+    "formation_tested": {
+      "units": "name",
+      "status": "public reported",
+      "definition": "Original formation_tested text",
+      "source_field": "formation_tested",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions."
+    },
+    "min_inj_rate_bpm": {
+      "units": "bbl/min (bpm as named)",
+      "status": "public reported",
+      "definition": "Reported minimum step injection rate as published",
+      "source_field": "min_inj_rate_bpm",
+      "basis": "official_document:srt-guidelines.html",
+      "note": "ODP publishes no column descriptions. Concept per official RRC step rate test guidelines (srt-guidelines.html); units from the ODP field name."
+    },
+    "max_inj_rate_bpm": {
+      "units": "bbl/min (bpm as named)",
+      "status": "public reported",
+      "definition": "Reported maximum step injection rate as published",
+      "source_field": "max_inj_rate_bpm",
+      "basis": "official_document:srt-guidelines.html",
+      "note": "ODP publishes no column descriptions. Concept per official RRC step rate test guidelines (srt-guidelines.html); units from the ODP field name."
+    },
+    "isip_psig": {
+      "units": "psig",
+      "status": "public reported",
+      "definition": "Reported instantaneous shut-in pressure as published",
+      "source_field": "isip_psig",
+      "basis": "official_document:srt-guidelines.html",
+      "note": "ODP publishes no column descriptions. Concept per official RRC step rate test guidelines (srt-guidelines.html); units from the ODP field name. The guidance records ISIP at both the surface and the bottom hole; which one this column holds is unstated."
+    },
+    "formation_frac_press_psig": {
+      "units": "psig",
+      "status": "public reported",
+      "definition": "Reported formation fracture (parting) pressure as published",
+      "source_field": "formation_frac_press_psig",
+      "basis": "official_document:srt-guidelines.html",
+      "note": "ODP publishes no column descriptions. Concept per official RRC step rate test guidelines (srt-guidelines.html); units from the ODP field name."
+    },
+    "frac_inj_rate_capacity_bpd": {
+      "units": "bbl/day",
+      "status": "public reported",
+      "definition": "Reported value as published",
+      "source_field": "frac_inj_rate_capacity_bpd",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. FIRC is not defined in any RRC document found; meaning unverified. Units from the ODP field name."
+    },
+    "surface_pressure_firc_psig": {
+      "units": "psig",
+      "status": "public reported",
+      "definition": "Reported value as published",
+      "source_field": "surface_pressure_firc_psig",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. FIRC is not defined in any RRC document found; meaning unverified. Units from the ODP field name."
+    },
+    "fracture_gradient_psi_ft": {
+      "units": "psi/ft",
+      "status": "public reported",
+      "definition": "Reported fracture gradient as published",
+      "source_field": "fracture_gradient_psi_ft",
+      "basis": "official_document:srt-guidelines.html",
+      "note": "ODP publishes no column descriptions. Concept per official RRC step rate test guidelines (srt-guidelines.html); units from the ODP field name."
+    },
+    "comments": {
+      "units": "text",
+      "status": "public reported",
+      "definition": "Original comments text verbatim",
+      "source_field": "comments",
+      "basis": "odp_field_name",
+      "note": "ODP publishes no column descriptions. Verbatim text; meaning undocumented."
+    }
+  }
+}

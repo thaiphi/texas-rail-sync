@@ -1,0 +1,119 @@
+{
+  "inventory": {
+    "raw": 1,
+    "parsed": 1,
+    "accepted": 1,
+    "quarantined": 0,
+    "excluded": 0
+  },
+  "monthly": {
+    "raw": 23,
+    "parsed": 23,
+    "accepted": 23,
+    "quarantined": 0,
+    "excluded": 0
+  },
+  "parent_join": {
+    "matched": 23,
+    "unmatched": 0,
+    "ambiguous": 0
+  },
+  "issue_counts": {},
+  "dispositions": [
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:1",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:2",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:3",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:4",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:5",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:6",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:7",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:8",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:9",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:10",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:11",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:12",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:13",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:14",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:15",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:16",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:17",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:18",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:19",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:20",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:21",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:22",
+      "disposition": "accepted"
+    },
+    {
+      "source_row_key": "rrc:h10:qq2j-f2zm:c68ab7bfc6cefff9:23",
+      "disposition": "accepted"
+    }
+  ],
+  "annulus_fields": "not supplied by ODP dataset; not inferred",
+  "revision_policy": "Every source row retained; duplicate period or report ID quarantined without selecting a preferred revision. most_recent_record preserved without using it as a revision selector.",
+  "scope": "Bounded inventory candidates and one UIC monthly history; no statewide coverage or current operating-status assertion."
+}

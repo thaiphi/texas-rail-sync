@@ -1,0 +1,3 @@
+source_row_key,source_api_id,wellbore_link_status,source_id,api_no,record_sequence,on_top_record,completion_date,completion_date_text,csg_size,hole_size,csg_depth,toc,multi_stg_depth,cmt_sacks,total_depth_g1w2,depth_reference,depth_reference_code,source_snapshot_id,quality_flags
+rrc:casing:u9m4-xnh6:e02acc373a253d9b:1,38910201,matched,1823568,38910201,1,true,1967-02-27,1967-02-27T00:00:00.000,8.625,11,1317,0,,700,6200,2541,GR,u9m4-xnh6:e02acc373a253d9b,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:e02acc373a253d9b:2,38910201,matched,1823569,38910201,1,true,1967-02-27,1967-02-27T00:00:00.000,5.5,7.875,6200,0,,1400,6200,2541,GR,u9m4-xnh6:e02acc373a253d9b,missing:multi_stg_depth

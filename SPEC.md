@@ -1,8 +1,35 @@
 # Bounded Explorer specification v1
 
+## October 29 casing and plugging connectors (Phase 3, RRC-14)
+
+**Scope.** Local `/api/collect` now always produces query version 4 (owner decision, 2026-10-29); version 3 is no longer produced, and existing v1–v3 versions are unchanged. Version 4 adds the following to the thirteen v3 targets:
+- casing `u9m4-xnh6` and plugging `wfzn-9fje` view metadata;
+- an exact-`api_no` inventory query (`$limit=25`) that proves whether the selected row's API is unique;
+- exact-`api_no` casing and plugging queries from the selected inventory row's own `api_no` (`$limit=1000`, ordered `record_sequence,id`), with no reporting-window bound;
+- three official RRC documents for unit and meaning citations: the WBA091 well-bore manual and Forms W-2 and W-3.
+
+Transformation: `rrc-odp-v2.2.0`, pipeline `rrc-collection-v4`. The frozen contract is [the Phase 3 design](docs/superpowers/specs/2026-10-29-phase3-casing-plugging-design.md); identity follows [ADR 004](docs/adr/004-wellbore-identity-and-relations.md) as amended on 2026-10-29.
+
+**Identity.** The API string is matched exactly and never normalized. Each dataset gets one link status with basis `inventory_api_no`: `matched`, `none` (`no_source_rows` or `api_missing_or_invalid`) or `ambiguous` (`multiple_inventory_rows` or `inventory_cap_reached`). A scope contradiction fails the run. Casing and plugging rows carry no UIC or parent key, and no code path joins H-10 by API (negative tests).
+
+**Output.** Additive sidecars `casing.json`, `casing.csv`, `plugging.json`, `plugging.csv` and `wellbore_dictionary.json` are listed in `manifest.files`; `schemaVersion: 1` is unchanged.
+- One row per source row; nothing is merged. The source `id` is the row key. `record_sequence` is a filing sequence and may repeat; only a repeated `id` is quarantined. `on_top_record` is kept as published.
+- Dates are accepted only as `YYYY-MM-DDT00:00:00.000`; the original text is kept. A published zero stays zero, and missing stays null.
+- A plug whose top is deeper than its bottom is quarantined.
+- Units are cited from the official documents and labelled CONFIRMED or INFERRED. The source conflicts are disclosed, not resolved: cement may be recorded in other units than sacks (WBA091), the plugging view's elevation fields have no W-3 source, the W-3's two plug tops are reduced to one, `toc` `0.0` may mean surface or "not reported", and the casing row grain does not match the ODP description.
+- Presence wording states only whether source rows were returned. It never says a well has no casing or is or is not plugged.
+
+**Acceptance criterion.** The Phase 2 revised criterion is extended: against the v3 output from the same sources, `inventory.csv`, `injection_monthly.csv`, `quality_report.json`, `data_dictionary.json`, `tests_bhp.csv`, `tests_srt.csv` and `tests_dictionary.json` are byte-identical and `normalized_payload_sha256` is equal; `tests.json` differs only in `query_version`; `manifest.json` differs only by an enumerated delta (design §6). A regression test enforces it. The design's "duplicate sequence" fixture is reinterpreted as a duplicate source `id`.
+
+**Hosted and Analytics.** Version 4 is local only, like version 3: the guest path stays v2, the export core refuses query version 3 and later there, and the transfer script skips those versions, their runs and raw folders containing the casing or plugging datasets. Version 4 cannot be sent to Analytics until Phase 6.
+
+**Live proof.** The live proof ran on 2026-10-29 for UIC 000020838, 000111186, 000119875 and 000109605; every count reconciles, casing is `matched` for all four, and plugging is `matched` for 000109605 and `none/no_source_rows` for the three active wells (see [the proof](docs/verification-2026-10-29-phase3-live-proof.md)).
+
+**Browser.** The Wellbore tab verifies each sidecar before showing it, shows the link status, basis and candidates, and says casing and plugging were not collected for older versions.
+
 ## October 29 test-report connectors (Phase 2, RRC-13)
 
-**Scope.** Local `/api/collect` always produces query version 3 (owner decision, 2026-10-29). Version 3 adds the following to the seven v2 targets:
+**Scope.** Local `/api/collect` produced query version 3 from Phase 2 until Phase 3 (owner decision, 2026-10-29); it now produces version 4, which keeps every v3 target. Version 3 adds the following to the seven v2 targets:
 - exact-`uic_no` queries on BHP `qxfy-wcfs` and SRT `h54t-xnbi`, with their view metadata (`$limit=1000`, ordered by report identity);
 - two official RRC documents, the SRT guidelines page and the December 2023 Permian monitoring notice, preserved for unit and meaning citations.
 

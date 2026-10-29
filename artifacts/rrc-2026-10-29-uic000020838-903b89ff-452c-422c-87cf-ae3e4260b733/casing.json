@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-29-uic000020838-903b89ff-452c-422c-87cf-ae3e4260b733",
+  "dataset": "casing",
+  "scope": {
+    "query_version": 4,
+    "source_api_id": "38910201",
+    "wellbore_limit": 1000,
+    "wellbore_inventory_limit": 25,
+    "order": "record_sequence,id",
+    "returned": 2,
+    "status": "returned_below_cap",
+    "window": "exact api_no; not limited to reporting period"
+  },
+  "link": {
+    "inventory_source_record_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+    "source_api_id": "38910201",
+    "basis": "inventory_api_no",
+    "status": "matched",
+    "reason": null,
+    "inventory_query": {
+      "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=api_no%3D%2738910201%27&%24limit=25&%24order=uic_number%2Capi_no",
+      "sha256": "4aa137acc7b03b865a282fe74d55e493c465fd356850acae44a6aa3260608ef1",
+      "rows": 1
+    },
+    "wellbore_query": {
+      "url": "https://data.texas.gov/resource/u9m4-xnh6.json?%24where=api_no%3D%2738910201%27&%24limit=1000&%24order=record_sequence%2Cid",
+      "sha256": "e02acc373a253d9bbda1306b399d335d42f1cd32a73f3d71d9f05b06e98536a7",
+      "rows": 2
+    },
+    "candidates": [
+      {
+        "candidate_key": "rrc:uic:givw-z9t4:4aa137acc7b03b86:1",
+        "selected": true,
+        "uic_number": "000020838",
+        "api_no": "38910201",
+        "operator_number": "103834",
+        "district_code": "08",
+        "lease_number": "17459",
+        "lease_name": "TREES, J. C. ESTATE, ET AL -A-",
+        "well_no_display": "5D",
+        "w14_number": "7412"
+      }
+    ],
+    "wellbore_row_count": 2
+  },
+  "rows": [
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:e02acc373a253d9b:1",
+      "source_api_id": "38910201",
+      "wellbore_link_status": "matched",
+      "source_id": "1823568",
+      "api_no": "38910201",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "completion_date": "1967-02-27",
+      "completion_date_text": "1967-02-27T00:00:00.000",
+      "csg_size": 8.625,
+      "hole_size": 11,
+      "csg_depth": 1317,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 700,
+      "total_depth_g1w2": 6200,
+      "depth_reference": 2541,
+      "depth_reference_code": "GR",
+      "source_snapshot_id": "u9m4-xnh6:e02acc373a253d9b",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    },
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:e02acc373a253d9b:2",
+      "source_api_id": "38910201",
+      "wellbore_link_status": "matched",
+      "source_id": "1823569",
+      "api_no": "38910201",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "completion_date": "1967-02-27",
+      "completion_date_text": "1967-02-27T00:00:00.000",
+      "csg_size": 5.5,
+      "hole_size": 7.875,
+      "csg_depth": 6200,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 1400,
+      "total_depth_g1w2": 6200,
+      "depth_reference": 2541,
+      "depth_reference_code": "GR",
+      "source_snapshot_id": "u9m4-xnh6:e02acc373a253d9b",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    }
+  ],
+  "quality": {
+    "counts": {
+      "raw": 2,
+      "parsed": 2,
+      "accepted": 2,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "issue_counts": {
+      "missing:multi_stg_depth": 2
+    },
+    "dispositions": [
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:e02acc373a253d9b:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:e02acc373a253d9b:2",
+        "disposition": "accepted"
+      }
+    ],
+    "duplicate_policy": "Every source row retained. The only duplicate rule is a repeated source id within one response: every occurrence is flagged duplicate_source_id and quarantined. Rows identical apart from id, record_sequence or date (the same string re-filed) are normal and unflagged. No preferred row is selected or merged.",
+    "empty_result_policy": "No casing rows were returned by the exact-API query; this does not show that no casing exists.",
+    "presence_policy": "Only whether rows were returned is stated. Rows returned or not returned say nothing about casing, cementing or plugging status.",
+    "record_sequence_policy": "record_sequence is a filing sequence shared by several rows; it is not a row key, repeats are normal and never flagged, and it is kept verbatim without being used for ordering beyond the source order (record_sequence,id).",
+    "on_top_record_policy": "on_top_record is true only where the source sets it; absent in source is shown empty (not false) with no flag; a non-boolean value is a quarantined parse failure; it is never derived from record_sequence or a date."
+  }
+}

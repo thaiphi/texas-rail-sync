@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/qq2j-f2zm.json?%24where=uic_no%3D%27000020838%27+AND+formatted_date+%3E%3D+%272024-01-01T00%3A00%3A00%27+AND+formatted_date+%3C+%272026-10-01T00%3A00%3A00%27&%24limit=1000&%24order=formatted_date%2Cid",
+  "retrieved_at": "2026-10-29T19:04:15.205Z",
+  "http_status": 200,
+  "last_modified": "Tue, 20 Oct 2026 19:24:45 GMT",
+  "etag": "\"anVsaWV0dC4xNjgwOThfMl81OE8za1JWNUN0and3Uktzb243ZFVuZjhQSEdhdw---gziuLyejDxzLFYWqWksr12B35m6ImN--gzip--gzip\"",
+  "sha256": "2c6ccfb8304a42c1179e280a4bc9e77bf8e56b3515ac73215ba0920fd38792b9",
+  "bytes": 6741,
+  "testFixture": false,
+  "app_token_used": true
+}
