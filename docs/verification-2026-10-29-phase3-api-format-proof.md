@@ -68,3 +68,21 @@ None of the three proof wells has a plugging row. The owner therefore authorized
   - Plug intervals are 2881–3505, 1691–2125 and 1–1430, with 30, 20 and 130 sacks.
 - **`total_depth_w3` is `"0"` on all three rows.** That is a published zero, not an absent field. It must be kept as published and must not be read as a total depth of zero feet or treated as missing.
 - **The inventory `w3_plugged_date` (2025-03-07) differs from the plugging `w3_date` (2025-01-28) for the same API.** The source does not say what each date marks, so both are kept as published, without reconciliation.
+
+## Addendum 2: a plugged disposal well (owner request, 2026-10-29)
+
+The owner asked for another candidate well instead of 000000209, which is a type 3 well. Main ran the same two-query pattern, restricted to injection type 1, the type of the default collection scope (`src/sources.mjs:1`). Both queries returned HTTP 200 with `app_token_used: true`, and no token value appears in the bytes. The bytes are in [`raw-discovery-2026-10-29-fourth-well-disposal/`](../raw-discovery-2026-10-29-fourth-well-disposal/).
+
+1. Inventory: `$where=uic_type_injection='1' AND w3_plugged_date >= '2025-01-01' AND w3_plugged_date < '2025-10-01'`, `$limit=10`, `$order=uic_number DESC`. It returned 10 wells.
+2. Plugging: `$where=api_no in (<the 10 api_no strings>)`, `$limit=200`, `$order=api_no,record_sequence,id`. Every API returned 3–11 plug rows under its exact string.
+   - Matched APIs include `00943101`, so leading zeros match unchanged.
+   - API `15100153` has `record_sequence` 2 only, with no sequence 1 returned.
+
+**Chosen fourth well: UIC 000109605, API `38934609`, "TRIPPET SWD" well 1.**
+- Location: Reeves County (API prefix 389), district 08, injection type 1. These are the same county and type as 000020838.
+- Inventory `w3_plugged_date` is 2025-01-23. The injection interval is 4000–8000.
+- Seven plug rows (ids 1202285–1202291), all `record_sequence` 1, `on_top_record: true`, `depth_reference_code` KB, `w3_date` 2024-12-21 and `total_depth_w3` 6515.
+- The plugs run from 4508–4629 at the deepest to 3–12 at the surface. Top ≤ bottom on every row.
+- Its casing rows and its H-10 rows in the window were not queried; the v4 live collection reports them as observed.
+
+Candidate 000000209 (addendum 1) is not used for the live proof. Its bytes remain as format evidence.

@@ -341,10 +341,11 @@ The research is in [source forms](../../source-forms-2026-10-29-phase3.md) (Opus
   - the inventory-by-API row count.
 - **Token:** the app token from `TRRC_SOCRATA_APP_TOKEN`; a grep finds no token value.
 - **Pins:** default and Analytics pins are unchanged; v4 is skipped by the transfer script.
-- **Fourth well [OD-7]:** UIC `000000209`, API `16300331`, found by the owner-authorized discovery in the proof addendum. It has 3 plug rows (`record_sequence` 1, `on_top_record: true`, `total_depth_w3` `"0"`), was plugged in 2025 and has injection type 3.
+- **Fourth well [OD-7]:** UIC `000109605`, API `38934609`, "TRIPPET SWD" well 1. The owner chose a plugged disposal well (proof addendum 2) instead of the type 3 candidate `000000209`.
+  - Reeves County, district 08, injection type 1, plugged 2025-01-23.
+  - Seven plug rows (`record_sequence` 1, `on_top_record: true`, `total_depth_w3` 6515).
   - It gives the live `matched` plugging link and real plugging values.
-  - Main shows the owner this well before collecting it. Its H-10 rows in the window are not known beforehand; zero is acceptable and is reported as observed.
-  - If the owner declines it, plugging `matched` rests on fixtures plus the discovery bytes, and that is disclosed.
+  - Main confirms the collection with the owner before running it. Its casing and H-10 rows in the window are not known beforehand; zero is acceptable and is reported as observed.
 
 ## 12. Tasks (at most two parallel implementers; disjoint allowlists)
 
