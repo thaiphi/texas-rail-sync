@@ -8,16 +8,16 @@ const hash=b=>createHash('sha256').update(b).digest('hex');
 const destination=resolve(root,'tmp/supabase-archive-2026-10-11');
 const files=[];
 async function add(path){const bytes=await readFile(resolve(root,path));files.push({path,sha256:hash(bytes),byteCount:bytes.length,bytes});}
-// D7: test-report (query_version 3) versions are local-only. Skip each such version, its raw collected-sources folder and
-// every run that records a v3 pipeline or exports one; each skip is logged to stderr.
+// D7: test-report and wellbore versions (query_version 3 and up) are local-only. Skip each such version, its raw
+// collected-sources folder and every run that records a v3+ pipeline or exports one; each skip is logged to stderr.
 const skipped=new Set();
 async function localOnly(path){
  const [top,name]=path.split('/');
  try{
-  if(top==='artifacts')return JSON.parse(await readFile(resolve(root,path,'manifest.json'))).scope?.query_version===3;
-  // Raw source folders of v3 collections (including failed ones) carry BHP/SRT bytes.
-  if(top==='collected-sources')return (JSON.parse(await readFile(resolve(root,path,'acquisition.json'))).targets??[]).some(url=>/\/(?:qxfy-wcfs|h54t-xnbi)\.json/.test(url));
-  if(top==='runs'){const record=JSON.parse(await readFile(resolve(root,path,'record.json')));const id=record.events?.find(event=>event.stage==='export'&&event.status==='succeeded')?.evidence?.artifactId;return record.pipelineVersion==='rrc-collection-v3'||Boolean(id&&v3Versions.has(id));}
+  if(top==='artifacts')return JSON.parse(await readFile(resolve(root,path,'manifest.json'))).scope?.query_version>=3;
+  // Raw source folders of v3+ collections (including failed or partial ones) carry BHP/SRT or casing/plugging bytes.
+  if(top==='collected-sources'){const marker=JSON.parse(await readFile(resolve(root,path,'acquisition.json')));return (Number.isInteger(marker.scope?.queryVersion)&&marker.scope.queryVersion>=3)||(marker.targets??[]).some(url=>/\/(?:qxfy-wcfs|h54t-xnbi|u9m4-xnh6|wfzn-9fje)\.json/.test(url));}
+  if(top==='runs'){const record=JSON.parse(await readFile(resolve(root,path,'record.json')));const id=record.events?.find(event=>event.stage==='export'&&event.status==='succeeded')?.evidence?.artifactId;const version=/^rrc-collection-v(\d+)$/.exec(record.pipelineVersion??'');return Boolean(version&&Number(version[1])>=3)||Boolean(id&&v3Versions.has(id));}
  }catch(error){
   if(error.code!=='ENOENT')throw error;
   // Fail closed: a version, run or source folder without its evidence file (e.g. a crashed

@@ -1,0 +1,5 @@
+[{"id":"900001","api_no":"38910201","plug_bottom_depth":"6100","plug_top_depth":"5000","plug_cmt_sacks":"60","total_depth_w3":"6200","w3_date":"2024-03-04T00:00:00.000","depth_reference":"2541.0","depth_reference_code":"GR","record_sequence":"1"}
+,{"id":"900002","api_no":"38910201","plug_bottom_depth":"1400","plug_top_depth":"1200","plug_cmt_sacks":"40","total_depth_w3":"6200","w3_date":"2024-03-04T00:00:00.000","depth_reference":"2541.0","depth_reference_code":"GR","record_sequence":"1"}
+,{"id":"900003","api_no":"38910201","plug_bottom_depth":"100","plug_top_depth":"0","plug_cmt_sacks":"20","total_depth_w3":"0","w3_date":"2024-03-04T00:00:00.000","record_sequence":"1"}
+,{"id":"900004","api_no":"38910201","plug_bottom_depth":"5200","plug_top_depth":"4800","plug_cmt_sacks":"50","total_depth_w3":"6200","w3_date":"2024-05-20T00:00:00.000","record_sequence":"2","on_top_record":true}
+,{"id":"900005","api_no":"38910201","plug_bottom_depth":"100","plug_top_depth":"0","plug_cmt_sacks":"20","total_depth_w3":"6200","w3_date":"2024-05-20T00:00:00.000","record_sequence":"2","on_top_record":true}]

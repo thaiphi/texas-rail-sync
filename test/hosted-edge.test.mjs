@@ -131,10 +131,10 @@ test('oversized auth response, including streaming without a length header, is r
 });
 test('real module composition preserves public versions and captured actual run summaries',async()=>{
  const paths=['public/artifact-path.json','public/artifact-integrity.json'],runIds=[];
- // Mirror scripts/prepare-supabase-archive.mjs: query-version-3 versions and their runs are local-only (D7) and never reach the hosted store.
- const localOnly=async entry=>{try{return JSON.parse(await readFile(new URL(`artifacts/${entry.name}/manifest.json`,root))).scope?.query_version===3;}catch(error){if(error.code==='ENOENT')return false;throw error;}};
+ // Mirror scripts/prepare-supabase-archive.mjs: query-version-3+ versions and their runs are local-only (D7) and never reach the hosted store.
+ const localOnly=async entry=>{try{return JSON.parse(await readFile(new URL(`artifacts/${entry.name}/manifest.json`,root))).scope?.query_version>=3;}catch(error){if(error.code==='ENOENT')return false;throw error;}},localOnlyRun=version=>Number(/^rrc-collection-v(\d+)$/.exec(version??'')?.[1])>=3;
  for(const entry of await readdir(new URL('artifacts/',root),{withFileTypes:true}))if(entry.isDirectory()&&!await localOnly(entry))for(const name of ['manifest.json','normalized.json','version-pins.json']){try{await readFile(new URL(`artifacts/${entry.name}/${name}`,root));paths.push(`artifacts/${entry.name}/${name}`);}catch(error){if(error.code!=='ENOENT')throw error;}}
- for(const entry of await readdir(new URL('runs/',root),{withFileTypes:true}))if(entry.isDirectory()&&JSON.parse(await readFile(new URL(`runs/${entry.name}/record.json`,root))).pipelineVersion!=='rrc-collection-v3'){paths.push(`runs/${entry.name}/record.json`);runIds.push(entry.name);}
+ for(const entry of await readdir(new URL('runs/',root),{withFileTypes:true}))if(entry.isDirectory()&&!localOnlyRun(JSON.parse(await readFile(new URL(`runs/${entry.name}/record.json`,root))).pipelineVersion)){paths.push(`runs/${entry.name}/record.json`);runIds.push(entry.name);}
  const manifest=[],chunks=new Map();
  for(const path of paths){const bytes=await readFile(new URL(path,root)),chunkHashes=[];for(let offset=0;offset<bytes.length;offset+=ARCHIVE_CHUNK_BYTES){const chunk=bytes.slice(offset,offset+ARCHIVE_CHUNK_BYTES),hash=await archiveSha256(chunk);chunkHashes.push(hash);chunks.set(hash,chunk);}manifest.push({path,sha256:await archiveSha256(bytes),byteCount:bytes.length,chunkCount:chunkHashes.length,chunkHashes});}
  const handler=createHostedEdgeHandler(options({createTransport:()=>({loadSnapshot:async()=>({snapshotId:HOSTED_SNAPSHOT_ID,verifiedAt:'2026-10-11T05:22:55Z',manifest}),readChunk:async hash=>chunks.get(hash)})}));

@@ -51,6 +51,14 @@ export function workflowView(record,artifact=null){
      if(!reports||typeof reports!=='object'||JSON.stringify(Object.keys(reports).sort())!=='["bhp","srt"]'||!valid(reports.bhp)||!valid(reports.srt))throw Error('Invalid test-report quality evidence');
      for(const input of testInputs)if(input.count!==null&&input.count!==reports[input.kind].raw)throw Error('Invalid test-report source/quality count reconciliation');
     }
+    // Additive v4 (RRC-14) evidence: casing/plugging counts reconcile on their own; absent in v1-v3 runs.
+    // wellbore_inventory inputs are never reconciled against counts.inventory (see the inventory mapping above).
+    const wellboreInputs=(latest.get('load')?.evidence?.inputs??[]).filter(input=>input.kind==='casing'||input.kind==='plugging');
+    if(evidence.wellbore!==undefined||wellboreInputs.length){
+     const wellbore=evidence.wellbore,valid=summary=>summary!==null&&typeof summary==='object'&&['raw','parsed','accepted','quarantined','excluded'].every(key=>Number.isSafeInteger(summary[key])&&summary[key]>=0)&&summary.raw===summary.parsed&&summary.parsed===summary.accepted+summary.quarantined+summary.excluded&&summary.excluded===0;
+     if(!wellbore||typeof wellbore!=='object'||JSON.stringify(Object.keys(wellbore).sort())!=='["casing","plugging"]'||!valid(wellbore.casing)||!valid(wellbore.plugging))throw Error('Invalid wellbore quality evidence');
+     for(const input of wellboreInputs)if(input.count!==null&&input.count!==wellbore[input.kind].raw)throw Error('Invalid wellbore source/quality count reconciliation');
+    }
     if(!Array.isArray(evidence.outputs)||evidence.outputs.length!==2)throw Error('Invalid normalization output evidence');
     const outputKinds=new Set();
     for(const output of evidence.outputs){const kind=output?.name==='normalized inventory'?'inventory':output?.name==='normalized monthly'?'monthly':null;if(!kind||outputKinds.has(kind)||!hash(output.sha256)||!Number.isSafeInteger(output.count)||output.count<0||output.count!==evidence.counts[kind].parsed)throw Error('Invalid normalization output/quality count or hash evidence');outputKinds.add(kind);}

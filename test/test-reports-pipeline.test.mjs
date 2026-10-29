@@ -32,7 +32,11 @@ const network=({bhp=bhpRows,srt=srtRows,reports=monthly}={})=>async url=>{
   'data.texas.gov/api/views/givw-z9t4.json':()=>raw('inventory-metadata.json'),'data.texas.gov/api/views/qq2j-f2zm.json':()=>raw('monthly-metadata.json'),'data.texas.gov/api/views/qxfy-wcfs.json':()=>fixture('bhp-metadata.json'),'data.texas.gov/api/views/h54t-xnbi.json':()=>fixture('srt-metadata.json'),
   'www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf':()=>raw('uic-manual.pdf'),'www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/':()=>raw('rrc-resources.html'),'webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html':()=>raw('uic-query-help.html'),
   'www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/':()=>fixture('srt-guidelines.html'),
-  'www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf':()=>fixture('bhp-permian-nto.pdf')};
+  'www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf':()=>fixture('bhp-permian-nto.pdf'),
+  // v4 (RRC-14) exact-API casing/plugging and their documentation targets; plugging rows are synthetic fixture rows.
+  'data.texas.gov/resource/u9m4-xnh6.json':()=>readFile(new URL('test/fixtures/wellbore/candidate-casing.json',root)),'data.texas.gov/resource/wfzn-9fje.json':()=>readFile(new URL('test/fixtures/wellbore/synthetic-plugging.json',root)),
+  'data.texas.gov/api/views/u9m4-xnh6.json':()=>readFile(new URL('test/fixtures/wellbore/casing-metadata.json',root)),'data.texas.gov/api/views/wfzn-9fje.json':()=>readFile(new URL('test/fixtures/wellbore/plugging-metadata.json',root)),
+  'www.rrc.texas.gov/media/cx2i4xrm/wba091_well-bore-database.pdf':()=>readFile(new URL('test/fixtures/wellbore/wellbore-wba091.pdf',root)),'www.rrc.texas.gov/media/sdbph42m/w-2-0114.pdf':()=>readFile(new URL('test/fixtures/wellbore/form-w2.pdf',root)),'www.rrc.texas.gov/media/lw0bmny4/w-3p.pdf':()=>readFile(new URL('test/fixtures/wellbore/form-w3.pdf',root))};
  if(!routes[path])return new Response('unknown fixture route',{status:404});
  return new Response(await routes[path]());
 };
@@ -148,9 +152,12 @@ test('all committed artifact versions replay byte-identically',async()=>{
   const sourceDir=artifactId===pinnedArtifactId?resolve(rootPath,'raw'):resolve(rootPath,'artifacts',artifactId,'sources'),snapshot=await loadSnapshot(sourceDir);
   const built=await buildArtifact(snapshot,artifactId,normalize(snapshot.inventory,snapshot.monthly,snapshot.sourceIds,snapshot.scope));
   for(const [name,body] of Object.entries(built.files))assert.equal(sha256(body),sha256(await readFile(resolve(rootPath,'artifacts',artifactId,name))),artifactId+'/'+name);
-  // Query-version-3 versions carry the four test sidecars (compared byte for byte above); older versions never do.
-  if(snapshot.scope?.queryVersion===3)for(const name of ['tests.json','tests_bhp.csv','tests_srt.csv','tests_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
+  // Query-version-3+ versions carry the four test sidecars (compared byte for byte above); older versions never do.
+  if(snapshot.scope?.queryVersion>=3)for(const name of ['tests.json','tests_bhp.csv','tests_srt.csv','tests_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
   else assert.equal(built.files['tests.json'],undefined);
+  // Query-version-4 versions also carry the five wellbore sidecars; older versions never do.
+  if(snapshot.scope?.queryVersion===4)for(const name of ['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
+  else assert.equal(built.files['casing.json'],undefined);
  }
 });
 test('guest path stays v2: evidence names and URLs are frozen and v3 is refused by prepare and finalize',async t=>{
@@ -166,7 +173,7 @@ test('guest path stays v2: evidence names and URLs are frozen and v3 is refused 
  const store=new Map(Object.entries(prepared.files)),publisher={readStaged:async(_id,name)=>store.get(name),readPublished:async(_id,name)=>store.get(name),publish:async()=>'verified_existing_bytes'};
  await assert.rejects(finalizeArtifactFromReader({readBytes:v3Read,sourceReference:'guest/v2',artifactId:'guest-v2',testFixture:true,recorder:resumeRunRecorder(JSON.parse(JSON.stringify(prepared.record))),publisher}),error=>error.code==='SOURCE_INVALID'&&/local-only \(D7\)/.test(error.message));
 });
-test('local /api/collect produces v3 with the request schema unchanged',async t=>{
+test('local /api/collect produces v4 with the request schema unchanged',async t=>{
  const env=await setup(t,'trrc-v3-api-'),server=createExplorerServer({runRoot:env.runRoot,lookupRoot:env.lookupRoot,sourceRoot:resolve(env.dir,'sources'),outputRoot:env.outputRoot,fetchImpl:network(),testFixture:true});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
  const base=`http://127.0.0.1:${server.address().port}`,post=(path,body)=>fetch(base+path,{method:'POST',headers:{origin:base,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -174,6 +181,7 @@ test('local /api/collect produces v3 with the request schema unchanged',async t=
  const body={lookupId:found.lookupId,sourceRecordKey:found.candidates[0].sourceRecordKey,startMonth:'2024-01',endMonth:'2026-04'};
  assert.equal((await post('/api/collect',{...body,queryVersion:3})).status,400,'request schema unchanged: no version field');
  const response=await post('/api/collect',body);assert.equal(response.status,201);const result=await response.json();
- assert.equal(result.scope.query_version,3);assert.equal(result.scope.test_report_limit,1000);assert.equal(result.run.pipelineVersion,'rrc-collection-v3');
- for(const name of sidecarFiles)await stat(resolve(env.outputRoot,result.artifactId,name));
+ assert.equal(result.scope.query_version,4);assert.equal(result.scope.test_report_limit,1000);assert.equal(result.scope.wellbore_limit,1000);assert.equal(result.scope.wellbore_inventory_limit,25);assert.equal(result.run.pipelineVersion,'rrc-collection-v4');assert.equal(result.run.transformationVersion,'rrc-odp-v2.2.0');
+ for(const name of [...sidecarFiles,'casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'])await stat(resolve(env.outputRoot,result.artifactId,name));
+ const marker=await json(resolve(env.outputRoot,result.artifactId,'sources/acquisition.json'));assert.equal(marker.scope.queryVersion,4);assert.equal(marker.scope.sourceApiId,'38910201');assert.equal(marker.targets.length,21);
 });

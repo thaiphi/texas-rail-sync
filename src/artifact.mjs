@@ -1,5 +1,6 @@
-import {acquisitionTargets,collectionScope,sourceScopeFlags,targetsForScope,isBounded,testReportOrder} from './sources.mjs';
+import {acquisitionTargets,collectionScope,sourceScopeFlags,targetsForScope,isBounded,testReportOrder,wellboreOrder} from './sources.mjs';
 import {normalizeTests,testsDictionary,testsCsv} from './testReports.mjs';
+import {normalizeSnapshotWellbore,wellboreScopeFailure,wellboreDictionary,wellboreCsv} from './wellbore.mjs';
 import {validateSelectionEvidence,sameIdentity} from './lookup.mjs';
 import {assertQualityReport} from '../public/quality-validation.js';
 import {readFile} from 'node:fs/promises';
@@ -24,6 +25,12 @@ export function snapshotProvenance(snapshot){
 const copyTests=tests=>({bhp:structuredClone(tests.bhp),srt:structuredClone(tests.srt),rawBhp:Buffer.from(tests.rawBhp),rawSrt:Buffer.from(tests.rawSrt)});
 // Test rows exist only in v3 proofs; callers can never add, remove or alter them.
 const sameTests=(actual,expected)=>expected===undefined?actual===undefined:Boolean(actual)&&isDeepStrictEqual(Object.keys(actual).sort(),['bhp','rawBhp','rawSrt','srt'])&&isDeepStrictEqual(actual.bhp,expected.bhp)&&isDeepStrictEqual(actual.srt,expected.srt)&&Buffer.isBuffer(actual.rawBhp)&&expected.rawBhp.equals(actual.rawBhp)&&Buffer.isBuffer(actual.rawSrt)&&expected.rawSrt.equals(actual.rawSrt);
+// v4 wellbore rows (RRC-14); arrays and buffers are null when no exact-API query was made.
+const wellboreKeys=['casing','inventory','plugging','rawCasing','rawInventory','rawPlugging'];
+const copyWellbore=w=>({inventory:structuredClone(w.inventory),casing:structuredClone(w.casing),plugging:structuredClone(w.plugging),rawInventory:w.rawInventory&&Buffer.from(w.rawInventory),rawCasing:w.rawCasing&&Buffer.from(w.rawCasing),rawPlugging:w.rawPlugging&&Buffer.from(w.rawPlugging)});
+const sameBuffer=(actual,expected)=>expected===null?actual===null:Buffer.isBuffer(actual)&&expected.equals(actual);
+// Wellbore rows exist only in v4 proofs; callers can never add, remove or alter them.
+const sameWellbore=(actual,expected)=>expected===undefined?actual===undefined:Boolean(actual)&&isDeepStrictEqual(Object.keys(actual).sort(),wellboreKeys)&&['inventory','casing','plugging'].every(key=>isDeepStrictEqual(actual[key],expected[key]))&&sameBuffer(actual.rawInventory,expected.rawInventory)&&sameBuffer(actual.rawCasing,expected.rawCasing)&&sameBuffer(actual.rawPlugging,expected.rawPlugging);
 const copyBodies=bodies=>Object.fromEntries(Object.entries(bodies).map(([name,body])=>[name,Buffer.from(body)]));
 const sameBodies=(actual,expected)=>actual&&isDeepStrictEqual(Object.keys(actual).sort(),Object.keys(expected).sort())&&Object.entries(expected).every(([name,body])=>Buffer.isBuffer(actual[name])&&body.equals(actual[name]));
 // Trusted-server reader; an absent object must reject with code ENOENT.
@@ -45,7 +52,7 @@ export async function loadSnapshotFromReader(readBytes){
  const classification=await Promise.allSettled(classificationFiles.map(async name=>JSON.parse(await read(name))));
  fixtureEvidence=classification.some(result=>result.status==='fulfilled'&&result.value?.testFixture===true);
  try{acquisition=JSON.parse(await read('acquisition.json'));if(acquisition.status!=='succeeded')throw Object.assign(Error('Source acquisition is incomplete'),{code:'SOURCE_INVALID'});}catch(error){if(error.code!=='ENOENT')throw error;}
- const scope=acquisition?.scope??collectionScope,targets=targetsForScope(scope),dynamic=isBounded(scope),testReports=scope.queryVersion===3;
+ const scope=acquisition?.scope??collectionScope,targets=targetsForScope(scope),dynamic=isBounded(scope),testReports=scope.queryVersion>=3,wellbore=scope.queryVersion===4;
  if(dynamic){
   const lookupFlags=await Promise.allSettled(['lookup.json','lookup-inventory.source.json','lookup-metadata.source.json'].map(async name=>JSON.parse(await read(name))));
   fixtureEvidence ||= lookupFlags.some(result=>result.status==='fulfilled'&&result.value?.testFixture===true);
@@ -72,7 +79,7 @@ export async function loadSnapshotFromReader(readBytes){
   if(url.origin!==expected.origin||url.pathname!==expected.pathname||query(url)!==query(expected))throw Object.assign(Error('Source endpoint does not match the fixed collection contract'),{code:'SOURCE_INVALID'});
   if(url.protocol!=='https:'||url.username||url.password||!['data.texas.gov','www.rrc.texas.gov','webapps2.rrc.texas.gov'].includes(url.hostname)||retrieval.http_status!==200||!Number.isFinite(Date.parse(retrieval.retrieved_at)))throw Object.assign(Error('Source metadata invalid'),{code:'SOURCE_INVALID'});
   if(retrieval.sha256&&retrieval.sha256!==sha256(body))throw Object.assign(Error('Source metadata hash mismatch'),{code:'SOURCE_HASH_MISMATCH'});
-  const title=kind==='metadata'?JSON.parse(body).name:kind==='documentation'?undefined:JSON.parse(await read(kind+'-metadata.json')).name;
+  const title=kind==='metadata'?JSON.parse(body).name:kind==='documentation'?undefined:JSON.parse(await read((kind==='wellbore_inventory'?'inventory':kind)+'-metadata.json')).name;
   const source={snapshot_id:sourceIds[kind]??`${name}:${sha256(body).slice(0,16)}`,name,...(title===undefined?{}:{title}),kind,...Object.fromEntries(Object.entries(retrieval).filter(([key])=>['url','retrieved_at','http_status','last_modified','etag','sha256','bytes','testFixture'].includes(key))),sha256:sha256(body),bytes:body.length,raw_file:'sources/'+filename};
   sources.push(source);bodies[source.raw_file]=body;
   if(dynamic)bodies['sources/'+metadataName]=metadataBytes;
@@ -84,6 +91,8 @@ export async function loadSnapshotFromReader(readBytes){
   const verified=await validateSelectionEvidence(read,selection);
   if(verified.testFixture!==acquisition.testFixture)throw provenanceFailure('SOURCE_PROVENANCE_CONFLICT','Selection and acquisition classifications disagree');
   if(verified.row.uic_number!==scope.monthlyUic||inventory.length!==1||!sameIdentity(inventory[0],verified.row))throw provenanceFailure('SOURCE_INVALID','Fresh exact-UIC parent is duplicate, missing or selected identity changed');
+  // v4: every wellbore query came from the fresh inventory row's own api_no (ADR 004 §1).
+  if(wellbore){const api=inventory[0].api_no;if(scope.sourceApiId!==(typeof api==='string'&&/^\d{8}$/.test(api)?api:null))throw provenanceFailure('SOURCE_INVALID','Selected inventory API changed');}
   for(const name of ['acquisition.json','selection.json','lookup.json','lookup-metadata.json','lookup-metadata.source.json','lookup-inventory.json','lookup-inventory.source.json'])bodies['sources/'+name]=await read(name);
   sources.push({snapshot_id:'lookup:'+verified.lookupSha256.slice(0,16),name:'lookup-inventory',kind:'selection',...JSON.parse(await read('lookup-inventory.source.json')),raw_file:'sources/lookup-inventory.json'});
  }
@@ -98,6 +107,21 @@ export async function loadSnapshotFromReader(readBytes){
   for(const [name,kind] of [['candidate-bhp','bhp'],['candidate-srt','srt'],['bhp-metadata','metadata'],['srt-metadata','metadata'],['srt-guidelines.html','documentation'],['bhp-permian-nto.pdf','documentation']])await loadSource(name,kind);
   tests={bhp,srt,rawBhp,rawSrt};
  }
+ // v4 only (RRC-14): exact-API inventory, casing and plugging, appended after the test reports.
+ let wellboreRows;
+ if(wellbore){
+  wellboreRows={inventory:null,casing:null,plugging:null,rawInventory:null,rawCasing:null,rawPlugging:null};
+  if(scope.sourceApiId!==null){
+   const rawInventory=await read('wellbore-inventory.json'),rawCasing=await read('candidate-casing.json'),rawPlugging=await read('candidate-plugging.json');
+   let parsed;try{parsed=[rawInventory,rawCasing,rawPlugging].map(body=>JSON.parse(body));}catch{throw Object.assign(Error('Wellbore response is not JSON'),{code:'SOURCE_INVALID'});}
+   const [apiInventory,casing,plugging]=parsed;
+   if(!parsed.every(Array.isArray)||apiInventory.length>scope.wellboreInventoryLimit||casing.length>scope.wellboreLimit||plugging.length>scope.wellboreLimit)throw Object.assign(Error('Wellbore bounds or row arrays invalid'),{code:'SOURCE_INVALID'});
+   if(casing.length===scope.wellboreLimit||plugging.length===scope.wellboreLimit)throw Object.assign(Error('Wellbore response reached its row cap; completeness is unproven'),{code:'SOURCE_ROW_LIMIT'});
+   sourceIds.wellbore_inventory=`givw-z9t4:${sha256(rawInventory).slice(0,16)}`;sourceIds.casing=`u9m4-xnh6:${sha256(rawCasing).slice(0,16)}`;sourceIds.plugging=`wfzn-9fje:${sha256(rawPlugging).slice(0,16)}`;
+   wellboreRows={inventory:apiInventory,casing,plugging,rawInventory,rawCasing,rawPlugging};
+  }
+  for(const [name,kind] of [...(scope.sourceApiId===null?[]:[['wellbore-inventory','wellbore_inventory'],['candidate-casing','casing'],['candidate-plugging','plugging']]),['casing-metadata','metadata'],['plugging-metadata','metadata'],['wellbore-wba091.pdf','documentation'],['form-w2.pdf','documentation'],['form-w3.pdf','documentation']])await loadSource(name,kind);
+ }
  const flags=[...(acquisition?[acquisition.testFixture]:[]),...retrievals.filter(s=>Object.hasOwn(s,'testFixture')).map(s=>s.testFixture)];
  if(flags.some(flag=>typeof flag!=='boolean'))throw provenanceFailure('SOURCE_PROVENANCE_UNVERIFIED','Source classification is missing or invalid');
  if(flags.includes(true)&&flags.includes(false))throw provenanceFailure('SOURCE_PROVENANCE_CONFLICT','Acquisition and source classifications disagree');
@@ -105,10 +129,10 @@ export async function loadSnapshotFromReader(readBytes){
  if(flags.includes(true))provenance={classification:'test_fixture',basis:'recorded_test_fixture'};
  else if([1,2].includes(acquisition?.schemaVersion)&&acquisition.mode==='live_collection'&&acquisition.testFixture===false&&/^[a-f0-9-]{36}$/i.test(acquisition.runId)&&retrievals.every(s=>s.testFixture===false&&typeof s.sha256==='string'&&Number.isSafeInteger(s.bytes)))provenance={classification:'public_reported',basis:dynamic?'recorded_official_acquisition_v2':'recorded_official_acquisition'};
  else if(!acquisition&&sha256(JSON.stringify(evidenceHashes.sort(([a],[b])=>a<b?-1:a>b?1:0)))===legacyPublicEvidenceSha256)provenance={classification:'public_reported',basis:'source_proof_2026_10_09_exact_bytes'};
- const snapshot={read,rawInventory,rawMonthly,inventory,monthly,sourceIds,sources,bodies,provenance,testFixture:provenance.classification==='test_fixture',scope,...(tests?{tests}:{})};
+ const snapshot={read,rawInventory,rawMonthly,inventory,monthly,sourceIds,sources,bodies,provenance,testFixture:provenance.classification==='test_fixture',scope,...(tests?{tests}:{}),...(wellboreRows?{wellbore:wellboreRows}:{})};
  const files=new Map();
  for(const [name,pending] of cache){try{files.set(name,Buffer.from(await pending));}catch{}}
- loadedEvidence.set(read,{rawInventory:Buffer.from(rawInventory),rawMonthly:Buffer.from(rawMonthly),inventory:JSON.parse(rawInventory),monthly:JSON.parse(rawMonthly),sourceIds:structuredClone(sourceIds),sources:structuredClone(sources),bodies:copyBodies(bodies),provenance:structuredClone(provenance),scope:structuredClone(scope),...(tests?{tests:copyTests(tests)}:{}),read:async name=>{if(!files.has(name))throw provenanceFailure('SOURCE_INVALID','File is absent from the loaded source evidence');return Buffer.from(files.get(name));}});
+ loadedEvidence.set(read,{rawInventory:Buffer.from(rawInventory),rawMonthly:Buffer.from(rawMonthly),inventory:JSON.parse(rawInventory),monthly:JSON.parse(rawMonthly),sourceIds:structuredClone(sourceIds),sources:structuredClone(sources),bodies:copyBodies(bodies),provenance:structuredClone(provenance),scope:structuredClone(scope),...(tests?{tests:copyTests(tests)}:{}),...(wellboreRows?{wellbore:copyWellbore(wellboreRows)}:{}),read:async name=>{if(!files.has(name))throw provenanceFailure('SOURCE_INVALID','File is absent from the loaded source evidence');return Buffer.from(files.get(name));}});
  return snapshot;
  }catch(error){
   // Failed/incomplete fixture loads are still fixtures, including separate
@@ -123,13 +147,16 @@ export async function buildArtifact(snapshot,artifactId,normalized){
  const proof=loadedEvidence.get(snapshot.read);
  if(!proof)throw provenanceFailure('SOURCE_PROVENANCE_UNVERIFIED','Snapshot must originate from verified source loading');
  if(!isDeepStrictEqual(snapshot.provenance,proof.provenance)&&!(snapshot.testFixture&&snapshot.provenance.classification==='test_fixture'))throw provenanceFailure('SOURCE_PROVENANCE_CONFLICT','Snapshot classification contradicts loaded source evidence');
- if(!isDeepStrictEqual(snapshot.inventory,proof.inventory)||!isDeepStrictEqual(snapshot.monthly,proof.monthly)||!isDeepStrictEqual(snapshot.sourceIds,proof.sourceIds)||!isDeepStrictEqual(snapshot.scope,proof.scope)||!isDeepStrictEqual(snapshot.sources,proof.sources)||!Buffer.isBuffer(snapshot.rawInventory)||!proof.rawInventory.equals(snapshot.rawInventory)||!Buffer.isBuffer(snapshot.rawMonthly)||!proof.rawMonthly.equals(snapshot.rawMonthly)||!sameBodies(snapshot.bodies,proof.bodies)||!sameTests(snapshot.tests,proof.tests))throw provenanceFailure('SOURCE_HASH_MISMATCH','Source projections contradict the preserved loaded bytes');
+ if(!isDeepStrictEqual(snapshot.inventory,proof.inventory)||!isDeepStrictEqual(snapshot.monthly,proof.monthly)||!isDeepStrictEqual(snapshot.sourceIds,proof.sourceIds)||!isDeepStrictEqual(snapshot.scope,proof.scope)||!isDeepStrictEqual(snapshot.sources,proof.sources)||!Buffer.isBuffer(snapshot.rawInventory)||!proof.rawInventory.equals(snapshot.rawInventory)||!Buffer.isBuffer(snapshot.rawMonthly)||!proof.rawMonthly.equals(snapshot.rawMonthly)||!sameBodies(snapshot.bodies,proof.bodies)||!sameTests(snapshot.tests,proof.tests)||!sameWellbore(snapshot.wellbore,proof.wellbore))throw provenanceFailure('SOURCE_HASH_MISMATCH','Source projections contradict the preserved loaded bytes');
  assertQualityReport(normalized?.quality,{inventory:normalized?.inventory,monthly:normalized?.monthly});
  if(normalized.quality.inventory.raw!==snapshot.inventory.length||normalized.quality.monthly.raw!==snapshot.monthly.length)throw provenanceFailure('QUALITY_INVALID','Quality counts do not reconcile with loaded source rows');
  if(snapshot.inventory.some(row=>sourceScopeFlags('inventory',row,snapshot.scope).length)||snapshot.monthly.some(row=>sourceScopeFlags('monthly',row,snapshot.scope).length))throw Object.assign(Error('Source rows contradict the declared query predicates'),{code:'SOURCE_SCOPE_MISMATCH',quality:normalize(snapshot.inventory,snapshot.monthly,snapshot.sourceIds,snapshot.scope).quality});
  const canonical=normalize(proof.inventory,proof.monthly,proof.sourceIds,proof.scope);
  const testRows=proof.tests?normalizeTests(proof.tests,proof.sourceIds,canonical.inventory,proof.scope):null;
  if(testRows&&[...testRows.bhp,...testRows.srt].some(row=>row.quality_flags.some(flag=>flag.startsWith('source_scope:'))))throw Object.assign(Error('Test-report rows contradict the exact-UIC query'),{code:'SOURCE_SCOPE_MISMATCH'});
+ // v4: casing/plugging rows link only to the wellbore; a predicate contradiction fails closed.
+ const wellboreRows=proof.wellbore?normalizeSnapshotWellbore(proof,canonical.inventory):null;
+ if(wellboreRows&&wellboreScopeFailure(wellboreRows))throw Object.assign(Error('Wellbore rows contradict the exact-API query'),{code:'SOURCE_SCOPE_MISMATCH'});
  if(!isDeepStrictEqual(normalized,canonical))throw provenanceFailure('QUALITY_INVALID','Normalized values, identities or quality evidence contradict preserved source rows');
  // Serialize private copies after validation: awaits below cannot admit caller
  // mutations of normalized values, metadata buffers, or source classifications.
@@ -166,8 +193,20 @@ if(testRows){
  const scope=snapshot.scope,status=rows=>rows.length?'returned_below_cap':'confirmed_empty';
  manifest.transformation_version='rrc-odp-v2.1.0';manifest.scope.query_version=3;manifest.scope.test_report_limit=scope.testReportLimit;
  manifest.limitations.push('BHP/SRT test-report sidecars are exact-UIC report inventories not limited to the reporting period: one row per source record (the source does not document how many rows one test produces), without test documents or pressure series; psia and psig are kept as labelled and never converted.');
- const tests={schemaVersion:1,artifactId,scope:{query_version:3,uic_number:scope.monthlyUic,test_report_limit:scope.testReportLimit,order:`BHP ${testReportOrder.bhp}; SRT ${testReportOrder.srt}`,bhp_returned:testRows.bhp.length,srt_returned:testRows.srt.length,bhp_status:status(testRows.bhp),srt_status:status(testRows.srt),window:'exact uic_no; not limited to reporting period'},bhp:testRows.bhp,srt:testRows.srt,quality:testRows.quality};
+ // OD-2: the true query version (3 for v3, 4 for v4).
+ const tests={schemaVersion:1,artifactId,scope:{query_version:scope.queryVersion,uic_number:scope.monthlyUic,test_report_limit:scope.testReportLimit,order:`BHP ${testReportOrder.bhp}; SRT ${testReportOrder.srt}`,bhp_returned:testRows.bhp.length,srt_returned:testRows.srt.length,bhp_status:status(testRows.bhp),srt_status:status(testRows.srt),window:'exact uic_no; not limited to reporting period'},bhp:testRows.bhp,srt:testRows.srt,quality:testRows.quality};
  const sidecars={'tests.json':JSON.stringify(tests,null,2)+'\n','tests_bhp.csv':testsCsv(testRows.bhp,'bhp'),'tests_srt.csv':testsCsv(testRows.srt,'srt'),'tests_dictionary.json':JSON.stringify(testsDictionary({testFixture:snapshot.testFixture,provenance:snapshot.provenance}),null,2)+'\n'};
+ for(const [name,body] of Object.entries(sidecars)){files[name]=body;manifest.files[name]={sha256:sha256(body),bytes:Buffer.byteLength(body)};}
+}
+// v4 additive sidecars (RRC-14, D10): appended after the test sidecars. Only the closed
+// manifest delta below changes; every v3 file except tests.json (OD-2) is byte-identical.
+if(wellboreRows){
+ const scope=snapshot.scope;
+ manifest.transformation_version='rrc-odp-v2.2.0';manifest.scope.query_version=4;manifest.scope.wellbore_limit=scope.wellboreLimit;manifest.scope.wellbore_inventory_limit=scope.wellboreInventoryLimit;
+ manifest.limitations.push('Casing and plugging sidecars are exact-API filing records for the selected inventory row\'s own API (basis inventory_api_no), not limited to the reporting period; record_sequence is a filing sequence; presence or absence of rows is not a statement about casing, cementing or plugging status. Units, meanings and disclosed source conflicts (C2-C7) are cited in wellbore_dictionary.json; nothing is converted.');
+ const sidecar=dataset=>{const {link,rows,quality}=wellboreRows[dataset],queried=scope.sourceApiId!==null;
+  return {schemaVersion:1,artifactId,dataset,scope:{query_version:4,source_api_id:scope.sourceApiId,wellbore_limit:scope.wellboreLimit,wellbore_inventory_limit:scope.wellboreInventoryLimit,order:wellboreOrder,returned:queried?rows.length:null,status:!queried?'not_queried':rows.length?'returned_below_cap':'confirmed_empty',window:'exact api_no; not limited to reporting period'},link,rows,quality};};
+ const sidecars={'casing.json':JSON.stringify(sidecar('casing'),null,2)+'\n','casing.csv':wellboreCsv(wellboreRows.casing.rows,'casing'),'plugging.json':JSON.stringify(sidecar('plugging'),null,2)+'\n','plugging.csv':wellboreCsv(wellboreRows.plugging.rows,'plugging'),'wellbore_dictionary.json':JSON.stringify(wellboreDictionary({testFixture:snapshot.testFixture,provenance:snapshot.provenance}),null,2)+'\n'};
  for(const [name,body] of Object.entries(sidecars)){files[name]=body;manifest.files[name]={sha256:sha256(body),bytes:Buffer.byteLength(body)};}
 }
 // Preserve the approved legacy version's bytes; all other versions carry
