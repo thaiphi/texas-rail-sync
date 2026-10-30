@@ -7,7 +7,9 @@ import {clearDatasetEvidence,historyState} from './dataset-state.js';
 import {chart,formatNumber as fmt,escapeHtml as escape} from './inspection.js';
 import {mountWorkflow} from './workflow-ui.js';
 import {facts,filterInventory,dispositionRows,sourceUrl,countText} from './presentation.js';
-import {parseRoute,datasetRoute,datasetSummary,localTime,localZone} from './navigation.js';
+import {parseRoute,datasetRoute,compareRoute,datasetSummary,localTime,localZone} from './navigation.js';
+import {renderCompareView,compareEntry,compareOptions,compareFailure,compareSide,collectedAt,orderSides,ONLY_LISTED} from './compare-view.js';
+import {compareVersions} from './version-compare.js';
 import {createAnalyticsHandoff} from './analytics-handoff.js';
 import {listSavedPackages,saveVerifiedPackage,verifyVersionPackage} from './browser-library.js';
 import {createLegacyCollectionApi,createGuestCollectionApi} from './collection-api.js';
@@ -23,6 +25,8 @@ let analyticsPins=null,analyticsVersion=null,analyticsTransfer={state:'idle'};
 const savedPackages=new Map();let savedView=null;
 // Dossier selection is UI state only: the route key plus these module variables; nothing is stored or written.
 let dossierIntegrity=null,dossierShown,dossierState=null,dossierFilter='';
+// Compare screen (RRC-16): the pair lives only in the route and these variables; nothing is stored or written.
+const compareRequest=createLatestRequest();let compareShown=null,compareState=null,compareFilter={dataset:'',outcome:''},registryStatus='pending';
 const guestMode=document.querySelector('meta[name="trrc-mode"]')?.getAttribute('content')==='guest';
 // Guest datasets: private, verified on open, never listed in the public registry or pinned.
 const guestPackages=new Map();
@@ -52,11 +56,11 @@ function route(focus=false){
  currentRoute=parseRoute(location.hash);const workspace=currentRoute.screen==='workspace',id=currentRoute.artifactId??requestedVersionId??data?.artifactId;
  if(analyticsActive()&&(!workspace||currentRoute.tab!=='downloads'||id!==analyticsVersion))analyticsHandoff.cancel();
  updateAnalyticsControls();updateSaveControl();
- for(const name of ['find','datasets','history','help'])$(name+'-view').hidden=currentRoute.screen!==name;
+ for(const name of ['find','datasets','history','help','compare'])$(name+'-view').hidden=currentRoute.screen!==name;
  $('dataset-workspace').hidden=!workspace;
  $('error').hidden=!workspace||!$('error').textContent;
  for(const [tab,view] of [['overview','overview'],['records','records'],['tests','tests'],['wellbore','wellbore'],['dossier','dossier'],['quality','quality'],['sources','sources'],['downloads','exports'],['collection','collection-details']])$(view+'-view').hidden=!workspace||currentRoute.tab!==tab;
- for(const link of document.querySelectorAll('[data-route]')){if(link.dataset.route===(workspace?'datasets':currentRoute.screen))link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+ for(const link of document.querySelectorAll('[data-route]')){if(link.dataset.route===(workspace||currentRoute.screen==='compare'?'datasets':currentRoute.screen))link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  for(const link of document.querySelectorAll('[data-tab]')){link.href=id?datasetRoute(id,link.dataset.tab):'#datasets';if(workspace&&link.dataset.tab===currentRoute.tab)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  if(workspace&&id)updateWorkspaceLinks(id);
  if(data&&dossierIntegrity&&workspace&&currentRoute.tab==='dossier'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId)&&dossierSubject(data)!==dossierShown)void showDossier(data,dossierIntegrity,savedView);
@@ -64,6 +68,7 @@ function route(focus=false){
  if(showRun){$(workspace?'workspace-run-host':'history-run-host').appendChild($('workflow-view'));if(workflow){if(workspace)workflow.forDataset(id,data?.artifactId===id?data.manifest:null,availableVersions.find(version=>version.artifactId===id)?.runId);else workflow.showHistory(currentRoute.runId);}}
  if(workspace&&currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId&&(currentRoute.artifactId!==requestedVersionId||(focus&&currentRoute.artifactId===failedVersionId))&&(availableVersions.length||savedPackages.size||guestPackages.size))void openDataset(currentRoute.artifactId);
  if(currentRoute.screen==='datasets'&&availableVersions.length)void verifyLibrary();
+ if(currentRoute.screen==='compare'){if(compareKey(currentRoute)!==compareShown)void showCompare(currentRoute);}else if(compareShown!==null||compareState){compareRequest.invalidate();compareShown=null;compareState=null;$('compare-content').innerHTML='';}
  if(focus){if(currentRoute.screen==='history'&&currentRoute.runId){$('workflow-view').tabIndex=-1;$('workflow-view').focus({preventScroll:true});$('workflow-view').scrollIntoView({block:'start'});}else{$('main').focus({preventScroll:true});window.scrollTo({top:0});}}
 }
 window.addEventListener('hashchange',()=>route(true));route();
@@ -190,6 +195,49 @@ async function showDossier(artifact,integrity,view){
   dossierState={status:'loaded',artifact,subjectKey,catalogue,tests,casing,plugging,testsDictionary,wellboreDictionary};renderDossier();
  }catch(error){if(dossierRequest.isCurrent(ticket))target.innerHTML=renderDossierView({status:'error',message:String(error?.message??error)});}
 }
+// Compare screen (spec §7.2): both sides are server-listed versions verified by the same loaders as the workspace;
+// sidecars are verified against each side's manifest; any failure shows no rows (fail closed).
+function compareKey(target){return [target.a,target.b].sort().join('\n');}
+function renderCompare(){
+ $('compare-content').innerHTML=renderCompareView(compareState?.status==='loaded'?{...compareState,filter:compareFilter}:compareState);
+ for(const [id,field] of [['compare-filter-dataset','dataset'],['compare-filter-outcome','outcome']]){const control=$(id);control?.addEventListener?.('change',()=>{compareFilter={...compareFilter,[field]:control.value};renderCompare();$(id)?.focus?.();});}
+}
+async function showCompare(target){
+ const ticket=compareRequest.begin(),show=state=>{if(!compareRequest.isCurrent(ticket))return false;compareState=state;renderCompare();return true;};
+ compareFilter={dataset:'',outcome:''};
+ if(registryStatus==='pending'){compareShown=null;show({status:'loading'});return;}
+ compareShown=compareKey(target);show({status:'loading'});
+ try{
+  if(registryStatus==='failed')throw Error('the version registry is unavailable');
+  const pins=[target.a,target.b].map(id=>availableVersions.find(version=>version.artifactId===id));
+  if(pins.some(item=>!item)){show({status:'refused',reason:ONLY_LISTED});return;}
+  const artifacts=await Promise.all(pins.map(async item=>{const artifact=libraryArtifacts.get(item.artifactId)??await loadVerifiedVersion(item);libraryArtifacts.set(item.artifactId,artifact);return artifact;}));
+  const uics=artifacts.map(artifact=>artifact?.manifest?.scope?.uic_number);
+  if(uics[0]!==uics[1]){show({status:'refused',reason:`the two versions belong to different UICs (${uics[0]} and ${uics[1]})`});return;}
+  const sides=await Promise.all(artifacts.map(async(artifact,index)=>{
+   const integrity={...pins[index],path:`/artifacts/${artifact.artifactId}/`},files=artifact.manifest?.files??{};
+   const json=async name=>Object.hasOwn(files,name)?JSON.parse(new TextDecoder().decode(await loadVerifiedSidecar(artifact,integrity,name,fetch))):null;
+   const [tests,casing,plugging,relations]=await Promise.all(['tests.json','casing.json','plugging.json','evidence_relations.json'].map(json));
+   for(const [doc,name] of [[tests,'tests.json'],[casing,'casing.json'],[plugging,'plugging.json'],[relations,'evidence_relations.json']])if(doc!==null&&doc?.artifactId!==artifact.artifactId)throw Error(`${name} version identity mismatch`);
+   for(const [doc,dataset] of [[casing,'casing'],[plugging,'plugging']])if(doc!==null&&doc?.dataset!==dataset)throw Error(`${dataset}.json dataset mismatch`);
+   return {artifactId:artifact.artifactId,collected_at:collectedAt(artifact.manifest),side:compareSide(artifact,{tests,casing,plugging,relations})};
+  }));
+  if(!compareRequest.isCurrent(ticket))return;
+  // OD-5: A is the earlier candidate-monthly collection; the route is rewritten to that order without a new history entry.
+  const [first,second]=orderSides(sides[0],sides[1]);
+  if(first.artifactId!==target.a){const canonical=compareRoute(first.artifactId,second.artifactId);history.replaceState(history.state??null,'',canonical);currentRoute=parseRoute(canonical);}
+  let result;try{result=compareVersions(first.side,second.side);}catch(error){show(compareFailure(error));return;}
+  if(show({status:'loaded',result})){const title=$('compare-title');title.tabIndex=-1;title.focus?.({preventScroll:true});}
+ }catch(error){show({status:'error',message:String(error?.message??error)});}
+}
+// Version-picker entry (spec §7.1, OD-4): only other server-listed, verified versions of the same UIC are offered.
+function updateCompareEntry(){
+ const id=data?.artifactId,entry=id?compareEntry({artifactId:id,versions:availableVersions,verified:libraryArtifacts,listed:!savedView&&Boolean(livePinsFor(id)),pending:libraryLoading.size}):{uic:null,candidates:[],note:null};
+ const select=$('compare-selection'),previous=select.value;
+ $('compare-uic').textContent=entry.uic??'';select.innerHTML=compareOptions(entry.candidates);select.value=entry.candidates.includes(previous)?previous:entry.candidates[0]??'';
+ $('compare-controls').hidden=!entry.candidates.length;$('compare-none').textContent=entry.note??'';$('compare-none').hidden=!entry.note;updateCompareLink();
+}
+function updateCompareLink(){const id=data?.artifactId,other=$('compare-selection').value;$('compare-open').href=id&&other&&other!==id?compareRoute(id,other):'#datasets';}
 let manifest=null;
 function displayDataset(artifact,integrity){
  data=artifact;requestedVersionId=artifact.artifactId;base=integrity.path??`/artifacts/${data.artifactId}/`;$('error').textContent='';$('error').hidden=true;
@@ -217,6 +265,7 @@ function renderLibrary(){
  $('dataset-library').innerHTML=rows.length?`<div class="scroll-table" tabindex="0" aria-label="Preserved dataset versions"><table><thead><tr><th>Dataset</th><th>Reporting coverage</th><th>Quality</th><th>Version</th><th>Open</th></tr></thead><tbody>${rows.map(pins=>{const artifact=libraryArtifacts.get(pins.artifactId),summary=artifact&&datasetSummary(artifact);return `<tr><td><strong>${escape(summary?.name??'Metadata not verified yet')}</strong><small>${summary?`Monthly scope UIC ${escape(summary.uic)} · API ${escape(summary.api)} · ${summary.inventoryRows} inventory rows · ${summary.monthlyRows} monthly report rows (${summary.reportingMonths} distinct months)`:'Verify this version to inspect source identity.'}</small></td><td>${escape(summary?.period??'Unavailable')}</td><td>${summary?`${summary.quarantined} quarantined rows`:'Unavailable'}</td><td><code>${escape(pins.artifactId)}</code><small>${pins.defaultPinned?'Default pinned':''}${data?.artifactId===pins.artifactId?' · Opened':''}</small></td><td><button type="button" class="primary" data-open-version="${escape(pins.artifactId)}">Open dataset</button></td></tr>`;}).join('')}</tbody></table></div>`:'<p class="empty">No preserved datasets match this search.</p>';
  $('dataset-library').insertAdjacentHTML('beforeend',savedLibraryHtml());
  for(const button of $('dataset-library').querySelectorAll('[data-open-version]'))button.addEventListener('click',()=>{location.hash=datasetRoute(button.dataset.openVersion,'overview');});
+ updateCompareEntry();
  $('library-default').textContent=`Default pinned: ${availableVersions.find(version=>version.defaultPinned)?.artifactId??'Unavailable'}. ${data?'Opened: '+data.artifactId+'. ':''}Opening a dataset does not change the default pin.`;
 }
 const libraryLoading=new Set();
@@ -233,10 +282,10 @@ function updateVersionSelection(){
 }
 async function refreshVersions(){
  const ticket=registryRequest.begin();
- try{const response=await fetch('/api/versions');const type=response.headers?.get?.('content-type')??'unavailable';if(!response.ok||!type.includes('application/json'))console.warn('Dataset registry response could not be verified',{status:response.status,contentType:type});if(!response.ok)throw Error('Version registry unavailable');const registry=await response.json();if(!registryRequest.isCurrent(ticket))return;availableVersions=registry.versions;
+ try{const response=await fetch('/api/versions');const type=response.headers?.get?.('content-type')??'unavailable';if(!response.ok||!type.includes('application/json'))console.warn('Dataset registry response could not be verified',{status:response.status,contentType:type});if(!response.ok)throw Error('Version registry unavailable');const registry=await response.json();if(!registryRequest.isCurrent(ticket))return;availableVersions=registry.versions;registryStatus='ready';if(currentRoute.screen==='compare'&&compareShown===null)void showCompare(currentRoute);
  updateVersionSelection();
  $('library-status').textContent=`${availableVersions.length} preserved public versions. Source identity is shown only after version verification.`;renderLibrary();void verifyLibrary();
- }catch{if(!registryRequest.isCurrent(ticket))return;console.warn('Dataset registry request failed; unverified versions remain unavailable.');$('library-status').textContent=availableVersions.length?'Version registry unavailable. Previously verified versions remain available below; additional versions cannot be listed. Reload to retry.':'Version registry unavailable. Retry by reloading; no verified versions are available.';renderLibrary();updateVersionSelection();$('version-selection').disabled=!availableVersions.length&&!savedPackages.size;}
+ }catch{if(!registryRequest.isCurrent(ticket))return;if(registryStatus==='pending'){registryStatus='failed';if(currentRoute.screen==='compare'&&compareShown===null)void showCompare(currentRoute);}console.warn('Dataset registry request failed; unverified versions remain unavailable.');$('library-status').textContent=availableVersions.length?'Version registry unavailable. Previously verified versions remain available below; additional versions cannot be listed. Reload to retry.':'Version registry unavailable. Retry by reloading; no verified versions are available.';renderLibrary();updateVersionSelection();$('version-selection').disabled=!availableVersions.length&&!savedPackages.size;}
 }
 async function openDataset(id){
  resetAnalytics();revokeSavedUrls();
@@ -254,6 +303,7 @@ function inspectIssue(key){
 for(const id of ['county','operator'])$(id).addEventListener('change',filter);
 $('search').addEventListener('input',filter);$('clear-filters').addEventListener('click',()=>{$('search').value='';$('county').value='';$('operator').value='';filter();});
 $('dataset-search').addEventListener('input',renderLibrary);
+$('compare-selection').addEventListener('change',updateCompareLink);
 $('version-selection').addEventListener('change',async()=>{const id=$('version-selection').value;location.hash=datasetRoute(id,currentRoute.screen==='workspace'?currentRoute.tab:'overview');await openDataset(id);});
 $('timezone-caption').textContent='Times shown in '+localZone();
 await loadSavedLibrary();

@@ -1,5 +1,34 @@
 # Bounded Explorer specification v1
 
+## October 30 version comparison (Phase 4, RRC-16)
+
+**Scope.** A read-only, network-free comparison of two preserved versions of one UIC, shown on a new Compare screen (`#compare/<A>/<B>`). Nothing is collected or exported, and no query version changes. Nothing under `artifacts/`, `src/` or `scripts/` changes. The frozen contract is [the Phase 4 design](docs/superpowers/specs/2026-10-30-phase4-version-comparison-design.md).
+
+**Keys.**
+- Rows pair only by native source identity:
+  - inventory by `uic_number`
+  - H-10 by UIC + `period_start`
+  - BHP by report ID + tracking number + test sequence
+  - SRT by report ID + tracking number
+  - casing and plugging by source `id`
+- `source_row_key` and `source_record_key` embed a response hash and a row position, so they are shown only as row references.
+- On 2026-10-29 the source reissued every H-10 report ID for UIC 000020838 without changing any value. Such rows show as "Same values, different report identity".
+- Values are compared exactly as published, so `null`, `0` and `"0"` are all different.
+- Rows that share a key are never paired arbitrarily.
+
+**Comparability.**
+- A dataset one version lacks is "not comparable", never removed.
+- Rows outside the other version's reporting window or inventory query are "outside the other version's scope".
+- Coverage, QC counts and per-source SHA-256 are compared. Retrieval time, ETag and last-modified are shown as secondary detail.
+- The relation catalogue is compared by its counts only.
+
+**Browser.**
+- Only versions listed by this server can be compared. Both are verified first, and the pair is refused (with no rows shown) for different UICs or the same version twice.
+- A is the version collected earlier. The page never says which version is correct, newer or better.
+- Filters change only what is shown. There is no download of the comparison.
+
+**Proof.** Every same-UIC pair of committed versions (9 pairs) is compared in the test suite, in both orders, with a check that the files under `artifacts/` are unchanged. See [the proof](docs/verification-2026-10-30-phase4-proof.md).
+
 ## October 29 relation catalogue and dossier (Phase 3b, RRC-15)
 
 **Scope.** Local `/api/collect` now always produces query version 5 (owner decision, 2026-10-29). Version 5 queries exactly the version 4 targets (21, or 18 without a valid API) and adds one derived sidecar, `evidence_relations.json`. Existing v1–v4 versions are unchanged and never gain the file. Transformation: `rrc-odp-v2.3.0`, pipeline `rrc-collection-v5`. The frozen contract is [the Phase 3b design](docs/superpowers/specs/2026-10-29-phase3b-relation-catalogue-design.md); relations follow [ADR 004](docs/adr/004-wellbore-identity-and-relations.md) §3–4.
