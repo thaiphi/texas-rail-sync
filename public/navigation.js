@@ -14,7 +14,14 @@ export function parseRoute(hash){
  // Only the dossier tab accepts a third segment: the subject's encoded source_record_key.
  const dossier=/^dataset\/([^/]+)\/dossier\/([^/]+)$/.exec(key);
  if(dossier){let id,recordKey;try{id=decodeURIComponent(dossier[1]);recordKey=decodeURIComponent(dossier[2]);}catch{return {screen:'datasets'};}if(validId(id)&&validRecordKey(recordKey))return {screen:'workspace',artifactId:id,tab:'dossier',recordKey};}
+ // Phase 4 compare screen (RRC-16): two distinct, valid version IDs; anything else falls back to the library.
+ const compare=/^compare\/([^/]+)\/([^/]+)$/.exec(key);
+ if(compare){let a,b;try{a=decodeURIComponent(compare[1]);b=decodeURIComponent(compare[2]);}catch{return {screen:'datasets'};}if(validId(a)&&validId(b)&&a!==b)return {screen:'compare',a,b};}
  return {screen:'datasets'};
+}
+export function compareRoute(a,b){
+ if(!validId(a)||!validId(b)||a===b)throw Error('Invalid comparison: two different valid version identities are required');
+ return '#compare/'+encodeURIComponent(a)+'/'+encodeURIComponent(b);
 }
 export function datasetRoute(artifactId,tab='overview',recordKey=null){
  if(!validId(artifactId)||!tabs.includes(tab))throw Error('Invalid dataset version identity or tab');
