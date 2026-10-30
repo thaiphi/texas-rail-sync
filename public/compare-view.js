@@ -135,7 +135,7 @@ function filters(result,filter){
 }
 export function renderCompareView(state){
  if(state?.status==='loading')return '<p class="notice" role="status">Verifying both versions before comparing…</p>';
- if(state?.status==='refused')return `<p class="notice danger" role="alert">Comparison refused: ${escape(state.reason??'pair not comparable')}. No rows are shown.</p>`;
+ if(state?.status==='refused')return `<p class="notice danger" role="alert">Comparison refused: ${escape(String(state.reason??'pair not comparable').replace(/\.$/,''))}. No rows are shown.</p>`;
  if(state?.status!=='loaded'||!isObject(state.result))return `<p class="notice danger" role="alert">Comparison unavailable: ${escape(state?.message??'unknown failure')}. No differences are shown.</p>`;
  const result=state.result,filter={dataset:state.filter?.dataset??'',outcome:state.filter?.outcome??''};
  const ids={A:result.sides?.a?.artifact_id??'A',B:result.sides?.b?.artifact_id??'B'};

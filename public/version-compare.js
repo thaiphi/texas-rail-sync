@@ -214,7 +214,7 @@ function compareRows(dataset,a,b,artifacts,uic){
    else if(items.length===1)entries.push([0,[],singleRow(dataset,`only_in_${sideName}`,key.parts,key.tuple,items[0],sideName,null)]);
    else entries.push([1,[],groupRow('multiple_rows',key.parts,key.tuple,sideName==='a'?items:[],sideName==='b'?items:[],ROW_REASONS.shared_key)]);
   }
-  for(const [rank,identity,row] of entries)out.push({sort:[...key.tuple.map(item=>value(item)??''),...identity.map(item=>item??''),rank],row});
+  for(const [rank,identity,row] of entries)out.push({sort:[...key.tuple.map(item=>value(item)??''),...identity.map(item=>item??''),rank,JSON.stringify([key.space,key.complete,key.tuple])],row});
  }
  out.sort((x,y)=>compareTuple(x.sort,y.sort));
  return out.map(item=>item.row);

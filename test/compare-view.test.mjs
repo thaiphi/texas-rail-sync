@@ -64,7 +64,7 @@ const noDownload=html=>{assert.ok(!/\sdownload[\s=>]/i.test(html),'no download a
 test('states: loading, refused (each reason), error and loaded; refused and error show no rows',()=>{
  assert.match(renderCompareView({status:'loading'}),/role="status"/);
  const refusals=[ONLY_LISTED,'the two versions belong to different UICs (000020838 and 000109605)','the two artifact IDs are equal','a sidecar artifactId does not match'];
- for(const reason of refusals){const html=renderCompareView({status:'refused',reason});assert.match(html,/role="alert"/);assert.ok(html.includes(escapeHtml(reason)),reason);assert.ok(!html.includes('<table'));assert.ok(!html.includes('data-outcome'));}
+ for(const reason of refusals){const html=renderCompareView({status:'refused',reason});assert.match(html,/role="alert"/);assert.ok(html.includes(escapeHtml(reason)),reason);assert.ok(!html.includes('<table'));assert.ok(!html.includes('data-outcome'));assert.ok(!html.includes('..'),'one full stop after the reason');}
  const error=renderCompareView({status:'error',message:'Selected version hash mismatch <x>'});
  assert.match(error,/role="alert"/);assert.ok(error.includes('Comparison unavailable: Selected version hash mismatch &lt;x&gt;. No differences are shown.'));assert.ok(!error.includes('<table'));
  assert.equal(renderCompareView({status:'loaded'}),renderCompareView({status:'error',message:'unknown failure'}),'a loaded state without a result fails closed');
@@ -171,7 +171,7 @@ async function startUI({hash,versions,compare,failVerify=new Set()}){
  const fetch=async(path,options)=>{requests.push({path,options});if(sidecars.has(path)){const bytes=sidecars.get(path);return {ok:true,arrayBuffer:async()=>bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)};}return {ok:true,json:async()=>path==='/artifact-path.json'?{artifact_id:original.artifactId,path:`/artifacts/${original.artifactId}/`}:path==='/artifact-integrity.json'?pin(original):{versions:versions.filter(item=>item.listed!==false).map(item=>pin(item.artifact))}};};
  const location={hash};
  const env={document:{getElementById:element,querySelector:element,querySelectorAll:()=>[]},window:{addEventListener:(name,handler)=>{handlers[name]=handler;},scrollTo(){},matchMedia:()=>({matches:false})},location,fetch,
-  loadPinnedArtifact:async()=>original,loadVerifiedVersion:async pins=>{if(failVerify.has(pins.artifactId))throw Error('Selected version hash mismatch');const item=byId.get(pins.artifactId);if(!item)throw Error('Selected version evidence unavailable');return item.artifact;},
+  loadPinnedArtifact:async()=>original,loadVerifiedVersion:async pins=>{if(GATES.has(pins.artifactId))await GATES.get(pins.artifactId);if(failVerify.has(pins.artifactId))throw Error('Selected version hash mismatch');const item=byId.get(pins.artifactId);if(!item)throw Error('Selected version evidence unavailable');return item.artifact;},
   mountCollection(){},createLatestRequest,clearDatasetEvidence,historyState,...nav,chart:()=>'',fmt:formatNumber,escape:escapeHtml,mountWorkflow:async()=>({refresh(){},forDataset(){},showHistory(){},clearDataset(){}}),facts,filterInventory,dispositionRows,sourceUrl,countText,
   createAnalyticsHandoff:()=>({start(){},cancel(){},destroy(){}}),PORTFOLIO_URL:'',createLegacyCollectionApi:()=>({}),createGuestCollectionApi:()=>({}),createGuestClient:()=>({}),
   listSavedPackages:async()=>[],saveVerifiedPackage:async()=>{throw Error('nothing is saved');},verifyVersionPackage:async()=>{},loadVerifiedSidecar:(a,i,name,impl)=>integrityModule.loadVerifiedSidecar(a,i,name,impl??fetch),
@@ -185,6 +185,9 @@ async function startUI({hash,versions,compare,failVerify=new Set()}){
  return {element,requests,replaced,calls,location,navigate:async next=>{location.hash=next;handlers.hashchange();await new Promise(resolve=>setTimeout(resolve,0));await settle();}};
 }
 const V1=original.artifactId;
+// Holds a version's verification open until the test releases it (stale-result guard tests).
+const GATES=new Map();
+const gate=()=>{let open;const promise=new Promise(resolve=>{open=resolve;});return {promise,open};};
 test('app: the reversed route is rewritten to the earlier collection as A, then compared once',async()=>{
  const b=later(B);const ui=await startUI({hash:`#compare/${B}/${V1}`,versions:[{artifact:original},b]});
  assert.deepEqual(ui.replaced,[`#compare/${V1}/${B}`],'canonical order, replaceState only');assert.equal(ui.location.hash,`#compare/${V1}/${B}`);
@@ -231,4 +234,18 @@ test('app: the version picker offers same-UIC server-listed versions, or says no
  const alone=await startUI({hash:`#dataset/${V1}/overview`,versions:[{artifact:original},later('rrc-cmp-other',{uic:'000109605'})]});
  for(let attempt=0;attempt<100&&alone.element('compare-none').textContent!==noOtherVersion('000020838');attempt++)await new Promise(resolve=>setTimeout(resolve,5));
  assert.equal(alone.element('compare-none').textContent,noOtherVersion('000020838'));assert.equal(alone.element('compare-controls').hidden,true);
+});
+test('app: a pair that finishes verifying after navigation to another pair is never shown',async t=>{
+ t.after(()=>GATES.clear());const held=gate();GATES.set(B,held.promise);const C='rrc-cmp-fixture-c';
+ const ui=await startUI({hash:`#compare/${V1}/${B}`,versions:[{artifact:original},later(B),later(C)],compare:(a,b)=>({...fixture(),uic_number:'MARK-'+b.artifactId})});
+ await ui.navigate(`#compare/${V1}/${C}`);assert.ok(ui.element('compare-content').innerHTML.includes('MARK-'+C));
+ held.open();await new Promise(resolve=>setTimeout(resolve,50));
+ const html=ui.element('compare-content').innerHTML;assert.ok(html.includes('MARK-'+C));assert.ok(!html.includes('MARK-'+B),'the earlier pair is never shown');
+ assert.deepEqual(ui.calls.map(call=>call[1].artifactId),[C]);
+});
+test('app: a pair that finishes verifying after leaving the compare screen renders nothing',async t=>{
+ t.after(()=>GATES.clear());const held=gate();GATES.set(B,held.promise);
+ const ui=await startUI({hash:`#compare/${V1}/${B}`,versions:[{artifact:original},later(B)],compare:(a,b)=>({...fixture(),uic_number:'MARK-'+b.artifactId})});
+ await ui.navigate('#datasets');held.open();await new Promise(resolve=>setTimeout(resolve,50));
+ assert.equal(ui.element('compare-content').innerHTML,'');assert.equal(ui.calls.length,0);assert.equal(ui.element('compare-view').hidden,true);
 });
