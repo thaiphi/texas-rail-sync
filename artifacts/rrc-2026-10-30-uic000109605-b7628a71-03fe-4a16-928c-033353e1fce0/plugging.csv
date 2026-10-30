@@ -1,0 +1,8 @@
+source_row_key,source_api_id,wellbore_link_status,source_id,api_no,record_sequence,on_top_record,w3_date,w3_date_text,plug_top_depth,plug_bottom_depth,plug_cmt_sacks,total_depth_w3,depth_reference,depth_reference_code,source_snapshot_id,quality_flags
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:1,38934609,matched,1202285,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,4508,4629,100,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:2,38934609,matched,1202286,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,3270,3400,42,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:3,38934609,matched,1202287,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,1835,2019,30,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:4,38934609,matched,1202288,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,1215,1610,165,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:5,38934609,matched,1202289,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,793,975,76,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:6,38934609,matched,1202290,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,293,475,76,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,
+rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:7,38934609,matched,1202291,38934609,1,true,2024-12-21,2024-12-21T00:00:00.000,3,12,4,6515,2849,KB,wfzn-9fje:629daf9ed4d1cd17,

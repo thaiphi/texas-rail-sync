@@ -1,0 +1,10 @@
+source_row_key,source_api_id,wellbore_link_status,source_id,api_no,record_sequence,on_top_record,completion_date,completion_date_text,csg_size,hole_size,csg_depth,toc,multi_stg_depth,cmt_sacks,total_depth_g1w2,depth_reference,depth_reference_code,source_snapshot_id,quality_flags
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:1,38934609,matched,1839610,38934609,1,true,2021-10-28,2021-10-28T00:00:00.000,10.75,14.75,1550,0,,1205,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:2,38934609,matched,1839611,38934609,1,true,2021-10-28,2021-10-28T00:00:00.000,7,9.875,6515,1650,3984,1800,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:3,38934609,matched,1839612,38934609,1,true,2021-10-28,2021-10-28T00:00:00.000,7,9.875,6515,3984,,625,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:4,38934609,matched,1839613,38934609,2,,2019-05-01,2019-05-01T00:00:00.000,10.75,14.75,1550,0,,1205,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:5,38934609,matched,1839614,38934609,2,,2019-05-01,2019-05-01T00:00:00.000,7,9.875,6515,1650,3984,1800,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:6,38934609,matched,1839615,38934609,2,,2019-05-01,2019-05-01T00:00:00.000,7,9.875,6515,3984,,625,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:7,38934609,matched,1839616,38934609,3,,2014-12-14,2014-12-14T00:00:00.000,10.75,14.75,1550,0,,1205,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:8,38934609,matched,1839617,38934609,3,,2014-12-14,2014-12-14T00:00:00.000,7,9.875,6515,1650,3984,1800,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,
+rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:9,38934609,matched,1839618,38934609,3,,2014-12-14,2014-12-14T00:00:00.000,7,9.875,6515,3984,,625,6515,2849,KB,u9m4-xnh6:685d7a78e4b5e2db,missing:multi_stg_depth

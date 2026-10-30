@@ -155,9 +155,12 @@ test('all committed artifact versions replay byte-identically',async()=>{
   // Query-version-3+ versions carry the four test sidecars (compared byte for byte above); older versions never do.
   if(snapshot.scope?.queryVersion>=3)for(const name of ['tests.json','tests_bhp.csv','tests_srt.csv','tests_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
   else assert.equal(built.files['tests.json'],undefined);
-  // Query-version-4 versions also carry the five wellbore sidecars; older versions never do.
-  if(snapshot.scope?.queryVersion===4)for(const name of ['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
+  // Query-version-4+ versions also carry the five wellbore sidecars; older versions never do.
+  if(snapshot.scope?.queryVersion>=4)for(const name of ['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'])assert.ok(built.files[name],artifactId+'/'+name);
   else assert.equal(built.files['casing.json'],undefined);
+  // Only query-version-5+ versions carry the relation catalogue (ADR 004 §3); no committed v4 or older version gains it.
+  if(snapshot.scope?.queryVersion>=5)assert.ok(built.files['evidence_relations.json'],artifactId+'/evidence_relations.json');
+  else assert.equal(built.files['evidence_relations.json'],undefined,artifactId);
  }
 });
 test('guest path stays v2: evidence names and URLs are frozen and v3 is refused by prepare and finalize',async t=>{
@@ -173,7 +176,7 @@ test('guest path stays v2: evidence names and URLs are frozen and v3 is refused 
  const store=new Map(Object.entries(prepared.files)),publisher={readStaged:async(_id,name)=>store.get(name),readPublished:async(_id,name)=>store.get(name),publish:async()=>'verified_existing_bytes'};
  await assert.rejects(finalizeArtifactFromReader({readBytes:v3Read,sourceReference:'guest/v2',artifactId:'guest-v2',testFixture:true,recorder:resumeRunRecorder(JSON.parse(JSON.stringify(prepared.record))),publisher}),error=>error.code==='SOURCE_INVALID'&&/local-only \(D7\)/.test(error.message));
 });
-test('local /api/collect produces v4 with the request schema unchanged',async t=>{
+test('local /api/collect produces v5 with the request schema unchanged',async t=>{
  const env=await setup(t,'trrc-v3-api-'),server=createExplorerServer({runRoot:env.runRoot,lookupRoot:env.lookupRoot,sourceRoot:resolve(env.dir,'sources'),outputRoot:env.outputRoot,fetchImpl:network(),testFixture:true});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
  const base=`http://127.0.0.1:${server.address().port}`,post=(path,body)=>fetch(base+path,{method:'POST',headers:{origin:base,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -181,7 +184,7 @@ test('local /api/collect produces v4 with the request schema unchanged',async t=
  const body={lookupId:found.lookupId,sourceRecordKey:found.candidates[0].sourceRecordKey,startMonth:'2024-01',endMonth:'2026-04'};
  assert.equal((await post('/api/collect',{...body,queryVersion:3})).status,400,'request schema unchanged: no version field');
  const response=await post('/api/collect',body);assert.equal(response.status,201);const result=await response.json();
- assert.equal(result.scope.query_version,4);assert.equal(result.scope.test_report_limit,1000);assert.equal(result.scope.wellbore_limit,1000);assert.equal(result.scope.wellbore_inventory_limit,25);assert.equal(result.run.pipelineVersion,'rrc-collection-v4');assert.equal(result.run.transformationVersion,'rrc-odp-v2.2.0');
- for(const name of [...sidecarFiles,'casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'])await stat(resolve(env.outputRoot,result.artifactId,name));
- const marker=await json(resolve(env.outputRoot,result.artifactId,'sources/acquisition.json'));assert.equal(marker.scope.queryVersion,4);assert.equal(marker.scope.sourceApiId,'38910201');assert.equal(marker.targets.length,21);
+ assert.equal(result.scope.query_version,5);assert.equal(result.scope.test_report_limit,1000);assert.equal(result.scope.wellbore_limit,1000);assert.equal(result.scope.wellbore_inventory_limit,25);assert.equal(result.run.pipelineVersion,'rrc-collection-v5');assert.equal(result.run.transformationVersion,'rrc-odp-v2.3.0');
+ for(const name of [...sidecarFiles,'casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json','evidence_relations.json'])await stat(resolve(env.outputRoot,result.artifactId,name));
+ const marker=await json(resolve(env.outputRoot,result.artifactId,'sources/acquisition.json'));assert.equal(marker.scope.queryVersion,5);assert.equal(marker.scope.sourceApiId,'38910201');assert.equal(marker.targets.length,21);
 });

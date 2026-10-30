@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/api/views/qxfy-wcfs.json",
+  "retrieved_at": "2026-10-30T01:38:03.780Z",
+  "http_status": 200,
+  "last_modified": null,
+  "etag": null,
+  "sha256": "f89a31c6c1fc551c880002c8b77112054d2ff32ef6ec034355839665ab6002c3",
+  "bytes": 19789,
+  "testFixture": false,
+  "app_token_used": true
+}

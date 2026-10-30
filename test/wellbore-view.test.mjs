@@ -16,7 +16,7 @@ import {renderWellboreView,wellboreCollected,PRESENCE} from '../public/wellbore-
 
 const NOT_COLLECTED='Casing and plugging records were not collected for this version.';
 const HELP='ODP casing (Form G-1/W-2) and plugging (Form W-3) datasets are filing records keyed by API number, queried with the selected inventory row\'s own API. A casing string can appear once per filing (record_sequence). Values are shown as reported; units are cited from Forms W-2/W-3 and the WBA091 manual where stated (inferred units are marked); most reference codes are undocumented. Rows returned or not returned say nothing about casing, cementing or plugging status.';
-const ANALYTICS_LOCAL_ONLY='Test-report versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
+const ANALYTICS_LOCAL_ONLY='Test-report, wellbore and relation versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
 const SIDECARS=['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'];
 const FORBIDDEN=['compliant','non-compliant','violation','plugged and abandoned','not plugged','properly','adequate','safe','plugged'];
 const SENTENCES={
@@ -161,7 +161,7 @@ async function startUI({artifact,hash,sidecars=new Map()}){
  const fetch=async path=>{if(sidecars.has(path)){const bytes=sidecars.get(path);return {ok:true,arrayBuffer:async()=>bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)};}return {ok:true,json:async()=>path==='/artifact-path.json'?{artifact_id:artifact.artifactId,path:pins.path}:path==='/artifact-integrity.json'?pins:{versions:[pins]}};};
  const env={document:{getElementById:element,querySelector:element,querySelectorAll:()=>[]},window:{addEventListener:(name,handler)=>{handlers[name]=handler;},scrollTo(){},matchMedia:()=>({matches:false})},location:{hash},fetch,loadPinnedArtifact:async()=>artifact,loadVerifiedVersion:async()=>artifact,mountCollection(){},createLatestRequest,clearDatasetEvidence,historyState,...nav,chart:()=>'',fmt:formatNumber,escape:escapeHtml,mountWorkflow:async()=>({refresh(){},forDataset(){},showHistory(){},clearDataset(){}}),facts,filterInventory,dispositionRows,sourceUrl,countText,
   createAnalyticsHandoff:()=>({start(){},cancel(){},destroy(){}}),PORTFOLIO_URL:'',createLegacyCollectionApi:()=>({}),createGuestCollectionApi:()=>({}),createGuestClient:()=>({}),
-  listSavedPackages:async()=>[],saveVerifiedPackage:async()=>{},verifyVersionPackage:async()=>{},loadVerifiedSidecar:(a,i,name,impl)=>integrityModule.loadVerifiedSidecar(a,i,name,impl??fetch),renderTestsView,testReportsCollected,renderWellboreView,wellboreCollected};
+  listSavedPackages:async()=>[],saveVerifiedPackage:async()=>{},verifyVersionPackage:async()=>{},loadVerifiedSidecar:(a,i,name,impl)=>integrityModule.loadVerifiedSidecar(a,i,name,impl??fetch),renderTestsView,testReportsCollected,renderWellboreView,wellboreCollected,...await import('../public/dossier-view.js').then(({renderDossierView,dossierCollected})=>({renderDossierView,dossierCollected}))};
  env.document.querySelector=selector=>selector.startsWith('meta[')?null:element(selector);
  const code=(await readFile(new URL('../public/app.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,''),AsyncFunction=Object.getPrototypeOf(async()=>{}).constructor;
  await new AsyncFunction(...Object.keys(env),code)(...Object.values(env));
@@ -173,7 +173,8 @@ function versionArtifact({queryVersion=4,casing=doc('casing',[casingRow(1),casin
  const artifact=structuredClone(original);artifact.artifactId=id;artifact.manifest.artifact_id=id;artifact.manifest.scope.query_version=queryVersion;artifact.manifest.files['sources/acquisition.json']={sha256:'c'.repeat(64),bytes:1};
  const encoder=new TextEncoder(),tests={schemaVersion:1,artifactId:id,scope:{query_version:queryVersion},bhp:[],srt:[],quality:{}};
  const bodies=new Map([['tests.json',encoder.encode(JSON.stringify(tests))],['tests_dictionary.json',encoder.encode('{"fields":{}}')]]);
- if(queryVersion===4)for(const [name,body] of [['casing.json',JSON.stringify(casing)],['casing.csv','source_row_key\n'],['plugging.json',JSON.stringify(plugging)],['plugging.csv','source_row_key\n'],['wellbore_dictionary.json',JSON.stringify(dictionary())]])bodies.set(name,encoder.encode(body));
+ if(queryVersion>=4)for(const [name,body] of [['casing.json',JSON.stringify(casing)],['casing.csv','source_row_key\n'],['plugging.json',JSON.stringify(plugging)],['plugging.csv','source_row_key\n'],['wellbore_dictionary.json',JSON.stringify(dictionary())]])bodies.set(name,encoder.encode(body));
+ if(queryVersion>=5)bodies.set('evidence_relations.json',encoder.encode(JSON.stringify({schemaVersion:1,artifactId:id,catalogue_version:'rrc-relations-v1',relations:[]})));
  for(const [name,bytes] of bodies)artifact.manifest.files[name]={sha256:sha(bytes),bytes:bytes.length};
  return {artifact,sidecars:new Map([...bodies].map(([name,bytes])=>[`/artifacts/${id}/${name}`,bytes]))};
 }
