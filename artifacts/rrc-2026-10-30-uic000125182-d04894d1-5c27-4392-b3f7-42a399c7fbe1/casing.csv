@@ -1,0 +1,5 @@
+source_row_key,source_api_id,wellbore_link_status,source_id,api_no,record_sequence,on_top_record,completion_date,completion_date_text,csg_size,hole_size,csg_depth,toc,multi_stg_depth,cmt_sacks,total_depth_g1w2,depth_reference,depth_reference_code,source_snapshot_id,quality_flags
+rrc:casing:u9m4-xnh6:40c59897ae7e7db8:1,10933820,matched,434517,10933820,1,true,2023-05-08,2023-05-08T00:00:00.000,9.625,12.25,2397,0,,765,4350,3248,GL,u9m4-xnh6:40c59897ae7e7db8,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:40c59897ae7e7db8:2,10933820,matched,434518,10933820,1,true,2023-05-08,2023-05-08T00:00:00.000,13.375,17.5,413,0,,745,4350,3248,GL,u9m4-xnh6:40c59897ae7e7db8,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:40c59897ae7e7db8:3,10933820,matched,434519,10933820,2,,2022-07-10,2022-07-10T00:00:00.000,13.375,17.5,413,0,,745,4350,3248,GL,u9m4-xnh6:40c59897ae7e7db8,missing:multi_stg_depth
+rrc:casing:u9m4-xnh6:40c59897ae7e7db8:4,10933820,matched,434520,10933820,2,,2022-07-10,2022-07-10T00:00:00.000,9.625,12.25,2397,0,,765,4350,3248,GL,u9m4-xnh6:40c59897ae7e7db8,missing:multi_stg_depth

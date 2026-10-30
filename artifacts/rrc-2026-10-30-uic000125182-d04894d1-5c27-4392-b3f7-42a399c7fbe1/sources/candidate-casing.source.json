@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/u9m4-xnh6.json?%24where=api_no%3D%2710933820%27&%24limit=1000&%24order=record_sequence%2Cid",
+  "retrieved_at": "2026-10-30T01:16:41.872Z",
+  "http_status": 200,
+  "last_modified": "Tue, 20 Oct 2026 19:16:08 GMT",
+  "etag": "\"anVsaWV0dC4xNjgwOTRfMV83MXczbTNBcUVsV1NSeUR6YjU3cFd4Q0tNajQyMA---gziv-vvcbFCA6BHI2lZJKIug0M60UZ--gzip--gzip\"",
+  "sha256": "40c59897ae7e7db8a107ae099eff808a6adfe80ff633380e1425c511ce8b02e1",
+  "bytes": 1129,
+  "testFixture": false,
+  "app_token_used": true
+}

@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-30-uic000125182-d04894d1-5c27-4392-b3f7-42a399c7fbe1",
+  "dataset": "casing",
+  "scope": {
+    "query_version": 4,
+    "source_api_id": "10933820",
+    "wellbore_limit": 1000,
+    "wellbore_inventory_limit": 25,
+    "order": "record_sequence,id",
+    "returned": 4,
+    "status": "returned_below_cap",
+    "window": "exact api_no; not limited to reporting period"
+  },
+  "link": {
+    "inventory_source_record_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+    "source_api_id": "10933820",
+    "basis": "inventory_api_no",
+    "status": "matched",
+    "reason": null,
+    "inventory_query": {
+      "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=api_no%3D%2710933820%27&%24limit=25&%24order=uic_number%2Capi_no",
+      "sha256": "49ccca596a92ba995c4a5c0f2bf8ff8ef9cc9c68949253b2776573f6ec3c3d3c",
+      "rows": 1
+    },
+    "wellbore_query": {
+      "url": "https://data.texas.gov/resource/u9m4-xnh6.json?%24where=api_no%3D%2710933820%27&%24limit=1000&%24order=record_sequence%2Cid",
+      "sha256": "40c59897ae7e7db8a107ae099eff808a6adfe80ff633380e1425c511ce8b02e1",
+      "rows": 4
+    },
+    "candidates": [
+      {
+        "candidate_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+        "selected": true,
+        "uic_number": "000125182",
+        "api_no": "10933820",
+        "operator_number": "103285",
+        "district_code": "08",
+        "lease_number": "58337",
+        "lease_name": "BARBARO 23 SWD",
+        "well_no_display": "10",
+        "w14_number": "16996"
+      }
+    ],
+    "wellbore_row_count": 4
+  },
+  "rows": [
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:1",
+      "source_api_id": "10933820",
+      "wellbore_link_status": "matched",
+      "source_id": "434517",
+      "api_no": "10933820",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "completion_date": "2023-05-08",
+      "completion_date_text": "2023-05-08T00:00:00.000",
+      "csg_size": 9.625,
+      "hole_size": 12.25,
+      "csg_depth": 2397,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 765,
+      "total_depth_g1w2": 4350,
+      "depth_reference": 3248,
+      "depth_reference_code": "GL",
+      "source_snapshot_id": "u9m4-xnh6:40c59897ae7e7db8",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    },
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:2",
+      "source_api_id": "10933820",
+      "wellbore_link_status": "matched",
+      "source_id": "434518",
+      "api_no": "10933820",
+      "record_sequence": "1",
+      "on_top_record": true,
+      "completion_date": "2023-05-08",
+      "completion_date_text": "2023-05-08T00:00:00.000",
+      "csg_size": 13.375,
+      "hole_size": 17.5,
+      "csg_depth": 413,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 745,
+      "total_depth_g1w2": 4350,
+      "depth_reference": 3248,
+      "depth_reference_code": "GL",
+      "source_snapshot_id": "u9m4-xnh6:40c59897ae7e7db8",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    },
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:3",
+      "source_api_id": "10933820",
+      "wellbore_link_status": "matched",
+      "source_id": "434519",
+      "api_no": "10933820",
+      "record_sequence": "2",
+      "on_top_record": null,
+      "completion_date": "2022-07-10",
+      "completion_date_text": "2022-07-10T00:00:00.000",
+      "csg_size": 13.375,
+      "hole_size": 17.5,
+      "csg_depth": 413,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 745,
+      "total_depth_g1w2": 4350,
+      "depth_reference": 3248,
+      "depth_reference_code": "GL",
+      "source_snapshot_id": "u9m4-xnh6:40c59897ae7e7db8",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    },
+    {
+      "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:4",
+      "source_api_id": "10933820",
+      "wellbore_link_status": "matched",
+      "source_id": "434520",
+      "api_no": "10933820",
+      "record_sequence": "2",
+      "on_top_record": null,
+      "completion_date": "2022-07-10",
+      "completion_date_text": "2022-07-10T00:00:00.000",
+      "csg_size": 9.625,
+      "hole_size": 12.25,
+      "csg_depth": 2397,
+      "toc": 0,
+      "multi_stg_depth": null,
+      "cmt_sacks": 765,
+      "total_depth_g1w2": 4350,
+      "depth_reference": 3248,
+      "depth_reference_code": "GL",
+      "source_snapshot_id": "u9m4-xnh6:40c59897ae7e7db8",
+      "quality_flags": [
+        "missing:multi_stg_depth"
+      ]
+    }
+  ],
+  "quality": {
+    "counts": {
+      "raw": 4,
+      "parsed": 4,
+      "accepted": 4,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "issue_counts": {
+      "missing:multi_stg_depth": 4
+    },
+    "dispositions": [
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:2",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:3",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:casing:u9m4-xnh6:40c59897ae7e7db8:4",
+        "disposition": "accepted"
+      }
+    ],
+    "duplicate_policy": "Every source row retained. The only duplicate rule is a repeated source id within one response: every occurrence is flagged duplicate_source_id and quarantined. Rows identical apart from id, record_sequence or date (the same string re-filed) are normal and unflagged. No preferred row is selected or merged.",
+    "empty_result_policy": "No casing rows were returned by the exact-API query; this does not show that no casing exists.",
+    "presence_policy": "Only whether rows were returned is stated. Rows returned or not returned say nothing about casing, cementing or plugging status.",
+    "record_sequence_policy": "record_sequence is a filing sequence shared by several rows; it is not a row key, repeats are normal and never flagged, and it is kept verbatim without being used for ordering beyond the source order (record_sequence,id).",
+    "on_top_record_policy": "on_top_record is true only where the source sets it; absent in source is shown empty (not false) with no flag; a non-boolean value is a quarantined parse failure; it is never derived from record_sequence or a date."
+  }
+}

@@ -1,0 +1,1427 @@
+{
+  "id" : "h54t-xnbi",
+  "name" : "RRC-UIC Step Rate Test Results",
+  "assetType" : "dataset",
+  "averageRating" : 0,
+  "createdAt" : 1771610105,
+  "description" : "Inventory of all step-rate test (SRT) reports received by UIC.",
+  "diciBackend" : false,
+  "displayType" : "table",
+  "downloadCount" : 482,
+  "hideFromCatalog" : false,
+  "hideFromDataJson" : false,
+  "locked" : false,
+  "newBackend" : true,
+  "numberOfComments" : 0,
+  "oid" : 42133631,
+  "provenance" : "official",
+  "publicationAppendEnabled" : false,
+  "publicationDate" : 1778860200,
+  "publicationGroup" : 20286753,
+  "publicationStage" : "published",
+  "rowsUpdatedAt" : 1790857939,
+  "rowsUpdatedBy" : "j7wi-a8ef",
+  "tableId" : 20377543,
+  "totalTimesRated" : 0,
+  "viewCount" : 987,
+  "viewLastModified" : 1790857938,
+  "viewType" : "tabular",
+  "approvals" : [ {
+    "reviewedAt" : 1771610259,
+    "reviewedAutomatically" : true,
+    "state" : "approved",
+    "submissionId" : 7471326,
+    "submissionObject" : "public_audience_request",
+    "submissionOutcome" : "change_audience",
+    "submittedAt" : 1771610259,
+    "targetAudience" : "public",
+    "workflowId" : 1858,
+    "submissionDetails" : {
+      "permissionType" : "READ"
+    },
+    "submissionOutcomeApplication" : {
+      "endedAt" : 1771610259,
+      "failureCount" : 0,
+      "startedAt" : 1771610259,
+      "status" : "success"
+    },
+    "submitter" : {
+      "id" : "j7wi-a8ef",
+      "displayName" : "RRC ODP Support"
+    }
+  } ],
+  "clientContext" : {
+    "clientContextVariables" : [ ],
+    "inheritedVariables" : { }
+  },
+  "columns" : [ {
+    "id" : 632662444,
+    "name" : "REPORT_ID",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "report_id",
+    "position" : 1,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631099,
+    "cachedContents" : {
+      "non_null" : "337",
+      "largest" : "1336",
+      "null" : "0",
+      "top" : [ {
+        "item" : "1069",
+        "count" : "1"
+      }, {
+        "item" : "1320",
+        "count" : "1"
+      }, {
+        "item" : "1040",
+        "count" : "1"
+      }, {
+        "item" : "1139",
+        "count" : "1"
+      }, {
+        "item" : "1290",
+        "count" : "1"
+      }, {
+        "item" : "1293",
+        "count" : "1"
+      }, {
+        "item" : "1173",
+        "count" : "1"
+      }, {
+        "item" : "1020",
+        "count" : "1"
+      }, {
+        "item" : "1166",
+        "count" : "1"
+      }, {
+        "item" : "1016",
+        "count" : "1"
+      }, {
+        "item" : "1207",
+        "count" : "1"
+      }, {
+        "item" : "1237",
+        "count" : "1"
+      }, {
+        "item" : "1329",
+        "count" : "1"
+      }, {
+        "item" : "1269",
+        "count" : "1"
+      }, {
+        "item" : "1283",
+        "count" : "1"
+      }, {
+        "item" : "1330",
+        "count" : "1"
+      }, {
+        "item" : "1070",
+        "count" : "1"
+      }, {
+        "item" : "1019",
+        "count" : "1"
+      }, {
+        "item" : "1004",
+        "count" : "1"
+      }, {
+        "item" : "1072",
+        "count" : "1"
+      } ],
+      "smallest" : "1000",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662445,
+    "name" : "UIC_NO",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "uic_no",
+    "position" : 2,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165664316,
+    "cachedContents" : {
+      "non_null" : "337",
+      "largest" : "000127284",
+      "null" : "0",
+      "top" : [ {
+        "item" : "000119875",
+        "count" : "98"
+      }, {
+        "item" : "000117758",
+        "count" : "25"
+      }, {
+        "item" : "000120326",
+        "count" : "3"
+      }, {
+        "item" : "000117949",
+        "count" : "2"
+      }, {
+        "item" : "000116173",
+        "count" : "2"
+      }, {
+        "item" : "000122659",
+        "count" : "2"
+      }, {
+        "item" : "000117157",
+        "count" : "2"
+      }, {
+        "item" : "000125153",
+        "count" : "2"
+      }, {
+        "item" : "000119379",
+        "count" : "2"
+      }, {
+        "item" : "000116192",
+        "count" : "1"
+      }, {
+        "item" : "000118748",
+        "count" : "1"
+      }, {
+        "item" : "000119600",
+        "count" : "1"
+      }, {
+        "item" : "000124996",
+        "count" : "1"
+      }, {
+        "item" : "000126337",
+        "count" : "1"
+      }, {
+        "item" : "000126804",
+        "count" : "1"
+      }, {
+        "item" : "000119394",
+        "count" : "1"
+      }, {
+        "item" : "000110173",
+        "count" : "1"
+      }, {
+        "item" : "000124319",
+        "count" : "1"
+      }, {
+        "item" : "000118823",
+        "count" : "1"
+      }, {
+        "item" : "000119979",
+        "count" : "1"
+      } ],
+      "smallest" : "000020837",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662446,
+    "name" : "TRACKING_NO",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "tracking_no",
+    "position" : 3,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165664317,
+    "cachedContents" : {
+      "non_null" : "337",
+      "largest" : "58985000",
+      "null" : "0",
+      "top" : [ {
+        "item" : "51855000",
+        "count" : "98"
+      }, {
+        "item" : "54092000",
+        "count" : "25"
+      }, {
+        "item" : "52068000",
+        "count" : "3"
+      }, {
+        "item" : "50440000",
+        "count" : "2"
+      }, {
+        "item" : "54156000",
+        "count" : "2"
+      }, {
+        "item" : "55657000",
+        "count" : "2"
+      }, {
+        "item" : "47844000",
+        "count" : "2"
+      }, {
+        "item" : "54631000",
+        "count" : "2"
+      }, {
+        "item" : "56655000",
+        "count" : "2"
+      }, {
+        "item" : "53713000",
+        "count" : "1"
+      }, {
+        "item" : "55623000",
+        "count" : "1"
+      }, {
+        "item" : "52774000",
+        "count" : "1"
+      }, {
+        "item" : "57745000",
+        "count" : "1"
+      }, {
+        "item" : "54122000",
+        "count" : "1"
+      }, {
+        "item" : "50452000",
+        "count" : "1"
+      }, {
+        "item" : "50149000",
+        "count" : "1"
+      }, {
+        "item" : "56974000",
+        "count" : "1"
+      }, {
+        "item" : "54849000",
+        "count" : "1"
+      }, {
+        "item" : "58985000",
+        "count" : "1"
+      }, {
+        "item" : "49260000",
+        "count" : "1"
+      } ],
+      "smallest" : "1000054000",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662461,
+    "name" : "SRT_RECEIVED_DATE",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "srt_received_date",
+    "position" : 4,
+    "renderTypeName" : "text",
+    "tableColumnId" : 167662739,
+    "cachedContents" : {
+      "non_null" : "233",
+      "largest" : "2025-09-19",
+      "null" : "104",
+      "top" : [ {
+        "item" : "2025-08-08",
+        "count" : "5"
+      }, {
+        "item" : "2025-01-28",
+        "count" : "4"
+      }, {
+        "item" : "2025-09-19",
+        "count" : "3"
+      }, {
+        "item" : "2022-10-05",
+        "count" : "3"
+      }, {
+        "item" : "2023-04-14",
+        "count" : "3"
+      }, {
+        "item" : "2023-10-12",
+        "count" : "3"
+      }, {
+        "item" : "2022-10-28",
+        "count" : "3"
+      }, {
+        "item" : "2025-05-30",
+        "count" : "2"
+      }, {
+        "item" : "2019-07-16",
+        "count" : "2"
+      }, {
+        "item" : "2021-10-26",
+        "count" : "2"
+      }, {
+        "item" : "2020-05-07",
+        "count" : "2"
+      }, {
+        "item" : "2025-01-14",
+        "count" : "2"
+      }, {
+        "item" : "2020-07-06",
+        "count" : "2"
+      }, {
+        "item" : "2020-08-27",
+        "count" : "2"
+      }, {
+        "item" : "2019-12-13",
+        "count" : "2"
+      }, {
+        "item" : "2019-04-25",
+        "count" : "2"
+      }, {
+        "item" : "2024-11-27",
+        "count" : "2"
+      }, {
+        "item" : "2024-09-19",
+        "count" : "2"
+      }, {
+        "item" : "2024-02-05",
+        "count" : "2"
+      }, {
+        "item" : "2025-02-27",
+        "count" : "2"
+      } ],
+      "smallest" : "2018-06-21",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : { }
+  }, {
+    "id" : 632662462,
+    "name" : "TEST_DATE",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "test_date",
+    "position" : 5,
+    "renderTypeName" : "text",
+    "tableColumnId" : 167662740,
+    "cachedContents" : {
+      "non_null" : "230",
+      "largest" : "2025-11-11",
+      "null" : "107",
+      "top" : [ {
+        "item" : "2023-03-12",
+        "count" : "3"
+      }, {
+        "item" : "2025-04-10",
+        "count" : "3"
+      }, {
+        "item" : "2022-10-05",
+        "count" : "3"
+      }, {
+        "item" : "2022-04-29",
+        "count" : "2"
+      }, {
+        "item" : "2023-04-28",
+        "count" : "2"
+      }, {
+        "item" : "2019-02-08",
+        "count" : "2"
+      }, {
+        "item" : "2024-12-12",
+        "count" : "2"
+      }, {
+        "item" : "2024-12-17",
+        "count" : "2"
+      }, {
+        "item" : "2019-10-01",
+        "count" : "2"
+      }, {
+        "item" : "2025-04-08",
+        "count" : "2"
+      }, {
+        "item" : "2021-03-11",
+        "count" : "2"
+      }, {
+        "item" : "2022-10-26",
+        "count" : "2"
+      }, {
+        "item" : "2025-02-02",
+        "count" : "2"
+      }, {
+        "item" : "2024-09-12",
+        "count" : "2"
+      }, {
+        "item" : "2020-05-18",
+        "count" : "2"
+      }, {
+        "item" : "2020-07-18",
+        "count" : "2"
+      }, {
+        "item" : "2019-04-11",
+        "count" : "2"
+      }, {
+        "item" : "2025-05-13",
+        "count" : "2"
+      }, {
+        "item" : "2025-03-01",
+        "count" : "2"
+      }, {
+        "item" : "2019-03-26",
+        "count" : "2"
+      } ],
+      "smallest" : "2003-11-07",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : { }
+  }, {
+    "id" : 632662449,
+    "name" : "SATISFACTORY_TEST",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "satisfactory_test",
+    "position" : 6,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631104,
+    "cachedContents" : {
+      "non_null" : "226",
+      "largest" : "1",
+      "null" : "111",
+      "top" : [ {
+        "item" : "1",
+        "count" : "139"
+      }, {
+        "item" : "0",
+        "count" : "87"
+      } ],
+      "smallest" : "0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662450,
+    "name" : "TOP_PERF_FT",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "top_perf_ft",
+    "position" : 7,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631105,
+    "cachedContents" : {
+      "non_null" : "200",
+      "largest" : "18174.0",
+      "null" : "137",
+      "top" : [ {
+        "item" : "6000.0",
+        "count" : "4"
+      }, {
+        "item" : "6830.0",
+        "count" : "4"
+      }, {
+        "item" : "6300.0",
+        "count" : "3"
+      }, {
+        "item" : "5250.0",
+        "count" : "3"
+      }, {
+        "item" : "6250.0",
+        "count" : "3"
+      }, {
+        "item" : "7000.0",
+        "count" : "3"
+      }, {
+        "item" : "10600.0",
+        "count" : "3"
+      }, {
+        "item" : "10500.0",
+        "count" : "3"
+      }, {
+        "item" : "6950.0",
+        "count" : "2"
+      }, {
+        "item" : "6060.0",
+        "count" : "2"
+      }, {
+        "item" : "6580.0",
+        "count" : "2"
+      }, {
+        "item" : "6670.0",
+        "count" : "2"
+      }, {
+        "item" : "5500.0",
+        "count" : "2"
+      }, {
+        "item" : "4870.0",
+        "count" : "2"
+      }, {
+        "item" : "5322.0",
+        "count" : "2"
+      }, {
+        "item" : "4100.0",
+        "count" : "2"
+      }, {
+        "item" : "5324.0",
+        "count" : "2"
+      }, {
+        "item" : "4350.0",
+        "count" : "2"
+      }, {
+        "item" : "5130.0",
+        "count" : "2"
+      }, {
+        "item" : "5716.0",
+        "count" : "2"
+      } ],
+      "smallest" : "3.4",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662451,
+    "name" : "BOTTOM_PERF_FT",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "bottom_perf_ft",
+    "position" : 8,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631106,
+    "cachedContents" : {
+      "non_null" : "197",
+      "largest" : "16500.0",
+      "null" : "140",
+      "top" : [ {
+        "item" : "6515.0",
+        "count" : "4"
+      }, {
+        "item" : "2952.0",
+        "count" : "3"
+      }, {
+        "item" : "5400.0",
+        "count" : "3"
+      }, {
+        "item" : "4900.0",
+        "count" : "3"
+      }, {
+        "item" : "6818.0",
+        "count" : "2"
+      }, {
+        "item" : "12500.0",
+        "count" : "2"
+      }, {
+        "item" : "7500.0",
+        "count" : "2"
+      }, {
+        "item" : "4462.0",
+        "count" : "2"
+      }, {
+        "item" : "13072.0",
+        "count" : "2"
+      }, {
+        "item" : "6468.0",
+        "count" : "2"
+      }, {
+        "item" : "5042.0",
+        "count" : "2"
+      }, {
+        "item" : "7550.0",
+        "count" : "2"
+      }, {
+        "item" : "4042.0",
+        "count" : "2"
+      }, {
+        "item" : "3000.0",
+        "count" : "2"
+      }, {
+        "item" : "4196.0",
+        "count" : "2"
+      }, {
+        "item" : "7638.0",
+        "count" : "2"
+      }, {
+        "item" : "5415.0",
+        "count" : "2"
+      }, {
+        "item" : "6155.0",
+        "count" : "2"
+      }, {
+        "item" : "6050.0",
+        "count" : "2"
+      }, {
+        "item" : "4256.0",
+        "count" : "2"
+      } ],
+      "smallest" : "26.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662452,
+    "name" : "FORMATION_TESTED",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "formation_tested",
+    "position" : 9,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165631107,
+    "cachedContents" : {
+      "non_null" : "185",
+      "largest" : "WOODBINE",
+      "null" : "152",
+      "top" : [ {
+        "item" : "DELAWARE",
+        "count" : "47"
+      }, {
+        "item" : "SAN ANDRES",
+        "count" : "13"
+      }, {
+        "item" : "Cherry Canyon",
+        "count" : "9"
+      }, {
+        "item" : "ELLENBURGER",
+        "count" : "9"
+      }, {
+        "item" : "Spraberry",
+        "count" : "9"
+      }, {
+        "item" : "Delaware Mountain Group",
+        "count" : "5"
+      }, {
+        "item" : "San Andres",
+        "count" : "5"
+      }, {
+        "item" : "DELAWARE MOUNTAIN GROUP",
+        "count" : "4"
+      }, {
+        "item" : "Ellenburger",
+        "count" : "4"
+      }, {
+        "item" : "DEVONIAN",
+        "count" : "4"
+      }, {
+        "item" : "Pettit",
+        "count" : "4"
+      }, {
+        "item" : "Rodessa",
+        "count" : "4"
+      }, {
+        "item" : "Delaware",
+        "count" : "3"
+      }, {
+        "item" : "RODESSA",
+        "count" : "3"
+      }, {
+        "item" : "Glorieta",
+        "count" : "3"
+      }, {
+        "item" : "Canyon",
+        "count" : "3"
+      }, {
+        "item" : "SILURIAN, FUSSELMAN, ELLENBURGER",
+        "count" : "3"
+      }, {
+        "item" : "SILURIAN",
+        "count" : "3"
+      }, {
+        "item" : "GRAYBURG, SAN ANDRES, GLORIETA",
+        "count" : "2"
+      }, {
+        "item" : "Clearfork/Tubb",
+        "count" : "2"
+      } ],
+      "smallest" : "Bell Canyon and Cherry Canyon",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : { }
+  }, {
+    "id" : 632662453,
+    "name" : "MIN_INJ_RATE_BPM",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "min_inj_rate_bpm",
+    "position" : 10,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631108,
+    "cachedContents" : {
+      "non_null" : "194",
+      "largest" : "21.0",
+      "null" : "143",
+      "top" : [ {
+        "item" : "2.0",
+        "count" : "34"
+      }, {
+        "item" : "1.0",
+        "count" : "16"
+      }, {
+        "item" : "3.0",
+        "count" : "15"
+      }, {
+        "item" : "0.5",
+        "count" : "13"
+      }, {
+        "item" : "0.0",
+        "count" : "13"
+      }, {
+        "item" : "5.0",
+        "count" : "10"
+      }, {
+        "item" : "1.2",
+        "count" : "7"
+      }, {
+        "item" : "4.0",
+        "count" : "6"
+      }, {
+        "item" : "2.1",
+        "count" : "5"
+      }, {
+        "item" : "1.5",
+        "count" : "5"
+      }, {
+        "item" : "1.1",
+        "count" : "4"
+      }, {
+        "item" : "3.5",
+        "count" : "4"
+      }, {
+        "item" : "7.0",
+        "count" : "3"
+      }, {
+        "item" : "1.04",
+        "count" : "3"
+      }, {
+        "item" : "0.3",
+        "count" : "3"
+      }, {
+        "item" : "2.2",
+        "count" : "2"
+      }, {
+        "item" : "18.0",
+        "count" : "2"
+      }, {
+        "item" : "3.3",
+        "count" : "2"
+      }, {
+        "item" : "5.02",
+        "count" : "2"
+      }, {
+        "item" : "0.75",
+        "count" : "2"
+      } ],
+      "smallest" : "0.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662454,
+    "name" : "MAX_INJ_RATE_BPM",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "max_inj_rate_bpm",
+    "position" : 11,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631109,
+    "cachedContents" : {
+      "non_null" : "194",
+      "largest" : "56.0",
+      "null" : "143",
+      "top" : [ {
+        "item" : "20.0",
+        "count" : "18"
+      }, {
+        "item" : "28.0",
+        "count" : "9"
+      }, {
+        "item" : "22.0",
+        "count" : "8"
+      }, {
+        "item" : "35.0",
+        "count" : "7"
+      }, {
+        "item" : "30.0",
+        "count" : "6"
+      }, {
+        "item" : "45.0",
+        "count" : "6"
+      }, {
+        "item" : "24.0",
+        "count" : "5"
+      }, {
+        "item" : "25.0",
+        "count" : "5"
+      }, {
+        "item" : "18.0",
+        "count" : "4"
+      }, {
+        "item" : "14.0",
+        "count" : "4"
+      }, {
+        "item" : "32.0",
+        "count" : "4"
+      }, {
+        "item" : "26.9",
+        "count" : "3"
+      }, {
+        "item" : "11.0",
+        "count" : "3"
+      }, {
+        "item" : "21.0",
+        "count" : "3"
+      }, {
+        "item" : "24.3",
+        "count" : "3"
+      }, {
+        "item" : "29.2",
+        "count" : "3"
+      }, {
+        "item" : "12.0",
+        "count" : "3"
+      }, {
+        "item" : "36.0",
+        "count" : "3"
+      }, {
+        "item" : "20.1",
+        "count" : "3"
+      }, {
+        "item" : "15.1",
+        "count" : "2"
+      } ],
+      "smallest" : "4.04",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662455,
+    "name" : "ISIP_PSIG",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "isip_psig",
+    "position" : 12,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631110,
+    "cachedContents" : {
+      "non_null" : "103",
+      "largest" : "8000.0",
+      "null" : "234",
+      "top" : [ {
+        "item" : "0.0",
+        "count" : "4"
+      }, {
+        "item" : "1500.0",
+        "count" : "3"
+      }, {
+        "item" : "1300.0",
+        "count" : "3"
+      }, {
+        "item" : "2667.0",
+        "count" : "2"
+      }, {
+        "item" : "1600.0",
+        "count" : "2"
+      }, {
+        "item" : "1450.0",
+        "count" : "2"
+      }, {
+        "item" : "762.0",
+        "count" : "2"
+      }, {
+        "item" : "714.0",
+        "count" : "2"
+      }, {
+        "item" : "3200.0",
+        "count" : "2"
+      }, {
+        "item" : "4387.0",
+        "count" : "2"
+      }, {
+        "item" : "441.0",
+        "count" : "1"
+      }, {
+        "item" : "636.0",
+        "count" : "1"
+      }, {
+        "item" : "655.0",
+        "count" : "1"
+      }, {
+        "item" : "680.0",
+        "count" : "1"
+      }, {
+        "item" : "589.0",
+        "count" : "1"
+      }, {
+        "item" : "420.0",
+        "count" : "1"
+      }, {
+        "item" : "292.0",
+        "count" : "1"
+      }, {
+        "item" : "530.0",
+        "count" : "1"
+      }, {
+        "item" : "745.0",
+        "count" : "1"
+      }, {
+        "item" : "472.0",
+        "count" : "1"
+      } ],
+      "smallest" : "0.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662456,
+    "name" : "FORMATION_FRAC_PRESS_PSIG",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "formation_frac_press_psig",
+    "position" : 13,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631111,
+    "cachedContents" : {
+      "non_null" : "124",
+      "largest" : "9400.0",
+      "null" : "213",
+      "top" : [ {
+        "item" : "0.0",
+        "count" : "3"
+      }, {
+        "item" : "2360.0",
+        "count" : "3"
+      }, {
+        "item" : "2840.0",
+        "count" : "2"
+      }, {
+        "item" : "3531.5",
+        "count" : "2"
+      }, {
+        "item" : "4223.0",
+        "count" : "2"
+      }, {
+        "item" : "2424.0",
+        "count" : "2"
+      }, {
+        "item" : "2939.0",
+        "count" : "2"
+      }, {
+        "item" : "2610.0",
+        "count" : "2"
+      }, {
+        "item" : "3468.0",
+        "count" : "2"
+      }, {
+        "item" : "3495.0",
+        "count" : "2"
+      }, {
+        "item" : "3816.86",
+        "count" : "2"
+      }, {
+        "item" : "3972.8",
+        "count" : "2"
+      }, {
+        "item" : "3000.0",
+        "count" : "2"
+      }, {
+        "item" : "2328.0",
+        "count" : "2"
+      }, {
+        "item" : "3587.0",
+        "count" : "2"
+      }, {
+        "item" : "2557.0",
+        "count" : "2"
+      }, {
+        "item" : "2222.0",
+        "count" : "1"
+      }, {
+        "item" : "1673.0",
+        "count" : "1"
+      }, {
+        "item" : "2200.0",
+        "count" : "1"
+      }, {
+        "item" : "2190.0",
+        "count" : "1"
+      } ],
+      "smallest" : "0.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662457,
+    "name" : "FRAC_INJ_RATE_CAPACITY_BPD",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "frac_inj_rate_capacity_bpd",
+    "position" : 14,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631112,
+    "cachedContents" : {
+      "non_null" : "110",
+      "largest" : "73655.0",
+      "null" : "227",
+      "top" : [ {
+        "item" : "40000.0",
+        "count" : "5"
+      }, {
+        "item" : "30000.0",
+        "count" : "4"
+      }, {
+        "item" : "10000.0",
+        "count" : "4"
+      }, {
+        "item" : "17280.0",
+        "count" : "4"
+      }, {
+        "item" : "21600.0",
+        "count" : "3"
+      }, {
+        "item" : "28000.0",
+        "count" : "3"
+      }, {
+        "item" : "23040.0",
+        "count" : "3"
+      }, {
+        "item" : "36000.0",
+        "count" : "2"
+      }, {
+        "item" : "24480.0",
+        "count" : "2"
+      }, {
+        "item" : "28800.0",
+        "count" : "2"
+      }, {
+        "item" : "20000.0",
+        "count" : "2"
+      }, {
+        "item" : "15840.0",
+        "count" : "2"
+      }, {
+        "item" : "11520.0",
+        "count" : "2"
+      }, {
+        "item" : "32242.0",
+        "count" : "2"
+      }, {
+        "item" : "7200.0",
+        "count" : "2"
+      }, {
+        "item" : "5760.0",
+        "count" : "2"
+      }, {
+        "item" : "9072.0",
+        "count" : "2"
+      }, {
+        "item" : "10080.0",
+        "count" : "2"
+      }, {
+        "item" : "14400.0",
+        "count" : "2"
+      }, {
+        "item" : "70000.0",
+        "count" : "2"
+      } ],
+      "smallest" : "0.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662458,
+    "name" : "SURFACE_PRESSURE_FIRC_PSIG",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "surface_pressure_firc_psig",
+    "position" : 15,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631113,
+    "cachedContents" : {
+      "non_null" : "101",
+      "largest" : "15840.0",
+      "null" : "236",
+      "top" : [ {
+        "item" : "400.0",
+        "count" : "4"
+      }, {
+        "item" : "2000.0",
+        "count" : "3"
+      }, {
+        "item" : "1440.0",
+        "count" : "3"
+      }, {
+        "item" : "2700.0",
+        "count" : "2"
+      }, {
+        "item" : "543.6",
+        "count" : "2"
+      }, {
+        "item" : "250.0",
+        "count" : "2"
+      }, {
+        "item" : "2450.0",
+        "count" : "2"
+      }, {
+        "item" : "1453.0",
+        "count" : "2"
+      }, {
+        "item" : "1634.0",
+        "count" : "2"
+      }, {
+        "item" : "541.0",
+        "count" : "2"
+      }, {
+        "item" : "1006.0",
+        "count" : "2"
+      }, {
+        "item" : "350.0",
+        "count" : "2"
+      }, {
+        "item" : "1500.0",
+        "count" : "2"
+      }, {
+        "item" : "3775.0",
+        "count" : "2"
+      }, {
+        "item" : "2669.0",
+        "count" : "2"
+      }, {
+        "item" : "742.0",
+        "count" : "2"
+      }, {
+        "item" : "1300.0",
+        "count" : "2"
+      }, {
+        "item" : "610.0",
+        "count" : "1"
+      }, {
+        "item" : "606.0",
+        "count" : "1"
+      }, {
+        "item" : "570.0",
+        "count" : "1"
+      } ],
+      "smallest" : "0.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662459,
+    "name" : "FRACTURE_GRADIENT_PSI_FT",
+    "dataTypeName" : "number",
+    "description" : "",
+    "fieldName" : "fracture_gradient_psi_ft",
+    "position" : 16,
+    "renderTypeName" : "number",
+    "tableColumnId" : 165631114,
+    "cachedContents" : {
+      "non_null" : "121",
+      "largest" : "0.944",
+      "null" : "216",
+      "top" : [ {
+        "item" : "0.5",
+        "count" : "4"
+      }, {
+        "item" : "0.433",
+        "count" : "4"
+      }, {
+        "item" : "0.7",
+        "count" : "3"
+      }, {
+        "item" : "0.0",
+        "count" : "3"
+      }, {
+        "item" : "0.64",
+        "count" : "2"
+      }, {
+        "item" : "0.69",
+        "count" : "2"
+      }, {
+        "item" : "0.649",
+        "count" : "2"
+      }, {
+        "item" : "0.576",
+        "count" : "2"
+      }, {
+        "item" : "0.59",
+        "count" : "2"
+      }, {
+        "item" : "0.487",
+        "count" : "2"
+      }, {
+        "item" : "0.5444",
+        "count" : "2"
+      }, {
+        "item" : "0.442",
+        "count" : "2"
+      }, {
+        "item" : "0.554",
+        "count" : "2"
+      }, {
+        "item" : "0.469",
+        "count" : "2"
+      }, {
+        "item" : "0.6",
+        "count" : "2"
+      }, {
+        "item" : "0.511",
+        "count" : "2"
+      }, {
+        "item" : "0.471",
+        "count" : "2"
+      }, {
+        "item" : "0.54",
+        "count" : "2"
+      }, {
+        "item" : "0.4488",
+        "count" : "2"
+      }, {
+        "item" : "0.75",
+        "count" : "2"
+      } ],
+      "smallest" : "0.0",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : {
+      "decimalSeparator" : ".",
+      "groupSeparator" : ","
+    }
+  }, {
+    "id" : 632662460,
+    "name" : "COMMENTS",
+    "dataTypeName" : "text",
+    "description" : "",
+    "fieldName" : "comments",
+    "position" : 17,
+    "renderTypeName" : "text",
+    "tableColumnId" : 165631115,
+    "cachedContents" : {
+      "non_null" : "113",
+      "largest" : "Too high min inj. Rate. No BHP. Only raw data no prepared plots or determination of FFP, FIRC, FG etc.",
+      "null" : "224",
+      "top" : [ {
+        "item" : "No Fracture determination. No BHP conversion from surface pressure. Started too high BPM.",
+        "count" : "3"
+      }, {
+        "item" : "FPP not reached",
+        "count" : "3"
+      }, {
+        "item" : "?The analysis is missing Fracture gradient analysis and determination, and the language â€œpossible fracture initiationâ€¿ shows to me the PE who analyzed this test was not that confident in the data good indicator of fracturing pressure. Test starts at too hi",
+        "count" : "2"
+      }, {
+        "item" : "According to operator, fracturing pressure was not met during test. Started test at a higher rate and may have fractured the formation at the start of the test.",
+        "count" : "2"
+      }, {
+        "item" : "PASS",
+        "count" : "2"
+      }, {
+        "item" : "Min Inj Rate starts too high at 5 BPM. No fracture determination was made.",
+        "count" : "2"
+      }, {
+        "item" : "frac pressure not reached",
+        "count" : "2"
+      }, {
+        "item" : "Op states in SRT submitted no fracture occurred",
+        "count" : "1"
+      }, {
+        "item" : "NOT AN ACTUAL SRT OR INJECTIVITY TEST, LETTER DATED 11/16/2023 REQUESTED OP SUBMIT INFO ON CONFINING DEPTHS AND FRACTURE GRADIENTS",
+        "count" : "1"
+      }, {
+        "item" : "No fracture pressure reached per operators analysis.",
+        "count" : "1"
+      }, {
+        "item" : "Test started too high. No Formation Fracture Pressure observed.",
+        "count" : "1"
+      }, {
+        "item" : "Injectivity test, no FPP or FG provided in report",
+        "count" : "1"
+      }, {
+        "item" : "SRT submitted with trk 54357 app",
+        "count" : "1"
+      }, {
+        "item" : "Injectivity test done, no FPP or FG. Test date not included in report",
+        "count" : "1"
+      }, {
+        "item" : "No fracture detected due to starting test at 2 BPM. Possible slope change at 4 BPM could be determined with more data points.",
+        "count" : "1"
+      }, {
+        "item" : "No apparent fracture propagation occurred from the start of the test to the max injection rate of 20,000 BWPD",
+        "count" : "1"
+      }, {
+        "item" : "Inconclusive test due to well head leak. Operator claims that a good test can not be obtained due to initial BHP of 3200 psi which is a gradient of .614 psi/ft",
+        "count" : "1"
+      }, {
+        "item" : "Submission scanned poorly difficult to read",
+        "count" : "1"
+      }, {
+        "item" : "isip & plot methods agree",
+        "count" : "1"
+      }, {
+        "item" : "Follow up SRT performed",
+        "count" : "1"
+      } ],
+      "smallest" : "According to operator, fracturing pressure was not met during test. Started test at a higher rate and may have fractured the formation at the start of the test.",
+      "count" : "337",
+      "cardinality" : "337"
+    },
+    "format" : { }
+  } ],
+  "grants" : [ {
+    "inherited" : false,
+    "type" : "viewer",
+    "flags" : [ "public" ]
+  } ],
+  "metadata" : {
+    "custom_fields" : {
+      "Dataset Category" : {
+        "Agency" : "Railroad Commission of Texas",
+        "Category Tile" : "Energy and Environment"
+      },
+      "Publishing Information" : {
+        "Update Frequency" : "Monthly"
+      }
+    },
+    "availableDisplayTypes" : [ "table", "fatrow", "page" ]
+  },
+  "owner" : {
+    "id" : "j7wi-a8ef",
+    "displayName" : "RRC ODP Support",
+    "profileImageUrlLarge" : "/api/users/j7wi-a8ef/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/j7wi-a8ef/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/j7wi-a8ef/profile_images/TINY",
+    "screenName" : "RRC ODP Support",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "query" : { },
+  "rights" : [ "read" ],
+  "tableAuthor" : {
+    "id" : "j7wi-a8ef",
+    "displayName" : "RRC ODP Support",
+    "profileImageUrlLarge" : "/api/users/j7wi-a8ef/profile_images/LARGE",
+    "profileImageUrlMedium" : "/api/users/j7wi-a8ef/profile_images/THUMB",
+    "profileImageUrlSmall" : "/api/users/j7wi-a8ef/profile_images/TINY",
+    "screenName" : "RRC ODP Support",
+    "type" : "interactive",
+    "flags" : [ "acceptedEula", "mayBeStoriesCoOwner" ]
+  },
+  "tags" : [ "uic", "rrc", "srt", "breakdown pressure", "fracture pressure", "injection performance", "license and permitting" ],
+  "flags" : [ "default", "ownerMayBeContacted", "restorable", "restorePossibleForType" ]
+}
