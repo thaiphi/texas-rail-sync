@@ -1,0 +1,2 @@
+source_record_key,uic_number,api_no,operator_number,district_code,lease_number,lease_name,well_no_display,county,county_basis,injection_type_code,permit_liquid_pressure_limit_psi,permit_liquid_volume_limit_bpd,permitted_top_depth_ft,permitted_bottom_depth_ft,w14_number,w14_date,permit_canceled_date,plugged_date,source_snapshot_id,quality_flags
+rrc:uic:givw-z9t4:9243e138d823f249:1,000109605,38934609,609265,08,46166,TRIPPET SWD,1,Reeves,API county code 389; not independent location verification,1,2000,40000,4000,8000,14479,2017-03-20,,2025-01-23,givw-z9t4:9243e138d823f249,

@@ -1,0 +1,1450 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-30-uic000109605-b7628a71-03fe-4a16-928c-033353e1fce0",
+  "catalogue_version": "rrc-relations-v1",
+  "scope": {
+    "query_version": 5,
+    "inventory_source_record_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+    "source_api_id": "38934609"
+  },
+  "relation_types": [
+    "inventory_to_h10",
+    "inventory_to_test_report",
+    "inventory_to_wellbore",
+    "wellbore_to_casing",
+    "wellbore_to_plugging",
+    "record_to_source_snapshot"
+  ],
+  "not_permitted": [
+    "API → H-10",
+    "Wellbore/API → BHP or SRT",
+    "Casing or plugging → UIC directly",
+    "permit -> document",
+    "Spatial / \"nearby\"",
+    "Bottom location uumf-5r4y → anything",
+    "Operator, lease or well-name similarity"
+  ],
+  "status_policy": {
+    "inventory_to_h10": "parent_join_status reused as is (matched / unmatched / ambiguous)",
+    "inventory_to_test_report": "parent_join_status of the BHP or SRT row reused as is (matched / unmatched / ambiguous)",
+    "inventory_to_wellbore": "ADR 004 §2 link status of one wellbore dataset (matched / none / ambiguous); matched asserts string equality only and cannot distinguish sidetracks or recompletions",
+    "wellbore_to_casing": "matched for every published casing row: the exact-API query string equals the wellbore source_api_id; attribution to a UIC is carried only by inventory_to_wellbore",
+    "wellbore_to_plugging": "matched for every published plugging row: the exact-API query string equals the wellbore source_api_id; attribution to a UIC is carried only by inventory_to_wellbore",
+    "record_to_source_snapshot": "null; the record was parsed from the one evidence file named with its full SHA-256",
+    "needs_review": "reserved; not emitted by catalogue rrc-relations-v1"
+  },
+  "counts": {
+    "inventory_to_h10": {
+      "total": 16,
+      "by_status": {
+        "matched": 16
+      }
+    },
+    "inventory_to_test_report": {
+      "total": 0,
+      "by_status": {}
+    },
+    "inventory_to_wellbore": {
+      "total": 2,
+      "by_status": {
+        "matched": 2
+      }
+    },
+    "wellbore_to_casing": {
+      "total": 9,
+      "by_status": {
+        "matched": 9
+      }
+    },
+    "wellbore_to_plugging": {
+      "total": 7,
+      "by_status": {
+        "matched": 7
+      }
+    },
+    "record_to_source_snapshot": {
+      "total": 33,
+      "by_status": {
+        "null": 33
+      }
+    }
+  },
+  "relations": [
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:1",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:2",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:3",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:4",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:5",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:6",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:7",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:8",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:9",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:10",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:11",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:12",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:13",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:14",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:15",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_h10",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "h10_row",
+      "to_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:16",
+      "dataset": "h10",
+      "basis": "exact_uic_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_wellbore",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "wellbore",
+      "to_key": "38934609",
+      "dataset": "casing",
+      "basis": "inventory_api_no",
+      "status": "matched",
+      "reason": null,
+      "candidates": [
+        {
+          "candidate_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+          "selected": true,
+          "uic_number": "000109605",
+          "api_no": "38934609",
+          "operator_number": "609265",
+          "district_code": "08",
+          "lease_number": "46166",
+          "lease_name": "TRIPPET SWD",
+          "well_no_display": "1",
+          "w14_number": "14479"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/wellbore-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "inventory_to_wellbore",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "wellbore",
+      "to_key": "38934609",
+      "dataset": "plugging",
+      "basis": "inventory_api_no",
+      "status": "matched",
+      "reason": null,
+      "candidates": [
+        {
+          "candidate_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+          "selected": true,
+          "uic_number": "000109605",
+          "api_no": "38934609",
+          "operator_number": "609265",
+          "district_code": "08",
+          "lease_number": "46166",
+          "lease_name": "TRIPPET SWD",
+          "well_no_display": "1",
+          "w14_number": "14479"
+        }
+      ],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/wellbore-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:1",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:2",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:3",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:4",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:5",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:6",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:7",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:8",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_casing",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "casing_row",
+      "to_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:9",
+      "dataset": "casing",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:1",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:2",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:3",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:4",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:5",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:6",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "wellbore_to_plugging",
+      "from_kind": "wellbore",
+      "from_key": "38934609",
+      "to_kind": "plugging_row",
+      "to_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:7",
+      "dataset": "plugging",
+      "basis": "exact_api_string",
+      "status": "matched",
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        },
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "inventory_record",
+      "from_key": "rrc:uic:givw-z9t4:9243e138d823f249:1",
+      "to_kind": "source_snapshot",
+      "to_key": "givw-z9t4:9243e138d823f249",
+      "dataset": "inventory",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-inventory.json",
+          "sha256": "9243e138d823f249819a61031a41789e47048089c53436998fabbfa35adf5d2e"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:1",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:2",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:3",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:4",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:5",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:6",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:7",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:8",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:9",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:10",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:11",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:12",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:13",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:14",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:15",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "h10_row",
+      "from_key": "rrc:h10:qq2j-f2zm:a0438d81641a63ca:16",
+      "to_kind": "source_snapshot",
+      "to_key": "qq2j-f2zm:a0438d81641a63ca",
+      "dataset": "h10",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-monthly.json",
+          "sha256": "a0438d81641a63ca42e9060c19d0167c827829d0855bc8111c0ec4803ea6babd"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:1",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:2",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:3",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:4",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:5",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:6",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:7",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:8",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "casing_row",
+      "from_key": "rrc:casing:u9m4-xnh6:685d7a78e4b5e2db:9",
+      "to_kind": "source_snapshot",
+      "to_key": "u9m4-xnh6:685d7a78e4b5e2db",
+      "dataset": "casing",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-casing.json",
+          "sha256": "685d7a78e4b5e2dbe23a17b5e470867b5ea967011a5831078540b1803b5eed85"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:1",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:2",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:3",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:4",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:5",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:6",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    },
+    {
+      "relation": "record_to_source_snapshot",
+      "from_kind": "plugging_row",
+      "from_key": "rrc:plugging:wfzn-9fje:629daf9ed4d1cd17:7",
+      "to_kind": "source_snapshot",
+      "to_key": "wfzn-9fje:629daf9ed4d1cd17",
+      "dataset": "plugging",
+      "basis": "source_file_hash",
+      "status": null,
+      "reason": null,
+      "candidates": [],
+      "evidence": [
+        {
+          "file": "sources/candidate-plugging.json",
+          "sha256": "629daf9ed4d1cd17de42216977d1677aa2daece0addde8f011f93c9e2c63580f"
+        }
+      ]
+    }
+  ]
+}

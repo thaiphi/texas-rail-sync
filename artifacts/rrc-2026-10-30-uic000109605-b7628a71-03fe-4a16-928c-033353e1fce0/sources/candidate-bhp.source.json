@@ -1,0 +1,11 @@
+{
+  "url": "https://data.texas.gov/resource/qxfy-wcfs.json?%24where=uic_no%3D%27000109605%27&%24limit=1000&%24order=report_id%2Ctracking_no%2Ctest_sequence_no",
+  "retrieved_at": "2026-10-30T01:38:04.030Z",
+  "http_status": 200,
+  "last_modified": "Tue, 20 Oct 2026 19:14:00 GMT",
+  "etag": "\"aW5kaWEuMTgxODI5XzNfODV3UWRoNGxNT0V3TEZZdEJiTDh0dzlBdUdCT0E---gzipwsTmPl-3V31gDyuPUZlunQuRcYw--gzip--gzip\"",
+  "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "bytes": 3,
+  "testFixture": false,
+  "app_token_used": true
+}
