@@ -1,5 +1,38 @@
 # Bounded Explorer specification v1
 
+## October 29 relation catalogue and dossier (Phase 3b, RRC-15)
+
+**Scope.** Local `/api/collect` now always produces query version 5 (owner decision, 2026-10-29). Version 5 queries exactly the version 4 targets (21, or 18 without a valid API) and adds one derived sidecar, `evidence_relations.json`. Existing v1–v4 versions are unchanged and never gain the file. Transformation: `rrc-odp-v2.3.0`, pipeline `rrc-collection-v5`. The frozen contract is [the Phase 3b design](docs/superpowers/specs/2026-10-29-phase3b-relation-catalogue-design.md); relations follow [ADR 004](docs/adr/004-wellbore-identity-and-relations.md) §3–4.
+
+**Relation catalogue.** `evidence_relations.json` (`catalogue_version` `rrc-relations-v1`) is built at export by a pure module from the records already validated in the version. It is not a database table, and it is reproducible byte for byte from the version's own `sources/`.
+- Six relation types:
+  - `inventory_to_h10` and `inventory_to_test_report`: `parent_join_status` as is (`matched` / `unmatched` / `ambiguous`).
+  - `inventory_to_wellbore`: one per wellbore dataset, with the ADR 004 §2 link status, reason and candidates copied verbatim.
+  - `wellbore_to_casing` and `wellbore_to_plugging`: one per source row, always `matched`.
+  - `record_to_source_snapshot`: status null.
+- Every relation has kind-tagged keys (`from_kind`/`to_kind`), because keys from different files can be textually equal. Its evidence is the source file name plus its full SHA-256, checked against `manifest.files`.
+- `ambiguous` relations list every candidate and are never resolved to one parent. `needs_review` is reserved and never emitted.
+- The not-permitted relations are listed in the file and each has a negative test: API → H-10; API → BHP/SRT; casing or plugging → UIC bypassing the inventory row; spatial or name-similarity relations; bottom location `uumf-5r4y`; permit → document.
+
+**Acceptance criterion.** Against the v4 output from the same sources: the four v1 data files, the three test-report files, `casing.csv`, `plugging.csv` and `wellbore_dictionary.json` are byte-identical and `normalized_payload_sha256` is equal. `tests.json`, `casing.json` and `plugging.json` differ only in `query_version` (now the true value). `manifest.json` differs only by an enumerated delta (design §5). No source file is added.
+
+**Browser.**
+- The new Dossier tab (`#dataset/<id>/dossier/<source_record_key>`) is read-only.
+  - It verifies the catalogue and every sidecar, and reconciles every edge with the quality counts; on any failure it shows no rows.
+  - It then shows a table of edges (no graph), candidates for ambiguous links and a per-dataset count line.
+  - Selection is UI state only and never enters a file or hash. Name matching is never used.
+- The single-well reported-depth ladder (E11a) is drawn in the browser only.
+  - Units are verbatim and labelled CONFIRMED or INFERRED; `depth_reference_code` is shown verbatim, and its meaning is undocumented.
+  - There is no interpolation, TVD or datum conversion.
+  - Malformed intervals are listed, never swapped. Quarantined and unit-less rows are listed, not drawn.
+  - Every drawn mark has a table row.
+  - Raw-only depths (H-10 `toz`/`boz`, inventory `prod_casing_pkr_depth`) are omitted and disclosed.
+- Versions before 5 show "not produced for this version".
+
+**Hosted and Analytics.** Version 5 is local only, like versions 3 and 4. It cannot be sent to Analytics until Phase 6.
+
+**Live proof.** On 2026-10-29 one local v5 collection of UIC 000109605 (TRIPPET SWD) used the same 21 targets as its v4 version. It produced 67 relations, all reconciled. The ten regression files are byte-identical to v4, and the version replays byte for byte (see [the proof](docs/verification-2026-10-29-phase3b-proof.md)). Independent Opus review: PASS, with four findings fixed.
+
 ## October 29 casing and plugging connectors (Phase 3, RRC-14)
 
 **Scope.** Local `/api/collect` now always produces query version 4 (owner decision, 2026-10-29); version 3 is no longer produced, and existing v1–v3 versions are unchanged. Version 4 adds the following to the thirteen v3 targets:

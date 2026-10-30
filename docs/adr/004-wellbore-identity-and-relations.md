@@ -1,6 +1,6 @@
 # ADR 004 — Wellbore identity domain and typed evidence relations
 
-Date: 2026-10-29. Status: accepted for Phases 1–2; amended for Phase 3 on 2026-10-29 (see "Amendment 2026-10-29"). Phase 3 (query version 4, branch `phase3/casing-plugging`) implements sections 1–2 for casing and plugging. The independent identity review that D4 requires was done on 2026-10-29 (Opus, PASS). Sections 3–4 (relation catalogue, dossier) remain for Phase 3b. Authority: owner approval of the expansion-review recommendations D3, D4 (as changed by v1.1), D10, D15, D21 and D22 on 2026-10-17 ([v1.0 review](../expansion-prd-review-2026-10-17.md) §9, [v1.1 review](../expansion-prd-review-v1.1-2026-10-17.md) §9). Requirements: RRC-13 to RRC-15 in the [tracker](../requirements.md). It extends [ADR 002](002-bounded-well-selection.md) and does not change any existing artifact, query or replay.
+Date: 2026-10-29. Status: accepted for Phases 1–2; amended for Phase 3 on 2026-10-29 (see "Amendment 2026-10-29"). Phase 3 (query version 4, branch `phase3/casing-plugging`) implements sections 1–2 for casing and plugging. The independent identity review that D4 requires was done on 2026-10-29 (Opus, PASS). Phase 3b (query version 5, branch `phase3b/relation-catalogue`) implements sections 3–4; see "Note 2026-10-29 (Phase 3b)". Authority: owner approval of the expansion-review recommendations D3, D4 (as changed by v1.1), D10, D15, D21 and D22 on 2026-10-17 ([v1.0 review](../expansion-prd-review-2026-10-17.md) §9, [v1.1 review](../expansion-prd-review-v1.1-2026-10-17.md) §9). Requirements: RRC-13 to RRC-15 in the [tracker](../requirements.md). It extends [ADR 002](002-bounded-well-selection.md) and does not change any existing artifact, query or replay.
 
 ## Context
 
@@ -88,6 +88,18 @@ The owner approved this amendment on 2026-10-29 (ruling OD-11 in the Phase 3 des
 - **Rule 3** now fails the run on a scope contradiction instead of quarantining the row. This matches the implemented Phase 2 behaviour and the ADR 002 practice in code.
 - **Rule 5** gains the reason `multiple_inventory_rows`.
 - **Rule 1** keeps the dataset metadata even when no query can be made.
+
+## Note 2026-10-29 (Phase 3b)
+
+These settle the items this ADR left to Phase 3b ([Phase 3b design](../superpowers/specs/2026-10-29-phase3b-relation-catalogue-design.md); rulings 2026-10-29: OD-1 by the owner, OD-2 to OD-10 by Main).
+- **File name and spelling.** The catalogue is `evidence_relations.json`, `catalogue_version` `rrc-relations-v1`, produced only for query version 5 and later. Each relation has the keys `relation`, `from_kind`, `from_key`, `to_kind`, `to_key`, `dataset`, `basis`, `status`, `reason`, `candidates` and `evidence`, in that order.
+- **Kind tags.** Keys are kept verbatim and resolved only against the table their kind names. Source snapshot IDs are not unique per file: byte-identical source files share one.
+- **Per-dataset wellbore relation.** `inventory_to_wellbore` is emitted once per wellbore dataset (casing, plugging), because section 2 gives each dataset its own link status.
+- **Status.**
+  - `wellbore_to_casing` and `wellbore_to_plugging` are always `matched`. Attribution to a UIC is carried only by `inventory_to_wellbore`.
+  - `needs_review` is reserved and not emitted; `ambiguous` with all candidates covers every conflict found so far.
+  - H-10 and test relations keep `unmatched`, as section 3 requires.
+- **Ladder.** The E11a depth ladder is presentation only and is not exported.
 
 ## Consequences
 
