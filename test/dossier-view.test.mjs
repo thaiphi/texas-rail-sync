@@ -64,7 +64,7 @@ function buildCatalogue({artifact,tests,casing,plugging}){
  for(const [name,doc] of [['casing',casing],['plugging',plugging]]){const link=doc.link;relations.push(relation({relation:'inventory_to_wellbore',from_kind:'inventory_record',from_key:link.inventory_source_record_key,to_kind:'wellbore',to_key:link.source_api_id,dataset:name,basis:'inventory_api_no',status:link.status,reason:link.reason,candidates:structuredClone(link.candidates),evidence:link.source_api_id===null?evidence('inventory'):evidence('inventory','wellbore_inventory',name)}));}
  for(const [name,doc] of [['casing',casing],['plugging',plugging]])for(const row of doc.rows)relations.push(relation({relation:`wellbore_to_${name}`,from_kind:'wellbore',from_key:row.source_api_id,to_kind:KIND[name],to_key:row.source_row_key,dataset:name,basis:'exact_api_string',status:'matched',evidence:evidence('inventory',name)}));
  for(const [name,rows] of [['inventory',artifact.inventory],['monthly',artifact.injectionMonthly],['bhp',tests.bhp],['srt',tests.srt],['casing',casing.rows],['plugging',plugging.rows]])for(const row of rows)relations.push(relation({relation:'record_to_source_snapshot',from_kind:KIND[name],from_key:row.source_record_key??row.source_row_key,to_kind:'source_snapshot',to_key:row.source_snapshot_id,dataset:name==='monthly'?'h10':name,basis:'source_file_hash',evidence:evidence(name)}));
- const counts=Object.fromEntries(RELATION_TYPES.map(type=>{const edges=relations.filter(edge=>edge.relation===type),by={};for(const edge of edges)if(edge.status!==null)by[edge.status]=(by[edge.status]??0)+1;return [type,{total:edges.length,by_status:by}];}));
+ const counts=Object.fromEntries(RELATION_TYPES.map(type=>{const edges=relations.filter(edge=>edge.relation===type),by={};for(const edge of edges){const status=edge.status===null?'null':edge.status;by[status]=(by[status]??0)+1;}return [type,{total:edges.length,by_status:by}];}));
  return {schemaVersion:1,artifactId:artifact.artifactId,catalogue_version:'rrc-relations-v1',scope:{query_version:5,inventory_source_record_key:INV,source_api_id:API},relation_types:[...RELATION_TYPES],
   not_permitted:['API -> H-10','wellbore/API -> BHP or SRT','casing or plugging -> UIC directly','permit -> document','spatial / nearby','bottom location uumf-5r4y -> anything','operator, lease or well-name similarity'],
   status_policy:{inventory_to_h10:'parent_join_status reused as is (matched / unmatched / ambiguous)',needs_review:'reserved; not emitted by catalogue rrc-relations-v1'},counts,relations};
@@ -113,7 +113,7 @@ test('a catalogue that does not reconcile is refused before any row is shown',()
  };
  const clean=fixture();assert.equal(reconcileDossier(clean).ok,true,reconcileDossier(clean).reason);
  for(const [name,[reason,mutate]] of Object.entries(cases)){const state=fixture();mutate(state);const check=reconcileDossier(state);assert.equal(check.ok,false,name);assert.match(check.reason,reason,name);unreconciled(renderDossierView(state));}
- const nullable=fixture();nullable.catalogue.counts.record_to_source_snapshot.by_status={null:nullable.catalogue.counts.record_to_source_snapshot.total};assert.equal(reconcileDossier(nullable).ok,true,'a null status may be counted under "null"');
+ const nullable=fixture();nullable.catalogue.counts.record_to_source_snapshot.by_status={};assert.equal(reconcileDossier(nullable).ok,false,'a null status must be counted under "null", as the pipeline writes it');
 });
 test('the edge table is an accessible table with captions, scoped headers, focusable regions and full SHA-256 evidence',()=>{
  const state=fixture(),html=renderDossierView(state);
@@ -151,7 +151,7 @@ test('group counts reconcile with quality evidence; one quarantined H-10 row sho
  assert.ok(tbody(quarantined,`Relations of record ${INV}`).includes('rrc:h10:qq2j-f2zm:2222222222222222:4'),'a quarantined row keeps its edge');
 });
 test('unmatched and ambiguous relations are listed apart with all candidates and never folded into the subject',()=>{
- const monthly=[...Array.from({length:14},(_,index)=>monthlyRow(index+1)),monthlyRow(15,{parent_key:null,parent_join_status:'unmatched',uic_number:'000999999'}),monthlyRow(16,{parent_key:null,parent_join_status:'ambiguous'})];
+ const monthly=[...Array.from({length:14},(_,index)=>monthlyRow(index+1)),monthlyRow(15,{parent_key:'',parent_join_status:'unmatched',uic_number:'000999999'}),monthlyRow(16,{parent_key:'',parent_join_status:'ambiguous'})];
  const inventory=[inventoryRow(1),inventoryRow(2,{lease_name:'FIXTURE SWD',operator_number:'609265'})];
  const html=renderDossierView(fixture({monthly,inventory}));
  assert.ok(html.includes('H-10: 14 related rows = 14 accepted + 0 quarantined (quality report: 16 raw = 16 accepted + 0 quarantined + 0 excluded). Not attributed to this record: 2.'));

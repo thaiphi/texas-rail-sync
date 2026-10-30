@@ -15,7 +15,7 @@ const view=await import('../public/tests-view.js').catch(()=>({}));
 const NOT_COLLECTED='Test reports were not collected for this version.';
 const EMPTY='No rows were returned by the exact-UIC query; this does not show that no test was conducted.';
 const HELP='ODP BHP/SRT datasets are report inventories: one row per source record (the source does not document how many rows one test produces), without test documents or pressure series. Values are shown as reported; psia and psig are kept as labelled and not interpreted.';
-const ANALYTICS_V3='Test-report versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
+const ANALYTICS_V3='Test-report, wellbore and relation versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
 const PSIA_NOTE='Official RRC Permian guidance (bhp-permian-nto.pdf p.1) states BHP is reported in PSIG; the ODP field name says psia. The conflict is unresolved; the value is shown as published and never converted.';
 const SIDECARS=['tests.json','tests_bhp.csv','tests_srt.csv','tests_dictionary.json'];
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');

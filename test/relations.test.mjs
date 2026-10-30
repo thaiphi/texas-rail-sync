@@ -177,7 +177,9 @@ test('not permitted: static scans of src/relations.mjs (outside the fixed not_pe
  const text=await readFile(resolve(rootPath,'src/relations.mjs'),'utf8');
  const blocks=text.split('// BEGIN not_permitted');assert.equal(blocks.length,2,'one delimited not_permitted block');
  const [inside,after]=blocks[1].split('// END not_permitted');assert.ok(after!==undefined);
- assert.match(inside,/export const notPermitted=Object\.freeze\(\[/);assert.doesNotMatch(inside.split('\n').slice(1).join('\n'),/[;{}()=]\s*(?:if|for|return|const|let)\b/,'the block holds only string literals');
+ // The fenced text must equal the array rebuilt from its own exported strings, so no code can hide inside it.
+ const rebuilt='export const notPermitted=Object.freeze([\n'+notPermitted.map(entry=>{assert.doesNotMatch(entry,/['\\\n]/);return ` '${entry}'`;}).join(',\n')+'\n]);\n';
+ assert.equal(inside.split('\n').slice(1).join('\n'),rebuilt,'the block holds exactly the exported not_permitted string literals');
  const code=blocks[0]+after;
  assert.doesNotMatch(code,/api_no/,'API → H-10: the builder never reads api_no');
  for(const word of ['latitude','longitude','distance','nearby'])assert.ok(!code.includes(word),'spatial: '+word);

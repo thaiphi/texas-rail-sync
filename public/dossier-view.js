@@ -64,7 +64,7 @@ function checkRelation(relation,position,state,lookup){
  // Cross-checks against the verified rows: the catalogue may not contradict the files it describes.
  const from=relation.from_key===null?null:lookup[relation.from_kind].get(relation.from_key),to=relation.to_key===null?null:lookup[relation.to_kind].get(relation.to_key);
  if(relation.relation==='inventory_to_h10'||relation.relation==='inventory_to_test_report'){
-  if(to?.parent_join_status!==relation.status||(to?.parent_key??null)!==relation.from_key)fail(`${where} does not repeat the row's parent_join_status and parent_key`);
+  if(to?.parent_join_status!==relation.status||(to?.parent_join_status==='matched'?to.parent_key:null)!==relation.from_key)fail(`${where} does not repeat the row's parent_join_status and parent_key`);
  }else if(relation.relation==='inventory_to_wellbore'){
   const doc=relation.dataset==='casing'?state.casing:relation.dataset==='plugging'?state.plugging:null,link=doc?.link;
   if(!link||link.status!==relation.status||(link.reason??null)!==relation.reason||link.inventory_source_record_key!==relation.from_key||(link.source_api_id??null)!==relation.to_key)fail(`${where} does not repeat the ${shown(relation.dataset)} wellbore link`);
@@ -82,11 +82,10 @@ function checkCounts(catalogue){
   const edges=catalogue.relations.filter(relation=>relation.relation===name),stated=counts[name];
   if(stated===undefined){if(edges.length)fail(`counts omits ${name}`);continue;}
   if(!isObject(stated)||stated.total!==edges.length)fail(`counts.${name}.total does not equal a recount of relations`);
-  const recount={};for(const edge of edges)if(edge.status!==null)recount[edge.status]=(recount[edge.status]??0)+1;
+  const recount={};for(const edge of edges){const status=edge.status===null?'null':edge.status;recount[status]=(recount[status]??0)+1;}
   const by=isObject(stated.by_status)?stated.by_status:fail(`counts.${name}.by_status is missing`);
-  // A null status cannot be a JSON key: accept {} or {"null":n} for null-status relations, strict for the rest.
-  const nulls=edges.filter(edge=>edge.status===null).length;
-  for(const [status,n] of Object.entries(by)){if(n===0)continue;if(status==='null'&&n===nulls&&nulls)continue;if(recount[status]!==n)fail(`counts.${name}.by_status.${status} does not equal a recount`);}
+  // A null status is counted under the key "null", exactly as the pipeline writes it.
+  for(const [status,n] of Object.entries(by))if(recount[status]!==n)fail(`counts.${name}.by_status.${status} does not equal a recount`);
   for(const [status,n] of Object.entries(recount))if(by[status]!==n)fail(`counts.${name}.by_status.${status} does not equal a recount`);
  }
 }

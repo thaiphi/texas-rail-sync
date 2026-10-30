@@ -16,7 +16,7 @@ import {renderWellboreView,wellboreCollected,PRESENCE} from '../public/wellbore-
 
 const NOT_COLLECTED='Casing and plugging records were not collected for this version.';
 const HELP='ODP casing (Form G-1/W-2) and plugging (Form W-3) datasets are filing records keyed by API number, queried with the selected inventory row\'s own API. A casing string can appear once per filing (record_sequence). Values are shown as reported; units are cited from Forms W-2/W-3 and the WBA091 manual where stated (inferred units are marked); most reference codes are undocumented. Rows returned or not returned say nothing about casing, cementing or plugging status.';
-const ANALYTICS_LOCAL_ONLY='Test-report versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
+const ANALYTICS_LOCAL_ONLY='Test-report, wellbore and relation versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
 const SIDECARS=['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'];
 const FORBIDDEN=['compliant','non-compliant','violation','plugged and abandoned','not plugged','properly','adequate','safe','plugged'];
 const SENTENCES={
