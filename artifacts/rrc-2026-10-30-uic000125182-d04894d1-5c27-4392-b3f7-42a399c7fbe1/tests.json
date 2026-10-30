@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-30-uic000125182-d04894d1-5c27-4392-b3f7-42a399c7fbe1",
+  "scope": {
+    "query_version": 4,
+    "uic_number": "000125182",
+    "test_report_limit": 1000,
+    "order": "BHP report_id,tracking_no,test_sequence_no; SRT report_id,tracking_no",
+    "bhp_returned": 4,
+    "srt_returned": 1,
+    "bhp_status": "returned_below_cap",
+    "srt_status": "returned_below_cap",
+    "window": "exact uic_no; not limited to reporting period"
+  },
+  "bhp": [
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:1",
+      "parent_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+      "parent_join_status": "matched",
+      "uic_number": "000125182",
+      "source_report_id": "1430",
+      "tracking_no": "57160000",
+      "test_sequence_no": "1.0",
+      "report_conducted_date": "2022-11-07",
+      "report_conducted_date_text": "2022-11-07",
+      "report_received_date": "2022-12-06",
+      "report_received_date_text": "2022-12-06",
+      "bhp_psia": 1445,
+      "test_depth_ft": 2228,
+      "gradient_psi_ft": 0.6486,
+      "tested_formation": "DELAWARE",
+      "source_snapshot_id": "qxfy-wcfs:e9e0acc12fd493e4",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:2",
+      "parent_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+      "parent_join_status": "matched",
+      "uic_number": "000125182",
+      "source_report_id": "1483",
+      "tracking_no": "57160000",
+      "test_sequence_no": "1.0",
+      "report_conducted_date": "2024-03-03",
+      "report_conducted_date_text": "2024-03-03",
+      "report_received_date": "2024-04-15",
+      "report_received_date_text": "2024-04-15",
+      "bhp_psia": 1674,
+      "test_depth_ft": 2396,
+      "gradient_psi_ft": 0.699,
+      "tested_formation": "DELAWARE",
+      "source_snapshot_id": "qxfy-wcfs:e9e0acc12fd493e4",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:3",
+      "parent_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+      "parent_join_status": "matched",
+      "uic_number": "000125182",
+      "source_report_id": "1484",
+      "tracking_no": "57160000",
+      "test_sequence_no": "1.0",
+      "report_conducted_date": "2024-06-07",
+      "report_conducted_date_text": "2024-06-07",
+      "report_received_date": "2024-07-15",
+      "report_received_date_text": "2024-07-15",
+      "bhp_psia": 1690,
+      "test_depth_ft": 2396,
+      "gradient_psi_ft": 0.705,
+      "tested_formation": "DELAWARE",
+      "source_snapshot_id": "qxfy-wcfs:e9e0acc12fd493e4",
+      "quality_flags": []
+    },
+    {
+      "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:4",
+      "parent_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+      "parent_join_status": "matched",
+      "uic_number": "000125182",
+      "source_report_id": "1485",
+      "tracking_no": "57160000",
+      "test_sequence_no": "1.0",
+      "report_conducted_date": "2024-09-19",
+      "report_conducted_date_text": "2024-09-19",
+      "report_received_date": "2024-10-15",
+      "report_received_date_text": "2024-10-15",
+      "bhp_psia": 1732,
+      "test_depth_ft": 2396,
+      "gradient_psi_ft": 0.722,
+      "tested_formation": "DELAWARE",
+      "source_snapshot_id": "qxfy-wcfs:e9e0acc12fd493e4",
+      "quality_flags": []
+    }
+  ],
+  "srt": [
+    {
+      "source_row_key": "rrc:srt:h54t-xnbi:1b01c6acc0d29b92:1",
+      "parent_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+      "parent_join_status": "matched",
+      "uic_number": "000125182",
+      "source_report_id": "1108",
+      "tracking_no": "57160000",
+      "srt_received_date": "2022-12-02",
+      "srt_received_date_text": "2022-12-02",
+      "test_date": "2022-11-07",
+      "test_date_text": "2022-11-07",
+      "satisfactory_test_code": "1",
+      "top_perf_ft": 2395,
+      "bottom_perf_ft": 4569,
+      "formation_tested": "Delaware",
+      "min_inj_rate_bpm": 0,
+      "max_inj_rate_bpm": 26.63,
+      "isip_psig": null,
+      "formation_frac_press_psig": 1544,
+      "frac_inj_rate_capacity_bpd": null,
+      "surface_pressure_firc_psig": null,
+      "fracture_gradient_psi_ft": 0.693,
+      "comments": "",
+      "source_snapshot_id": "h54t-xnbi:1b01c6acc0d29b92",
+      "quality_flags": [
+        "missing:isip_psig",
+        "missing:frac_inj_rate_capacity_bpd",
+        "missing:surface_pressure_firc_psig"
+      ]
+    }
+  ],
+  "quality": {
+    "bhp": {
+      "raw": 4,
+      "parsed": 4,
+      "accepted": 4,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "srt": {
+      "raw": 1,
+      "parsed": 1,
+      "accepted": 1,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "parent_join": {
+      "bhp": {
+        "matched": 4,
+        "unmatched": 0,
+        "ambiguous": 0
+      },
+      "srt": {
+        "matched": 1,
+        "unmatched": 0,
+        "ambiguous": 0
+      }
+    },
+    "issue_counts": {
+      "bhp": {},
+      "srt": {
+        "missing:isip_psig": 1,
+        "missing:frac_inj_rate_capacity_bpd": 1,
+        "missing:surface_pressure_firc_psig": 1
+      }
+    },
+    "dispositions": [
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:1",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:2",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:3",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:4",
+        "disposition": "accepted"
+      },
+      {
+        "source_row_key": "rrc:srt:h54t-xnbi:1b01c6acc0d29b92:1",
+        "disposition": "accepted"
+      }
+    ],
+    "duplicate_policy": "Every source row retained. Rows sharing a report identity (BHP report_id|tracking_no|test_sequence_no; SRT report_id|tracking_no) are all flagged duplicate_report_identity and quarantined; no preferred row is selected or merged.",
+    "empty_result_policy": "An empty exact-UIC response ([]) is recorded as confirmed_empty: no rows were returned by the query. It does not show that no test was conducted."
+  }
+}

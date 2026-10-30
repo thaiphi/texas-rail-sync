@@ -1,0 +1,5 @@
+source_row_key,parent_key,parent_join_status,uic_number,source_report_id,tracking_no,test_sequence_no,report_conducted_date,report_conducted_date_text,report_received_date,report_received_date_text,bhp_psia,test_depth_ft,gradient_psi_ft,tested_formation,source_snapshot_id,quality_flags
+rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:1,rrc:uic:givw-z9t4:49ccca596a92ba99:1,matched,000125182,1430,57160000,1.0,2022-11-07,2022-11-07,2022-12-06,2022-12-06,1445,2228,0.6486,DELAWARE,qxfy-wcfs:e9e0acc12fd493e4,
+rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:2,rrc:uic:givw-z9t4:49ccca596a92ba99:1,matched,000125182,1483,57160000,1.0,2024-03-03,2024-03-03,2024-04-15,2024-04-15,1674,2396,0.699,DELAWARE,qxfy-wcfs:e9e0acc12fd493e4,
+rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:3,rrc:uic:givw-z9t4:49ccca596a92ba99:1,matched,000125182,1484,57160000,1.0,2024-06-07,2024-06-07,2024-07-15,2024-07-15,1690,2396,0.705,DELAWARE,qxfy-wcfs:e9e0acc12fd493e4,
+rrc:bhp:qxfy-wcfs:e9e0acc12fd493e4:4,rrc:uic:givw-z9t4:49ccca596a92ba99:1,matched,000125182,1485,57160000,1.0,2024-09-19,2024-09-19,2024-10-15,2024-10-15,1732,2396,0.722,DELAWARE,qxfy-wcfs:e9e0acc12fd493e4,

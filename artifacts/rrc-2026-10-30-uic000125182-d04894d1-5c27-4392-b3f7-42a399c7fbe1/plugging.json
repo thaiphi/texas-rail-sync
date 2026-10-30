@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "rrc-2026-10-30-uic000125182-d04894d1-5c27-4392-b3f7-42a399c7fbe1",
+  "dataset": "plugging",
+  "scope": {
+    "query_version": 4,
+    "source_api_id": "10933820",
+    "wellbore_limit": 1000,
+    "wellbore_inventory_limit": 25,
+    "order": "record_sequence,id",
+    "returned": 0,
+    "status": "confirmed_empty",
+    "window": "exact api_no; not limited to reporting period"
+  },
+  "link": {
+    "inventory_source_record_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+    "source_api_id": "10933820",
+    "basis": "inventory_api_no",
+    "status": "none",
+    "reason": "no_source_rows",
+    "inventory_query": {
+      "url": "https://data.texas.gov/resource/givw-z9t4.json?%24where=api_no%3D%2710933820%27&%24limit=25&%24order=uic_number%2Capi_no",
+      "sha256": "49ccca596a92ba995c4a5c0f2bf8ff8ef9cc9c68949253b2776573f6ec3c3d3c",
+      "rows": 1
+    },
+    "wellbore_query": {
+      "url": "https://data.texas.gov/resource/wfzn-9fje.json?%24where=api_no%3D%2710933820%27&%24limit=1000&%24order=record_sequence%2Cid",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "rows": 0
+    },
+    "candidates": [
+      {
+        "candidate_key": "rrc:uic:givw-z9t4:49ccca596a92ba99:1",
+        "selected": true,
+        "uic_number": "000125182",
+        "api_no": "10933820",
+        "operator_number": "103285",
+        "district_code": "08",
+        "lease_number": "58337",
+        "lease_name": "BARBARO 23 SWD",
+        "well_no_display": "10",
+        "w14_number": "16996"
+      }
+    ],
+    "wellbore_row_count": 0
+  },
+  "rows": [],
+  "quality": {
+    "counts": {
+      "raw": 0,
+      "parsed": 0,
+      "accepted": 0,
+      "quarantined": 0,
+      "excluded": 0
+    },
+    "issue_counts": {},
+    "dispositions": [],
+    "duplicate_policy": "Every source row retained. The only duplicate rule is a repeated source id within one response: every occurrence is flagged duplicate_source_id and quarantined. Rows identical apart from id, record_sequence or date (the same string re-filed) are normal and unflagged. No preferred row is selected or merged.",
+    "empty_result_policy": "No plugging rows were returned by the exact-API query; this does not show whether the well is or is not plugged.",
+    "presence_policy": "Only whether rows were returned is stated. Rows returned or not returned say nothing about casing, cementing or plugging status.",
+    "record_sequence_policy": "record_sequence is a filing sequence shared by several rows; it is not a row key, repeats are normal and never flagged, and it is kept verbatim without being used for ordering beyond the source order (record_sequence,id).",
+    "on_top_record_policy": "on_top_record is true only where the source sets it; absent in source is shown empty (not false) with no flag; a non-boolean value is a quarantined parse failure; it is never derived from record_sequence or a date."
+  }
+}
