@@ -2,12 +2,14 @@ export const collectionScope=Object.freeze({apiPrefix:'389',injectionType:'1',mo
 const inventoryQuery=new URLSearchParams({'$where':`api_no like '${collectionScope.apiPrefix}%' AND uic_type_injection='${collectionScope.injectionType}' AND permit_canceled_date IS NULL AND w3_plugged_date IS NULL`,'$limit':'5','$order':'uic_number'});
 const monthlyQuery=new URLSearchParams({'$where':`uic_no='${collectionScope.monthlyUic}' AND formatted_date >= '${collectionScope.monthlyStart}'`,'$limit':'1000','$order':'formatted_date,id'});
 // Bounded (explicitly selected UIC) collections: query v2; v3 adds the BHP/SRT
-// test-report targets; v4 (RRC-14) adds the exact-API casing/plugging targets.
-// Test-report behaviour is gated on queryVersion>=3, wellbore behaviour on ===4.
-export const isBounded=scope=>scope?.queryVersion===2||scope?.queryVersion===3||scope?.queryVersion===4;
+// test-report targets; v4 (RRC-14) adds the exact-API casing/plugging targets; v5 (RRC-15)
+// queries exactly the v4 targets and marks the export contract that adds evidence_relations.json.
+// Test-report behaviour is gated on queryVersion>=3, wellbore on >=4, the relation catalogue on >=5.
+export const isBounded=scope=>scope?.queryVersion===2||scope?.queryVersion===3||scope?.queryVersion===4||scope?.queryVersion===5;
 // D7: every version from 3 up is local-only; used at every guest refusal point.
 export const isLocalOnly=scope=>Number.isInteger(scope?.queryVersion)&&scope.queryVersion>=3;
 export function versionLabels(scope){
+ if(scope?.queryVersion===5)return {pipelineVersion:'rrc-collection-v5',transformationVersion:'rrc-odp-v2.3.0'};
  if(scope?.queryVersion===4)return {pipelineVersion:'rrc-collection-v4',transformationVersion:'rrc-odp-v2.2.0'};
  if(scope?.queryVersion===3)return {pipelineVersion:'rrc-collection-v3',transformationVersion:'rrc-odp-v2.1.0'};
  if(scope?.queryVersion===2)return {pipelineVersion:'rrc-collection-v2',transformationVersion:'rrc-odp-v2.0.0'};
@@ -72,6 +74,11 @@ export function boundedWellboreScope(uic,startMonth,endMonth,apiNo){
  const sourceApiId=typeof apiNo==='string'&&/^\d{8}$/.test(apiNo)?apiNo:null;
  return Object.freeze({...boundedTestScope(uic,startMonth,endMonth),queryVersion:4,sourceApiId,wellboreLimit:1000,wellboreInventoryLimit:25});
 }
+// v5 (local only, D7; RRC-15, ADR 004 §3): the v4 scope and exactly the v4 targets, in the same
+// order. The version marks the export contract (evidence_relations.json); no new dataset is queried.
+export function boundedRelationScope(uic,startMonth,endMonth,apiNo){
+ return Object.freeze({...boundedWellboreScope(uic,startMonth,endMonth,apiNo),queryVersion:5});
+}
 export const wellboreOrder='record_sequence,id';
 export const officialWellboreDocuments=Object.freeze([
  {name:'wellbore-wba091.pdf',url:'https://www.rrc.texas.gov/media/cx2i4xrm/wba091_well-bore-database.pdf'},
@@ -110,11 +117,11 @@ function testReportTargets(uic){
 }
 export function targetsForScope(scope=collectionScope){
  if(!isBounded(scope))return acquisitionTargets;
- const checked=scope.queryVersion===4?boundedWellboreScope(scope.monthlyUic,scope.startMonth,scope.endMonth,scope.sourceApiId):(scope.queryVersion===3?boundedTestScope:boundedScope)(scope.monthlyUic,scope.startMonth,scope.endMonth);
+ const checked=scope.queryVersion===5?boundedRelationScope(scope.monthlyUic,scope.startMonth,scope.endMonth,scope.sourceApiId):scope.queryVersion===4?boundedWellboreScope(scope.monthlyUic,scope.startMonth,scope.endMonth,scope.sourceApiId):(scope.queryVersion===3?boundedTestScope:boundedScope)(scope.monthlyUic,scope.startMonth,scope.endMonth);
  if(JSON.stringify(checked)!==JSON.stringify(scope))throw invalid('Collection scope does not match the query contract');
  const inventory=new URLSearchParams({'$where':`uic_number='${scope.monthlyUic}'`,'$limit':'25','$order':'uic_number,api_no'});
  const monthly=new URLSearchParams({'$where':`uic_no='${scope.monthlyUic}' AND formatted_date >= '${scope.monthlyStart}' AND formatted_date < '${scope.monthlyEndExclusive}'`,'$limit':'1000','$order':'formatted_date,id'});
  const targets=acquisitionTargets.map(target=>target.name==='candidate-inventory.json'?{...target,url:`https://data.texas.gov/resource/givw-z9t4.json?${inventory}`}:target.name==='candidate-monthly.json'?{...target,url:`https://data.texas.gov/resource/qq2j-f2zm.json?${monthly}`}:target);
  if(scope.queryVersion<3)return targets;
- return scope.queryVersion===4?[...targets,...testReportTargets(scope.monthlyUic),...wellboreTargets(scope)]:[...targets,...testReportTargets(scope.monthlyUic)];
+ return scope.queryVersion>=4?[...targets,...testReportTargets(scope.monthlyUic),...wellboreTargets(scope)]:[...targets,...testReportTargets(scope.monthlyUic)];
 }

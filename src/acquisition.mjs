@@ -10,7 +10,7 @@ export {acquisitionTargets} from './sources.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
 export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null,appToken=null,wait=undefined}={}){
  if(fetchImpl!==fetch&&!testFixture)throw Error('Injected network responses require explicit test-fixture mode');
- // v2, v3 and v4 share the bounded acquisition marker (schemaVersion 2); labels follow the query version.
+ // v2, v3, v4 and v5 share the bounded acquisition marker (schemaVersion 2); labels follow the query version.
  const dynamic=isBounded(scope);
  const recorder=createRunRecorder({mode:'live_collection',...versionLabels(dynamic?scope:null),schemaVersion:1,testFixture});
  const evidence={requests:[],outputs:[]};let created=false,result,targets=acquisitionTargets;

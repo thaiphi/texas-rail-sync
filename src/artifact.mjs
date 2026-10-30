@@ -2,6 +2,7 @@ import {acquisitionTargets,collectionScope,sourceScopeFlags,targetsForScope,isBo
 import {normalizeTests,testsDictionary,testsCsv} from './testReports.mjs';
 import {normalizeSnapshotWellbore,wellboreScopeFailure,wellboreDictionary,wellboreCsv} from './wellbore.mjs';
 import {validateSelectionEvidence,sameIdentity} from './lookup.mjs';
+import {buildRelations} from './relations.mjs';
 import {assertQualityReport} from '../public/quality-validation.js';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -52,7 +53,7 @@ export async function loadSnapshotFromReader(readBytes){
  const classification=await Promise.allSettled(classificationFiles.map(async name=>JSON.parse(await read(name))));
  fixtureEvidence=classification.some(result=>result.status==='fulfilled'&&result.value?.testFixture===true);
  try{acquisition=JSON.parse(await read('acquisition.json'));if(acquisition.status!=='succeeded')throw Object.assign(Error('Source acquisition is incomplete'),{code:'SOURCE_INVALID'});}catch(error){if(error.code!=='ENOENT')throw error;}
- const scope=acquisition?.scope??collectionScope,targets=targetsForScope(scope),dynamic=isBounded(scope),testReports=scope.queryVersion>=3,wellbore=scope.queryVersion===4;
+ const scope=acquisition?.scope??collectionScope,targets=targetsForScope(scope),dynamic=isBounded(scope),testReports=scope.queryVersion>=3,wellbore=scope.queryVersion>=4;
  if(dynamic){
   const lookupFlags=await Promise.allSettled(['lookup.json','lookup-inventory.source.json','lookup-metadata.source.json'].map(async name=>JSON.parse(await read(name))));
   fixtureEvidence ||= lookupFlags.some(result=>result.status==='fulfilled'&&result.value?.testFixture===true);
@@ -202,12 +203,22 @@ if(testRows){
 // manifest delta below changes; every v3 file except tests.json (OD-2) is byte-identical.
 if(wellboreRows){
  const scope=snapshot.scope;
- manifest.transformation_version='rrc-odp-v2.2.0';manifest.scope.query_version=4;manifest.scope.wellbore_limit=scope.wellboreLimit;manifest.scope.wellbore_inventory_limit=scope.wellboreInventoryLimit;
+ manifest.transformation_version='rrc-odp-v2.2.0';manifest.scope.query_version=scope.queryVersion;manifest.scope.wellbore_limit=scope.wellboreLimit;manifest.scope.wellbore_inventory_limit=scope.wellboreInventoryLimit;
  manifest.limitations.push('Casing and plugging sidecars are exact-API filing records for the selected inventory row\'s own API (basis inventory_api_no), not limited to the reporting period; record_sequence is a filing sequence; presence or absence of rows is not a statement about casing, cementing or plugging status. Units, meanings and disclosed source conflicts (C2-C7) are cited in wellbore_dictionary.json; nothing is converted.');
  const sidecar=dataset=>{const {link,rows,quality}=wellboreRows[dataset],queried=scope.sourceApiId!==null;
-  return {schemaVersion:1,artifactId,dataset,scope:{query_version:4,source_api_id:scope.sourceApiId,wellbore_limit:scope.wellboreLimit,wellbore_inventory_limit:scope.wellboreInventoryLimit,order:wellboreOrder,returned:queried?rows.length:null,status:!queried?'not_queried':rows.length?'returned_below_cap':'confirmed_empty',window:'exact api_no; not limited to reporting period'},link,rows,quality};};
+  // OD-7 (Phase 3b): the true query version (4 for v4, 5 for v5).
+  return {schemaVersion:1,artifactId,dataset,scope:{query_version:scope.queryVersion,source_api_id:scope.sourceApiId,wellbore_limit:scope.wellboreLimit,wellbore_inventory_limit:scope.wellboreInventoryLimit,order:wellboreOrder,returned:queried?rows.length:null,status:!queried?'not_queried':rows.length?'returned_below_cap':'confirmed_empty',window:'exact api_no; not limited to reporting period'},link,rows,quality};};
  const sidecars={'casing.json':JSON.stringify(sidecar('casing'),null,2)+'\n','casing.csv':wellboreCsv(wellboreRows.casing.rows,'casing'),'plugging.json':JSON.stringify(sidecar('plugging'),null,2)+'\n','plugging.csv':wellboreCsv(wellboreRows.plugging.rows,'plugging'),'wellbore_dictionary.json':JSON.stringify(wellboreDictionary({testFixture:snapshot.testFixture,provenance:snapshot.provenance}),null,2)+'\n'};
  for(const [name,body] of Object.entries(sidecars)){files[name]=body;manifest.files[name]={sha256:sha256(body),bytes:Buffer.byteLength(body)};}
+}
+// v5 additive sidecar (RRC-15, ADR 004 §3, D10): the relation catalogue, appended after the five
+// wellbore sidecars. Built only from the canonical records validated above and the loaded sources.
+if(wellboreRows&&snapshot.scope.queryVersion>=5){
+ const scope=snapshot.scope;
+ manifest.transformation_version='rrc-odp-v2.3.0';manifest.scope.query_version=scope.queryVersion;
+ manifest.limitations.push('evidence_relations.json lists typed relations derived at export from this version\'s own records and source files (ADR 004 §3); query version 5 queries exactly the version 4 targets. Relations assert exact string equality of source keys only; matched does not establish one physical wellbore, and no relation states casing, cementing, plugging, compliance or hydraulic communication.');
+ const body=JSON.stringify(buildRelations({artifactId,scope,inventory:normalized.inventory,monthly:normalized.monthly,testRows,wellboreRows,sources}),null,2)+'\n';
+ files['evidence_relations.json']=body;manifest.files['evidence_relations.json']={sha256:sha256(body),bytes:Buffer.byteLength(body)};
 }
 // Preserve the approved legacy version's bytes; all other versions carry
 // explicit classification in the immutable consumer manifest.
