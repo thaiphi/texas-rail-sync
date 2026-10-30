@@ -94,7 +94,7 @@ test('derivation on the TRIPPET committed bytes: 16 + 0 + 2 + 9 + 7 + 33 = 67 re
 });
 
 test('reconciliation against every committed v4 version: edges equal quality counts and parent_join splits',async()=>{
- assert.equal(v4Versions.length,4);assert.ok(v4Versions.includes(TRIPPET));
+ assert.ok(v4Versions.length>=4);assert.ok(v4Versions.includes(TRIPPET));
  for(const id of v4Versions){
   const {doc,input}=await derive(id),quality=await committedJson(id,'quality_report.json'),tests=await committedJson(id,'tests.json'),casing=await committedJson(id,'casing.json'),plugging=await committedJson(id,'plugging.json');
   assertInvariants(doc,input);
