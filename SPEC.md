@@ -1,5 +1,24 @@
 # Bounded Explorer specification v1
 
+## October 30 evidence package v2 (Phase 6, RRC-17)
+
+**Scope.** The Analytics transfer of query versions 4 and 5 ([ADR 005](docs/adr/005-evidence-package-v2.md)). Owner rulings 2026-10-30:
+- local only;
+- the package is the existing v4/v5 file sets, with nothing new collected;
+- the sender gate lifts only after Analytics merges its receiver.
+
+**Contract.**
+- `schemaVersion` stays 1 and `normalized.json` keeps its seven keys.
+- Every TAR member is declared with its hash.
+- The channel stays `swd-explorer-handoff` version 1, with no wire change.
+- v5 is v4 plus `evidence_relations.json`, with a closed manifest delta. The relation file is re-derived byte for byte from package members by the pure `src/relations.mjs`.
+
+**Verification split.** Explorer tests the package shape on every preserved version (`test/package-contract.test.mjs`). Analytics verifies each query version it accepts against its own pinned contract and refuses the rest.
+
+**Gate.** `localOnlyVersion` still refuses query versions 3 and above in this step. It becomes an allow list (legacy and 2, then 4, then 5) in a separate PR once each receiver version is merged. v3 stays local only.
+
+**Hosted.** Unchanged: hosted stays v2 only (D7), and the archive script still skips query versions 3 and above.
+
 ## October 30 version comparison (Phase 4, RRC-16)
 
 **Scope.** A read-only, network-free comparison of two preserved versions of one UIC, shown on a new Compare screen (`#compare/<A>/<B>`). Nothing is collected or exported, and no query version changes. Nothing under `artifacts/`, `src/` or `scripts/` changes. The frozen contract is [the Phase 4 design](docs/superpowers/specs/2026-10-30-phase4-version-comparison-design.md).
