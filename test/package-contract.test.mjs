@@ -96,6 +96,20 @@ test('v5 differs from v4 only by the closed delta the receiver contract names',(
  }
 });
 
+test('for the same well and window, v5 keeps the v4 targets, scope values and sources',()=>{
+ const pairs=byQv(5).flatMap(b=>byQv(4).filter(a=>a.manifest.scope.uic_number===b.manifest.scope.uic_number&&a.manifest.scope.start===b.manifest.scope.start&&a.manifest.scope.end===b.manifest.scope.end).map(a=>[a,b]));
+ assert.ok(pairs.length,'no same-well v4/v5 pair committed');
+ const without=({query_version,queryVersion,monthly_returned,...rest})=>rest;
+ const source=s=>({name:s.name,kind:s.kind,url:s.url,raw_file:s.raw_file});
+ for(const [a,b] of pairs){
+  const qa=a.json('sources/acquisition.json'),qb=b.json('sources/acquisition.json');
+  assert.deepEqual(without(b.manifest.scope),without(a.manifest.scope),b.pins.artifactId);
+  assert.deepEqual(without(qb.scope),without(qa.scope),b.pins.artifactId);
+  assert.deepEqual(qb.targets,qa.targets,b.pins.artifactId);
+  assert.deepEqual(b.manifest.sources.map(source),a.manifest.sources.map(source),b.pins.artifactId);
+ }
+});
+
 test('evidence_relations.json is re-derived byte for byte from the package members alone',()=>{
  const v5=byQv(5);assert.ok(v5.length);
  for(const {pins,files,manifest,json} of v5){

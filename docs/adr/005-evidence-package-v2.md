@@ -38,7 +38,7 @@ Analytics owns acceptance. Each query version it accepts must be verified agains
 
 ### 4. Query version 5 contract (sent to Analytics on 2026-10-30)
 
-v5 is v4 with this closed delta. Everything else matches v4.
+v5 is v4 with this closed delta. Everything else is structurally identical to v4. Fields that belong to one collection differ as they do between any two collections: `artifact_id`, `selection`, the normalized payload hash, per-source retrieval data (`retrieved_at`, `sha256`, `bytes`) and values bound to the UIC, API or reporting window.
 
 | Field | v4 | v5 |
 |---|---|---|
@@ -48,7 +48,7 @@ v5 is v4 with this closed delta. Everything else matches v4.
 | `manifest.files` | v4 entries | v4 entries plus `evidence_relations.json`, appended last |
 | `tests.json`, `casing.json`, `plugging.json` `scope.query_version` | 4 | 5 |
 
-Acquisition targets (21), scope keys and `manifest.sources` (22 entries, same order) are identical.
+The scope keys, the 21 acquisition targets and the 22 `manifest.sources` entries keep the same names and order. For the same well and window, the target URLs and the scope values other than the query version are equal. This was checked on 000109605 v4 and v5.
 
 **Re-deriving the relations.** Run `src/relations.mjs` (pure, no imports; file SHA-256 `88b43327612adc584119ae430588151bd3a7394ff3919d159d83c3984795a648` at `b67fe5c`):
 
