@@ -36,3 +36,7 @@ Downloads identifies exact version and whole-version counts/coverage, provides t
 ## Evidence and unresolved checks
 
 Producer security/lifecycle regressions and existing UI/version/integrity checks are recorded in [the producer checkpoint](../verification-2026-10-11-analytics-handoff.md). Independent review is required after repairs. Integrated browser preview/adoption, downloaded lineage, real receiver-origin verification and receiver case-preservation evidence belong to coordinator/Analytics and remain pending here. Shell network verification was permission-blocked; no escalation or denied-access retry is authorized. Earlier sandbox realpath failures block whole archive/full-suite execution in this context; current focused passes must not be described as full-suite acceptance.
+
+## Note 2026-10-30 (Phase 6)
+
+Packages of query versions 4 and 5 use this transport unchanged: same channel, version 1 and the same `offer` fields. Which query versions the sender offers, and what the receiver must verify for each, is set in [ADR 005](005-evidence-package-v2.md). This ADR's local origins are unchanged; hosted transfer stays out of scope.
