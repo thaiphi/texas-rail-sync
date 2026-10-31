@@ -39,8 +39,11 @@ const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
  if(event.code&&event.state==='rejected')$('analytics-status').textContent+=' '+String(event.message??event.code).slice(0,300);
  updateAnalyticsControls();
 }});
-// Local-only versions (query version 3 test reports, 4 wellbore) stay out of Analytics until the receiver accepts additive files (D10).
-const localOnlyVersion=manifest=>Number.isInteger(manifest?.scope?.query_version)&&manifest.scope.query_version>=3;
+// ADR 005 §5: only query versions the merged Analytics receiver verifies are offered. The legacy pin
+// has no query_version. v4 since well-injection-insights b48ce03; v3 stays local; v5 waits for its receiver.
+const ANALYTICS_QUERY_VERSIONS=Object.freeze([2,4]);
+const localOnlyVersion=manifest=>manifest?.scope?.query_version!==undefined&&!ANALYTICS_QUERY_VERSIONS.includes(manifest.scope.query_version);
+const localOnlyMessage=manifest=>`Query version ${manifest.scope.query_version} is not sent to Analytics. Its receiver accepts query versions ${ANALYTICS_QUERY_VERSIONS.join(' and ')} and the original pinned version (ADR 005).`;
 function analyticsReady(){return Boolean(data&&!savedView&&!localOnlyVersion(data.manifest)&&analyticsPins?.artifactId===data.artifactId&&currentRoute.screen==='workspace'&&currentRoute.tab==='downloads'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId));}
 function updateAnalyticsControls(){
  $('analytics-start').disabled=!analyticsReady()||analyticsActive();$('analytics-cancel').hidden=!analyticsActive();
@@ -122,7 +125,7 @@ function renderExports(integrity){
  analyticsPins=integrity;
  const inventoryUics=[...new Set(data.inventory.map(row=>row.uic_number))],historyUics=[...new Set(data.injectionMonthly.map(row=>row.uic_number))],months=data.injectionMonthly.map(row=>row.period_start).sort();
  $('analytics-scope').textContent=`Whole version ${data.artifactId}: ${inventoryUics.length} inventory UICs, ${historyUics.length} history UICs, ${data.injectionMonthly.length} monthly rows${months.length?`, reporting ${months[0].slice(0,7)} – ${months.at(-1).slice(0,7)}`:', reporting coverage unavailable'}. Filters and the selected well do not narrow this transfer.`;
- updateAnalyticsControls();if(localOnlyVersion(manifest))$('analytics-status').textContent='Test-report, wellbore and relation versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
+ updateAnalyticsControls();if(localOnlyVersion(manifest))$('analytics-status').textContent=localOnlyMessage(manifest);
  $('version-details').innerHTML=facts([['Record class','Public reported — verified version pins'],['History readiness',manifest.real_history_status],['Inventory / monthly',`${data.inventory.length} / ${data.injectionMonthly.length}`],['Query period',`${manifest.scope.start} – ${manifest.scope.end??'no upper bound recorded'}`],['Schema',manifest.schema_version],['Transformation',manifest.transformation_version]]);
  $('version-provenance').innerHTML=facts([['Artifact ID',data.artifactId],['Retrieved (local)',localTime(manifest.sources[0]?.retrieved_at)],['Manifest SHA-256',integrity.manifestSha256],['Payload SHA-256',integrity.normalizedSha256],['Consumer handoff','Acknowledgement unrecorded']]);
  const descriptions={'inventory.csv':`${data.inventory.length} inventory records`,'injection_monthly.csv':`${data.injectionMonthly.length} retained monthly rows`,'manifest.json':'Source URLs, versions and hashes','quality_report.json':'Dispositions, counts and quality evidence','data_dictionary.json':'Field definitions, units and formulas','normalized.json':'Complete typed artifact for Analytics'};

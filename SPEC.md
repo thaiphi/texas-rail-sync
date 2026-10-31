@@ -15,7 +15,7 @@
 
 **Verification split.** Explorer tests the package shape on every preserved version (`test/package-contract.test.mjs`). Analytics verifies each query version it accepts against its own pinned contract and refuses the rest.
 
-**Gate.** `localOnlyVersion` still refuses query versions 3 and above in this step. It becomes an allow list (legacy and 2, then 4, then 5) in a separate PR once each receiver version is merged. v3 stays local only.
+**Gate.** `localOnlyVersion` is an allow list of the query versions the merged receiver verifies, `ANALYTICS_QUERY_VERSIONS = [2, 4]`, plus the legacy pin, which has no query version. v4 was added after Analytics merged receiver `b48ce03` on 2026-10-30. v5 is added once its receiver is merged. v3 stays local only. Refused versions show "Query version N is not sent to Analytics…".
 
 **Hosted.** Unchanged: hosted stays v2 only (D7), and the archive script still skips query versions 3 and above.
 
@@ -141,7 +141,7 @@ A regression test enforces it.
 - The hosted guest path stays v2, and the shared export core refuses v3 there.
 - The Supabase transfer script skips v3 versions, their runs and their raw `collected-sources` folders.
 
-Version 3 cannot be sent to Analytics until its receiver accepts additive files (D10, Phase 6). Until then, **new local collections cannot be handed to Analytics**; the three existing versions still can.
+Version 3 cannot be sent to Analytics (D10). Superseded 2026-10-30 by the Phase 6 gate ([ADR 005](docs/adr/005-evidence-package-v2.md)): v4 is offered and v3 stays local only.
 
 **Live proof.** The live proof ran on 2026-10-29 for UIC 000020838, 000111186 and 000119875; the counts reconcile for all three (see [the proof](docs/verification-2026-10-29-phase2-live-proof.md)).
 
