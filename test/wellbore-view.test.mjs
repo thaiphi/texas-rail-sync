@@ -16,7 +16,7 @@ import {renderWellboreView,wellboreCollected,PRESENCE} from '../public/wellbore-
 
 const NOT_COLLECTED='Casing and plugging records were not collected for this version.';
 const HELP='ODP casing (Form G-1/W-2) and plugging (Form W-3) datasets are filing records keyed by API number, queried with the selected inventory row\'s own API. A casing string can appear once per filing (record_sequence). Values are shown as reported; units are cited from Forms W-2/W-3 and the WBA091 manual where stated (inferred units are marked); most reference codes are undocumented. Rows returned or not returned say nothing about casing, cementing or plugging status.';
-const ANALYTICS_LOCAL_ONLY='Test-report, wellbore and relation versions are not sent to Analytics until the receiver accepts additive files (D10, Phase 6).';
+const ANALYTICS_LOCAL_ONLY=queryVersion=>`Query version ${queryVersion} is not sent to Analytics. Its receiver accepts query versions 2 and 4 and the original pinned version (ADR 005).`;
 const SIDECARS=['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'];
 const FORBIDDEN=['compliant','non-compliant','violation','plugged and abandoned','not plugged','properly','adequate','safe','plugged'];
 const SENTENCES={
@@ -187,7 +187,7 @@ test('existing v1 and v3 versions open the Wellbore tab as not collected and lis
  const v3=await startUI({artifact,hash:'#dataset/rrc-v3-fixture/wellbore',sidecars});
  assert.ok(v3.element('wellbore-content').innerHTML.includes(NOT_COLLECTED));for(const name of SIDECARS)assert.ok(!v3.element('downloads').innerHTML.includes(`download="${name}"`),name);
 });
-test('a v4 version renders verified casing and plugging, lists the five sidecars and is not sent to Analytics',async()=>{
+test('a v4 version renders verified casing and plugging, lists the five sidecars and can be sent to Analytics',async()=>{
  const {artifact,sidecars}=versionArtifact();
  const ui=await startUI({artifact,hash:`#dataset/${ID}/wellbore`,sidecars});
  const html=ui.element('wellbore-content').innerHTML;
@@ -195,7 +195,15 @@ test('a v4 version renders verified casing and plugging, lists the five sidecars
  assert.equal(ui.element('wellbore-view').hidden,false);
  const downloads=ui.element('downloads').innerHTML;for(const name of SIDECARS)assert.ok(downloads.includes(`download="${name}"`),name);assert.match(downloads,/Publication pins/);
  const exportsUi=await startUI({artifact,hash:`#dataset/${ID}/downloads`,sidecars});
- assert.equal(exportsUi.element('analytics-start').disabled,true);assert.equal(exportsUi.element('analytics-status').textContent,ANALYTICS_LOCAL_ONLY);
+ assert.equal(exportsUi.element('analytics-start').disabled,false);assert.ok(!exportsUi.element('analytics-status').textContent.includes('is not sent to Analytics'));
+});
+test('ADR 005 gate: v3 and v5 stay local, v4 is offered',async()=>{
+ for(const [queryVersion,local] of [[3,true],[4,false],[5,true]]){
+  const id=`rrc-v${queryVersion}-gate`,{artifact,sidecars}=versionArtifact({queryVersion,id});
+  const ui=await startUI({artifact,hash:`#dataset/${id}/downloads`,sidecars});
+  assert.equal(ui.element('analytics-start').disabled,local,`v${queryVersion}`);
+  if(local)assert.equal(ui.element('analytics-status').textContent,ANALYTICS_LOCAL_ONLY(queryVersion));
+ }
 });
 test('a v4 version whose casing.json bytes were modified is refused with no rows',async()=>{
  const {artifact,sidecars}=versionArtifact();const path=`/artifacts/${ID}/casing.json`,tampered=new Uint8Array(sidecars.get(path));tampered[10]^=1;sidecars.set(path,tampered);

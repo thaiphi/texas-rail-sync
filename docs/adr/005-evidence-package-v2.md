@@ -73,6 +73,8 @@ Serialize the result as `JSON.stringify(result, null, 2) + "\n"` and compare tho
 
 `localOnlyVersion` (`public/app.js`) currently refuses every query version of 3 or more. It becomes an allow list of the query versions the merged receiver accepts: the legacy pin and 2 today; 4 once Analytics merges `b48ce03` or its successor; 5 once Analytics merges its v5 delta. v3 stays local only. The receiver refuses it, and every UIC collected at v3 also has a newer v4. The gate changes in its own PR, followed by a real two-window walkthrough.
 
+**2026-10-30:** Analytics merged and pushed receiver `b48ce03` (`well-injection-insights` main, a fast-forward; confirmed on GitHub). The sender now offers `ANALYTICS_QUERY_VERSIONS = [2, 4]` plus the legacy pin.
+
 ### 6. Local only
 
 The hosted site keeps v2 only. `scripts/prepare-supabase-archive.mjs` keeps skipping versions of query version 3 or more (D7), and ADR 003 keeps its fixed local origins. A hosted transfer needs its own decision, a hosted origin contract and a review of D7.

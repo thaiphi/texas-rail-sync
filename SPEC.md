@@ -15,7 +15,7 @@
 
 **Verification split.** Explorer tests the package shape on every preserved version (`test/package-contract.test.mjs`). Analytics verifies each query version it accepts against its own pinned contract and refuses the rest.
 
-**Gate.** `localOnlyVersion` still refuses query versions 3 and above in this step. It becomes an allow list (legacy and 2, then 4, then 5) in a separate PR once each receiver version is merged. v3 stays local only.
+**Gate.** `localOnlyVersion` is an allow list of the query versions the merged receiver verifies, `ANALYTICS_QUERY_VERSIONS = [2, 4]`, plus the legacy pin, which has no query version. v4 was added after Analytics merged receiver `b48ce03` on 2026-10-30. v5 is added once its receiver is merged. v3 stays local only. Refused versions show "Query version N is not sent to Analytics…".
 
 **Hosted.** Unchanged: hosted stays v2 only (D7), and the archive script still skips query versions 3 and above.
 
@@ -77,7 +77,7 @@
   - Raw-only depths (H-10 `toz`/`boz`, inventory `prod_casing_pkr_depth`) are omitted and disclosed.
 - Versions before 5 show "not produced for this version".
 
-**Hosted and Analytics.** Version 5 is local only, like versions 3 and 4. It cannot be sent to Analytics until Phase 6.
+**Hosted and Analytics.** Version 5 is local only, like versions 3 and 4. It is not sent to Analytics until the Analytics v5 receiver is merged (Phase 6, [ADR 005](docs/adr/005-evidence-package-v2.md)).
 
 **Live proof.** On 2026-10-29 one local v5 collection of UIC 000109605 (TRIPPET SWD) used the same 21 targets as its v4 version. It produced 67 relations, all reconciled. The ten regression files are byte-identical to v4, and the version replays byte for byte (see [the proof](docs/verification-2026-10-29-phase3b-proof.md)). Independent Opus review: PASS, with four findings fixed.
 
@@ -102,7 +102,7 @@ Transformation: `rrc-odp-v2.2.0`, pipeline `rrc-collection-v4`. The frozen contr
 
 **Acceptance criterion.** The Phase 2 revised criterion is extended: against the v3 output from the same sources, `inventory.csv`, `injection_monthly.csv`, `quality_report.json`, `data_dictionary.json`, `tests_bhp.csv`, `tests_srt.csv` and `tests_dictionary.json` are byte-identical and `normalized_payload_sha256` is equal; `tests.json` differs only in `query_version`; `manifest.json` differs only by an enumerated delta (design §6). A regression test enforces it. The design's "duplicate sequence" fixture is reinterpreted as a duplicate source `id`.
 
-**Hosted and Analytics.** Version 4 is local only, like version 3: the guest path stays v2, the export core refuses query version 3 and later there, and the transfer script skips those versions, their runs and raw folders containing the casing or plugging datasets. Version 4 cannot be sent to Analytics until Phase 6.
+**Hosted and Analytics.** Version 4 is local only, like version 3: the guest path stays v2, the export core refuses query version 3 and later there, and the transfer script skips those versions, their runs and raw folders containing the casing or plugging datasets. Version 4 cannot be sent to Analytics until Phase 6. Superseded for Analytics on 2026-10-30 by the Phase 6 gate ([ADR 005](docs/adr/005-evidence-package-v2.md)): v4 is offered to the merged receiver. Hosted stays v2 only.
 
 **Live proof.** The live proof ran on 2026-10-29 for UIC 000020838, 000111186, 000119875 and 000109605; every count reconciles, casing is `matched` for all four, and plugging is `matched` for 000109605 and `none/no_source_rows` for the three active wells (see [the proof](docs/verification-2026-10-29-phase3-live-proof.md)).
 
@@ -141,7 +141,7 @@ A regression test enforces it.
 - The hosted guest path stays v2, and the shared export core refuses v3 there.
 - The Supabase transfer script skips v3 versions, their runs and their raw `collected-sources` folders.
 
-Version 3 cannot be sent to Analytics until its receiver accepts additive files (D10, Phase 6). Until then, **new local collections cannot be handed to Analytics**; the three existing versions still can.
+Version 3 cannot be sent to Analytics (D10). Superseded 2026-10-30 by the Phase 6 gate ([ADR 005](docs/adr/005-evidence-package-v2.md)): v4 is offered and v3 stays local only.
 
 **Live proof.** The live proof ran on 2026-10-29 for UIC 000020838, 000111186 and 000119875; the counts reconcile for all three (see [the proof](docs/verification-2026-10-29-phase2-live-proof.md)).
 
