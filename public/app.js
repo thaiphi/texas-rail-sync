@@ -42,8 +42,9 @@ const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
 // ADR 005 §5: only query versions the merged Analytics receiver verifies are offered. The legacy pin
 // has no query_version. v4 since well-injection-insights b48ce03; v3 stays local; v5 waits for its receiver.
 const ANALYTICS_QUERY_VERSIONS=Object.freeze([2,4]);
-const localOnlyVersion=manifest=>manifest?.scope?.query_version!==undefined&&!ANALYTICS_QUERY_VERSIONS.includes(manifest.scope.query_version);
-const localOnlyMessage=manifest=>`Query version ${manifest.scope.query_version} is not sent to Analytics. Its receiver accepts query versions ${ANALYTICS_QUERY_VERSIONS.join(' and ')} and the original pinned version (ADR 005).`;
+// Fail closed: a manifest without a scope object is never offered.
+const localOnlyVersion=manifest=>!manifest?.scope||typeof manifest.scope!=='object'||(manifest.scope.query_version!==undefined&&!ANALYTICS_QUERY_VERSIONS.includes(manifest.scope.query_version));
+const localOnlyMessage=manifest=>`Query version ${manifest?.scope?.query_version??'unknown'} is not sent to Analytics. Its receiver accepts query versions ${ANALYTICS_QUERY_VERSIONS.join(' and ')} and the original pinned version (ADR 005).`;
 function analyticsReady(){return Boolean(data&&!savedView&&!localOnlyVersion(data.manifest)&&analyticsPins?.artifactId===data.artifactId&&currentRoute.screen==='workspace'&&currentRoute.tab==='downloads'&&(!currentRoute.artifactId||currentRoute.artifactId===data.artifactId));}
 function updateAnalyticsControls(){
  $('analytics-start').disabled=!analyticsReady()||analyticsActive();$('analytics-cancel').hidden=!analyticsActive();
