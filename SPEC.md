@@ -15,7 +15,7 @@
 
 **Verification split.** Explorer tests the package shape on every preserved version (`test/package-contract.test.mjs`). Analytics verifies each query version it accepts against its own pinned contract and refuses the rest.
 
-**Gate.** `localOnlyVersion` is an allow list of the query versions the merged receiver verifies, `ANALYTICS_QUERY_VERSIONS = [2, 4]`, plus the legacy pin, which has no query version. v4 was added after Analytics merged receiver `b48ce03` on 2026-10-30. v5 is added once its receiver is merged. v3 stays local only. Refused versions show "Query version N is not sent to Analytics…".
+**Gate.** `localOnlyVersion` is an allow list of the query versions the merged receiver verifies, `ANALYTICS_QUERY_VERSIONS = [2, 4, 5]`, plus the legacy pin, which has no query version. v4 was added after Analytics merged receiver `b48ce03` on 2026-10-30, and v5 after receiver `227ebab` on 2026-10-31. v3 and any unknown query version stay local only. Refused versions show "Query version N is not sent to Analytics…".
 
 **Hosted.** Unchanged: hosted stays v2 only (D7), and the archive script still skips query versions 3 and above.
 
@@ -77,7 +77,7 @@
   - Raw-only depths (H-10 `toz`/`boz`, inventory `prod_casing_pkr_depth`) are omitted and disclosed.
 - Versions before 5 show "not produced for this version".
 
-**Hosted and Analytics.** Version 5 is local only, like versions 3 and 4. It is not sent to Analytics until the Analytics v5 receiver is merged (Phase 6, [ADR 005](docs/adr/005-evidence-package-v2.md)).
+**Hosted and Analytics.** Version 5 was local only, like versions 3 and 4. Superseded 2026-10-31: Analytics merged its v5 receiver `227ebab`, and v5 is offered to Analytics (Phase 6, [ADR 005](docs/adr/005-evidence-package-v2.md)). Hosted stays v2 only.
 
 **Live proof.** On 2026-10-29 one local v5 collection of UIC 000109605 (TRIPPET SWD) used the same 21 targets as its v4 version. It produced 67 relations, all reconciled. The ten regression files are byte-identical to v4, and the version replays byte for byte (see [the proof](docs/verification-2026-10-29-phase3b-proof.md)). Independent Opus review: PASS, with four findings fixed.
 

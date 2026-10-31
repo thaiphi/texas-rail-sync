@@ -85,3 +85,5 @@ The hosted site keeps v2 only. `scripts/prepare-supabase-archive.mjs` keeps skip
 - Analytics can verify v5 with no Explorer code beyond one pure module, copied verbatim and pinned by hash. That is the same pattern it already uses for the test normalizer.
 - Until the receiver is merged, new local collections (v5) still cannot be sent to Analytics. Barbaro 23 (v4) can be sent as soon as the v4 gate lifts.
 - Acceptance is complete when, on the real receiver: the legacy pin and a v2 package open unchanged; v4 and v5 packages are accepted; a tampered v5 is refused; and the local transfer is walked through in a browser with recorded evidence. Hosted acceptance is deferred (§6).
+
+**2026-10-31:** Analytics merged and pushed v5 receiver `227ebab` (a fast-forward from `b48ce03`; confirmed on GitHub). It rebuilds `evidence_relations.json` with a pinned byte copy of `src/relations.mjs` (SHA-256 `88b43327…a648`) and refuses the file in any non-v5 manifest. The sender now offers `ANALYTICS_QUERY_VERSIONS = [2, 4, 5]` plus the legacy pin. Any future v5 byte change is query version 6 and stays local until a receiver for it is merged.
