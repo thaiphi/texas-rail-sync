@@ -10,10 +10,15 @@ Scope: the local two-window transfer and the tampered-v5 refusal under [ADR 005]
 
 ## Results
 
+The v2 and legacy-pin rows were added on 2026-11-02, after review noted that RRC-17's acceptance includes them. Analytics served main `9f2ce40` for that run; it adds only a walkthrough record to `227ebab` and changes no code.
+
+
 | Version | Explorer button | Receiver | Adoption |
 |---|---|---|---|
 | TRIPPET v5 `rrc-2026-10-30-uic000109605-b7628a71-…` | enabled | "Validation passed": `rrc-odp-v2.3.0`, schema 1, 63 verified files, 16 monthly rows (16/16 accepted), 22 preserved sources | confirmed |
 | Barbaro 23 v4 `rrc-2026-10-30-uic000125182-d04894d1-…` | enabled | "Validation passed": `rrc-odp-v2.2.0`, 62 verified files, the same three hashes as on 2026-10-30 | confirmed |
+| 000020838 v2 `rrc-2026-10-10-uic000020838-7aecd619-…` (run on 2026-11-02) | enabled | "Validation passed": `rrc-odp-v2.0.0`, 25 verified files; package `69a93781…05f8`, manifest `7271eb48…89cc`, normalized `50c4acc8…03cf`, each matching Explorer | confirmed |
+| Legacy pin `rrc-2026-10-09-uic000020838-v1` (run on 2026-11-02) | enabled | "Validation passed": `rrc-odp-v1.0.0`, 11 files; package `492ebaa6…db8a` (the same as on 2026-10-30), manifest `3a523cad…f61f`, normalized `4f243138…ca5b` | confirmed |
 | 000020838 v3 `…-a8606089-…` | disabled: "Query version 3 is not sent to Analytics. Its receiver accepts query versions 2, 4 and 5 and the original pinned version (ADR 005)." | not offered | — |
 
 **TRIPPET v5 hashes.** The receiver displayed three hashes, and each matches Explorer:
