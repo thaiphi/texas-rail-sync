@@ -16,7 +16,7 @@ import {renderWellboreView,wellboreCollected,PRESENCE} from '../public/wellbore-
 
 const NOT_COLLECTED='Casing and plugging records were not collected for this version.';
 const HELP='ODP casing (Form G-1/W-2) and plugging (Form W-3) datasets are filing records keyed by API number, queried with the selected inventory row\'s own API. A casing string can appear once per filing (record_sequence). Values are shown as reported; units are cited from Forms W-2/W-3 and the WBA091 manual where stated (inferred units are marked); most reference codes are undocumented. Rows returned or not returned say nothing about casing, cementing or plugging status.';
-const ANALYTICS_LOCAL_ONLY=queryVersion=>`Query version ${queryVersion} is not sent to Analytics. Its receiver accepts query versions 2 and 4 and the original pinned version (ADR 005).`;
+const ANALYTICS_LOCAL_ONLY=queryVersion=>`Query version ${queryVersion} is not sent to Analytics. Its receiver accepts query versions 2, 4 and 5 and the original pinned version (ADR 005).`;
 const SIDECARS=['casing.json','casing.csv','plugging.json','plugging.csv','wellbore_dictionary.json'];
 const FORBIDDEN=['compliant','non-compliant','violation','plugged and abandoned','not plugged','properly','adequate','safe','plugged'];
 const SENTENCES={
@@ -197,12 +197,21 @@ test('a v4 version renders verified casing and plugging, lists the five sidecars
  const exportsUi=await startUI({artifact,hash:`#dataset/${ID}/downloads`,sidecars});
  assert.equal(exportsUi.element('analytics-start').disabled,false);assert.ok(!exportsUi.element('analytics-status').textContent.includes('is not sent to Analytics'));
 });
-test('ADR 005 gate: v3 and v5 stay local, v4 is offered',async()=>{
- for(const [queryVersion,local] of [[3,true],[4,false],[5,true]]){
+test('ADR 005 gate: v2, v4 and v5 are offered, v3 and unknown v6 stay local',async()=>{
+ for(const [queryVersion,local] of [[2,false],[3,true],[4,false],[5,false],[6,true]]){
   const id=`rrc-v${queryVersion}-gate`,{artifact,sidecars}=versionArtifact({queryVersion,id});
   const ui=await startUI({artifact,hash:`#dataset/${id}/downloads`,sidecars});
   assert.equal(ui.element('analytics-start').disabled,local,`v${queryVersion}`);
   if(local)assert.equal(ui.element('analytics-status').textContent,ANALYTICS_LOCAL_ONLY(queryVersion));
+ }
+});
+test('ADR 005 gate fails closed: a non-object scope and a string query version stay local',async()=>{
+ const missing=versionArtifact({id:'rrc-bad-scope-gate'});missing.artifact.manifest.scope='unscoped';
+ const stringVersion=versionArtifact({queryVersion:'5',id:'rrc-string-gate'});
+ for(const [{artifact,sidecars},label] of [[missing,'unknown'],[stringVersion,'5']]){
+  const ui=await startUI({artifact,hash:`#dataset/${artifact.artifactId}/downloads`,sidecars});
+  assert.equal(ui.element('analytics-start').disabled,true,label);
+  assert.equal(ui.element('analytics-status').textContent,ANALYTICS_LOCAL_ONLY(label));
  }
 });
 test('a v4 version whose casing.json bytes were modified is refused with no rows',async()=>{
