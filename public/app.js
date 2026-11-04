@@ -17,6 +17,7 @@ import {createGuestClient} from './guest-client.js';
 import {PORTFOLIO_URL} from './portfolio-link.js';
 import {renderWatchView,renderWatchError,renderDiff,checkBar} from './watch-view.js';
 import {htmlToText} from './html-text.js';
+import {citationLinks,renderSourceCards} from './page-links.js';
 const $=id=>document.getElementById(id);
 // Bootstrap failure before the collection controls mount: say so instead of leaving a silent control.
 let collectionMounted=false;window.addEventListener('error',()=>{if(!collectionMounted&&$('lookup-submit')?.disabled)$('collection-status').textContent='Collection controls could not start. Reload the page to retry; saved and preserved datasets may still be browsable.';});
@@ -63,6 +64,10 @@ updateAnalyticsControls();
 
 // E12-lite watched documents (spec §6, local only D7): screen state lives only in these variables; the server owns the list.
 // Imports from watch-view.js/html-text.js are used only inside functions that run on the #watch route.
+// E12-lite page links (spec §7). PAGE_JUMP records, per mode, whether #page=N was proven to open the cited page (Chrome 156, 2026-11-04; Edge not verified by automation)
+// (local: the /artifacts/ route served inline; saved: the browser-saved or guest blob URL). Unproven modes use the fallback label.
+const PAGE_JUMP=Object.freeze({local:true,saved:true});
+let sourcesWatchLoad=0;
 const watchState={data:null,error:null,expanded:new Set(),diffs:new Map(),pending:new Set(),add:null};let watchPollTimer=null,watchLoad=0;
 const watchDate=value=>localTime(value,{hour:undefined,minute:undefined,second:undefined,timeZoneName:undefined});
 const watchDateTime=value=>localTime(value,{second:undefined});
@@ -240,7 +245,7 @@ function renderExports(integrity){
  const evidenceFiles=Object.keys(manifest.files).filter(name=>name.startsWith('sources/'));
  if(evidenceFiles.length)$('downloads').innerHTML+=`<details><summary>Whole-version source and selection evidence · ${evidenceFiles.length} files</summary><p class="note">Keep these files under sources/ together with all six contract downloads. Available lookup, selection, acquisition and retrieval sidecars permit independent offline replay.</p>${evidenceFiles.map(name=>`<a href="${escape(fileHref(name))}" download="${escape(name.split('/').at(-1))}">↓ ${escape(name)}</a>`).join('')}${Number.isInteger(manifest.scope.query_version)&&manifest.scope.query_version>=2?`<a href="${escape(fileHref('version-pins.json'))}" download="version-pins.json">↓ Publication pins</a>`:''}</details>`;
  for(const link of $('downloads').querySelectorAll('a'))link.addEventListener('click',()=>{if(analyticsActive())analyticsHandoff.cancel();});
- $('sources').innerHTML=manifest.sources.map(source=>`<article class="panel padded source-card"><h3>${escape(source.title??source.name)}</h3><p class="note">${escape(source.kind)}</p><p>${sourceLink(source,'Open official source')}</p><p>Retrieved ${escape(localTime(source.retrieved_at))}</p><a class="button-link" href="${escape(fileHref(source.raw_file))}" download="${escape(source.raw_file.split('/').at(-1))}">View preserved response</a><details><summary>Snapshot identity and checksum</summary><p>${fmt(source.bytes)} bytes</p><p>Snapshot ${escape(source.snapshot_id)}</p><p>SHA-256 <code>${escape(source.sha256)}</code></p></details></article>`).join('');
+ renderSources();loadSourcesWatch();
  const quality=data.qualityReport;
  $('quality-summary').textContent=`Monthly rows: ${countText(quality.monthly.raw)} raw = ${countText(quality.monthly.accepted)} accepted + ${countText(quality.monthly.quarantined)} quarantined + ${countText(quality.monthly.excluded)} excluded. Quarantine reasons stay with the retained rows.`;
  const issues=dispositionRows(data);
@@ -432,6 +437,16 @@ mountCollection({api:collectionApi,onRun:()=>workflow.refresh(),onVersions:guest
 collectionMounted=true;
 if(currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId)await openDataset(currentRoute.artifactId);
 route();
+function inlineHref(name){return savedView?savedView.urls.get(name)??null:`${base}${name}`;}
+function sourceCitations(watchList){return citationLinks({dictionary:data.dataDictionary,sources:data.manifest.sources,hrefFor:inlineHref,pageJump:savedView?PAGE_JUMP.saved:PAGE_JUMP.local,watchList,formatDate:watchDate});}
+function renderSources(citations=sourceCitations(null)){$('sources').innerHTML=renderSourceCards({sources:data.manifest.sources,citations,fileHref,sourceLink,formatTime:localTime,formatBytes:fmt});}
+// The newer-copy note uses the local watch list only (D7): never fetched in guest mode; a failed or stale read shows no note.
+function loadSourcesWatch(){
+ if(guestMode||!sourceCitations(null).some(link=>link.href))return;
+ const shown=data,ticket=++sourcesWatchLoad;
+ // A plain GET (the server answers no-store), like every other request made while a dataset opens.
+ fetch('/api/watch').then(watchJson).then(body=>{if(ticket!==sourcesWatchLoad||data!==shown||!body?.list)return;const citations=sourceCitations(body.list);if(citations.some(link=>link.newer))renderSources(citations);},()=>{});
+}
 // Browser-saved versions: exact TAR + pins only; re-verified on every open. "Verified now"
 // comes only from the live server path; saved copies never enable trusted Analytics transfer.
 function revokeSavedUrls(){if(!savedView)return;for(const url of savedView.urls.values())URL.revokeObjectURL(url);URL.revokeObjectURL(savedView.tarUrl);savedView=null;}
