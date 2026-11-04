@@ -19,10 +19,12 @@ import {checkWatchedDocuments} from '../src/watchCheck.mjs';
 import {normalizeWatchAddress,documentId,addDocument,stopWatching,rewatch,editDocument,markReviewed,addNote,ID_PATTERN} from '../public/watch-list.js';
 const root=resolve(fileURLToPath(new URL('../',import.meta.url)));
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.csv':'text/csv; charset=utf-8','.pdf':'application/pdf'};
-export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root}={}){
+export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root,onCheckError=()=>{},watchRenameFile}={}){
  // watchRoot switches the /api/watch* routes on; the store resolves watched-documents/ under repoRoot.
  if(watchRoot!==null&&resolve(watchRoot)!==resolve(repoRoot,'watched-documents'))throw Error('watchRoot must be <repoRoot>/watched-documents');
- let collecting=false,lookingUp=false,watchBusy=false,running=null;
+ let collecting=false,lookingUp=false,watchBusy=false,running=null,lastRun=null;
+ // Codes whose own message may reach the client; anything else is reported with a generic message.
+ const ALLOWED_CODES=['SOURCE_INVALID','SOURCE_SCOPE_MISMATCH','SOURCE_PROVENANCE_CONFLICT','SOURCE_HASH_MISMATCH','HTTP_ERROR','SOURCE_THROTTLED','SOURCE_LIMIT','SOURCE_ROW_LIMIT','REQUEST_INVALID','REQUEST_LIMIT','ORIGIN_FORBIDDEN','LOOKUP_BUSY','COLLECTION_BUSY','WATCH_ADDRESS_INVALID','WATCH_DUPLICATE','WATCH_BUSY','WATCH_LIST_INVALID','WATCH_LIST_MISSING','WATCH_LIST_BUSY','WATCH_CHECK_EXISTS'];
  const apiError=(status,code,message)=>Object.assign(Error(message),{status,code});
  const send=(res,status,data,head=false)=>{const bytes=Buffer.from(JSON.stringify(data));res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':bytes.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(head?undefined:bytes);};
  async function readBody(req){
@@ -58,7 +60,8 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
  // One watch write or check at a time; the list is re-read from disk on every request, never cached.
  const WATCH_FIELDS={check:[],add:['url','name','kind'],stop:['id'],rewatch:['id'],edit:['id','name','kind'],review:['id','note'],note:['id','changeId','note']};
  const WATCH_STATUS={WATCH_LIST_INVALID:500,WATCH_LIST_MISSING:500,WATCH_ADDRESS_INVALID:400,WATCH_DUPLICATE:409,WATCH_BUSY:409,WATCH_LIST_BUSY:503,WATCH_COPY_DAMAGED:409,WATCH_CHECK_EXISTS:409};
- const watchStore={repoRoot};
+ // watchRenameFile is the store's held-file test seam (writeWatchList); undefined uses fs rename.
+ const watchStore={repoRoot,...(watchRenameFile?{renameFile:watchRenameFile}:{})};
  async function lastCheck(){
   let names=[];try{names=await readdir(resolve(repoRoot,'watched-documents','checks'));}catch(error){if(error.code!=='ENOENT')throw error;}
   let latest=null;
@@ -68,10 +71,13 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   }catch{}}
   return latest;
  }
- async function saveList(list){
-  try{await writeWatchList(watchStore,list);}
-  catch(error){if(['EPERM','EBUSY','EACCES'].includes(error.code))throw apiError(503,'WATCH_LIST_BUSY','The watch list file is in use; try again.');throw error;}
- }
+ // The store retries a held watch-list.json and then throws WATCH_LIST_BUSY (503 through WATCH_STATUS).
+ const saveList=list=>writeWatchList(watchStore,list);
+ // A failed run is kept until a later run succeeds, so the screen never reads a failed check as finished.
+ const failedRun=(checkId,error)=>{
+  const known=ALLOWED_CODES.includes(error?.code);
+  return {checkId,outcome:'failed',code:known?error.code:'REQUEST_FAILED',message:known?String(error.message):'The check did not complete.'};
+ };
  async function watchPost(action,body,res){
   if(!Object.hasOwn(WATCH_FIELDS,action))throw apiError(404,'REQUEST_INVALID','Unknown watch action');
   if(Object.keys(body).some(key=>!WATCH_FIELDS[action].includes(key)))throw apiError(400,'REQUEST_INVALID','Unsupported watch request field');
@@ -83,8 +89,8 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    if(action==='check'){
     const checkId=randomUUID();running={checkId,done:0,total:list.documents.filter(doc=>doc.watched!==false).length};
     handedOff=true;
-    checkWatchedDocuments({repoRoot,fetchImpl,testFixture,checkId,onProgress:({done,total})=>{running={checkId,done,total};}})
-     .catch(()=>{}) // a failed run leaves the list as it was; the next GET shows the list on disk
+    checkWatchedDocuments({repoRoot,fetchImpl,testFixture,checkId,renameFile:watchRenameFile,onProgress:({done,total})=>{running={checkId,done,total};}})
+     .then(()=>{lastRun=null;},error=>{lastRun=failedRun(checkId,error);try{onCheckError(error);}catch{}})
      .finally(()=>{running=null;watchBusy=false;});
     send(res,202,{checkId});return;
    }
@@ -144,7 +150,7 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
       const pins=JSON.parse(result.files['version-pins.json']);send(res,201,{artifactId,version:pins,run:result.record,scope:result.manifest.scope,realHistoryStatus:result.manifest.real_history_status});
      }finally{collecting=false;}return;
     }catch(error){
-     const status=error.status??WATCH_STATUS[error.code]??(error.record?502:error.code==='HTTP_ERROR'?502:error.code==='SOURCE_THROTTLED'?503:400),allowed=['SOURCE_INVALID','SOURCE_SCOPE_MISMATCH','SOURCE_PROVENANCE_CONFLICT','SOURCE_HASH_MISMATCH','HTTP_ERROR','SOURCE_THROTTLED','SOURCE_LIMIT','SOURCE_ROW_LIMIT','REQUEST_INVALID','REQUEST_LIMIT','ORIGIN_FORBIDDEN','LOOKUP_BUSY','COLLECTION_BUSY','WATCH_ADDRESS_INVALID','WATCH_DUPLICATE','WATCH_BUSY','WATCH_LIST_INVALID','WATCH_LIST_MISSING','WATCH_LIST_BUSY','WATCH_CHECK_EXISTS'];
+     const status=error.status??WATCH_STATUS[error.code]??(error.record?502:error.code==='HTTP_ERROR'?502:error.code==='SOURCE_THROTTLED'?503:400),allowed=ALLOWED_CODES;
      const recognized=allowed.includes(error.code);send(res,status,{error:{code:recognized?error.code:'REQUEST_FAILED',message:error.record?'Collection did not complete; inspect retained run evidence.':recognized?error.message:'Requested source evidence is unavailable or invalid.'},...(error.record?{run:error.record}: {}),...(error.code==='WATCH_DUPLICATE'&&typeof error.existingId==='string'?{existingId:error.existingId}:{})});return;
     }
    }
@@ -163,7 +169,7 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
     try{
      if(copyRoute){await watchCopy(copyRoute[1],copyRoute[2],req,res);return;}
      const list=await readWatchList(watchStore);
-     send(res,200,{schemaVersion:1,list,running:running&&{...running},lastCheck:await lastCheck()},req.method==='HEAD');return;
+     send(res,200,{schemaVersion:1,list,running:running&&{...running},lastCheck:await lastCheck(),lastRun:lastRun&&{...lastRun}},req.method==='HEAD');return;
     }catch(error){
      if(['WATCH_LIST_INVALID','WATCH_LIST_MISSING','WATCH_COPY_DAMAGED'].includes(error.code)){send(res,WATCH_STATUS[error.code],{error:{code:error.code,message:error.message}},req.method==='HEAD');return;}
      throw error;

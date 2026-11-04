@@ -46,7 +46,7 @@ async function start(t,options){
   const post=(path,body,{origin=base,raw}={})=>fetch(base+path,{method:'POST',headers:{'content-type':'application/json',origin},body:raw??JSON.stringify(body),signal:AbortSignal.timeout(5000)});
   return {base,get,post};
 }
-const watchServer=(t,repoRoot,extra={})=>start(t,{watchRoot:resolve(repoRoot,'watched-documents'),repoRoot,fetchImpl:fetchFrom(extra.bodies??{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},extra),testFixture:true,runRoot:join(repoRoot,'runs'),lookupRoot:join(repoRoot,'lookups'),sourceRoot:join(repoRoot,'collected-sources'),outputRoot:join(repoRoot,'artifacts')});
+const watchServer=(t,repoRoot,extra={})=>start(t,{watchRoot:resolve(repoRoot,'watched-documents'),repoRoot,fetchImpl:fetchFrom(extra.bodies??{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},extra),testFixture:true,runRoot:join(repoRoot,'runs'),lookupRoot:join(repoRoot,'lookups'),sourceRoot:join(repoRoot,'collected-sources'),outputRoot:join(repoRoot,'artifacts'),...extra.options});
 const json=async response=>({status:response.status,body:await response.json()});
 async function waitIdle(get){
   for(let i=0;i<200;i++){const {body}=await json(await get('/api/watch'));if(body.running===null)return body;await new Promise(resolve=>setTimeout(resolve,25));}
@@ -79,8 +79,8 @@ test('GET /api/watch returns the list and running:null',async t=>{
   const response=await get('/api/watch');
   assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
   const body=await response.json();
-  assert.deepEqual(Object.keys(body).sort(),['lastCheck','list','running','schemaVersion']);
-  assert.equal(body.schemaVersion,1);assert.equal(body.running,null);assert.equal(body.lastCheck,null);
+  assert.deepEqual(Object.keys(body).sort(),['lastCheck','lastRun','list','running','schemaVersion']);
+  assert.equal(body.schemaVersion,1);assert.equal(body.running,null);assert.equal(body.lastCheck,null);assert.equal(body.lastRun,null);
   assert.deepEqual(body.list,seeded);
 });
 
@@ -275,4 +275,60 @@ test('missing list → GET 500 WATCH_LIST_MISSING and POSTs never create one',as
   const add=await json(await post('/api/watch/add',{url:'https://www.rrc.texas.gov/x.pdf',name:'X',kind:'form'}));
   assert.equal(add.status,500);assert.equal(add.body.error.code,'WATCH_LIST_MISSING');
   await assert.rejects(readFile(join(repoRoot,'watched-documents','watch-list.json')),{code:'ENOENT'});
+});
+
+// Task 5 fix: a held watch-list.json (Windows EPERM/EBUSY/EACCES on rename), through the store's rename seam.
+const lockError=code=>Object.assign(Error(`${code}: operation not permitted, rename 'C:\secret\watch-list.json.tmp'`),{code});
+const switchableRename=()=>{
+  const state={held:false,attempts:0};
+  state.renameFile=async(from,to)=>{state.attempts++;if(state.held)throw lockError('EPERM');const {rename}=await import('node:fs/promises');return rename(from,to);};
+  return state;
+};
+
+test('a POST whose list file stays held → 503 WATCH_LIST_BUSY and the file is byte-identical',async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  const file=join(repoRoot,'watched-documents','watch-list.json'),before=await readFile(file);
+  const seam=switchableRename();seam.held=true;
+  const {post}=await watchServer(t,repoRoot,{options:{watchRenameFile:seam.renameFile}});
+  const refused=await json(await post('/api/watch/stop',{id:PAGE_ID}));
+  assert.equal(refused.status,503);assert.equal(refused.body.error.code,'WATCH_LIST_BUSY');
+  assert.equal(seam.attempts,5,'the store retried the rename before giving up');
+  assert.deepEqual(await readFile(file),before);
+  seam.held=false;
+  assert.equal((await post('/api/watch/stop',{id:PAGE_ID})).status,200,'busy clears after the refusal');
+});
+
+test('a failed Check now run shows in lastRun with its code until a later run succeeds',async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  const file=join(repoRoot,'watched-documents','watch-list.json'),before=await readFile(file);
+  const seam=switchableRename();seam.held=true;
+  const errors=[];
+  const {get,post}=await watchServer(t,repoRoot,{options:{watchRenameFile:seam.renameFile,onCheckError:error=>errors.push(error)}});
+  const first=await json(await post('/api/watch/check',{}));assert.equal(first.status,202);
+  const failed=await waitIdle(get);
+  assert.deepEqual(failed.lastRun,{checkId:first.body.checkId,outcome:'failed',code:'WATCH_LIST_BUSY',message:'The watch list file is in use; try again.'});
+  assert.equal(failed.lastCheck,null,'no check record is written for a failed run');
+  assert.deepEqual(errors.map(error=>error.code),['WATCH_LIST_BUSY']);
+  assert.deepEqual(await readFile(file),before,'the failed run left the list as it was');
+  seam.held=false;
+  const second=await json(await post('/api/watch/check',{}));assert.equal(second.status,202);
+  const good=await waitIdle(get);
+  assert.equal(good.lastRun,null,'a successful run clears the failure');
+  assert.equal(good.lastCheck.check_id,second.body.checkId);
+  assert.equal(errors.length,1);
+});
+
+test('a run failing with an unlisted error reports only a generic message',async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  const errors=[];
+  const renameFile=async()=>{throw Object.assign(Error("ENOSPC: no space left, rename 'C:\secret\path'"),{code:'ENOSPC'});};
+  const {get,post}=await watchServer(t,repoRoot,{options:{watchRenameFile:renameFile,onCheckError:error=>{errors.push(error);throw Error('a broken logger must not break the server');}}});
+  const started=await json(await post('/api/watch/check',{}));
+  const after=await waitIdle(get);
+  assert.deepEqual(after.lastRun,{checkId:started.body.checkId,outcome:'failed',code:'REQUEST_FAILED',message:'The check did not complete.'});
+  assert.ok(!JSON.stringify(after).includes('secret'),'no path or raw message reaches the client');
+  assert.equal(errors.length,1);
+  // The server stays usable: busy is cleared, and a write hitting the same broken rename gets a generic error.
+  const write=await json(await post('/api/watch/stop',{id:PAGE_ID}));
+  assert.equal(write.body.error.code,'REQUEST_FAILED');assert.ok(!JSON.stringify(write.body).includes('secret'));
 });

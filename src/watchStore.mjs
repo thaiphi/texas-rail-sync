@@ -7,7 +7,7 @@
 // with EEXIST instead of replacing, NTFS included). The temp file is always removed, so a crash or full disk
 // mid-write never leaves a truncated file under the final name.
 // Errors carry error.code: WATCH_LIST_MISSING, WATCH_LIST_INVALID, WATCH_COPY_CONFLICT, WATCH_PATH_INVALID,
-// WATCH_COPY_MISSING, WATCH_COPY_DAMAGED (+actualSha256), WATCH_CHECK_EXISTS, REQUEST_INVALID.
+// WATCH_COPY_MISSING, WATCH_COPY_DAMAGED (+actualSha256), WATCH_CHECK_EXISTS, WATCH_LIST_BUSY, REQUEST_INVALID.
 import {readFile,writeFile,rename,mkdir,lstat,rm,link} from 'node:fs/promises';
 import {createHash,randomUUID} from 'node:crypto';
 import {resolve,sep} from 'node:path';
@@ -43,11 +43,28 @@ export async function readWatchList({repoRoot}){
  return validateWatchList(parsed);
 }
 
+// On Windows a scanner or indexer can hold watch-list.json for a moment, so the rename fails with
+// EPERM/EBUSY/EACCES. It is tried up to RENAME_ATTEMPTS times, RENAME_DELAY_MS apart, then refused as
+// WATCH_LIST_BUSY. This is a local file retry only; nothing here touches the network.
+const RENAME_ATTEMPTS=5,RENAME_DELAY_MS=50,HELD=new Set(['EPERM','EBUSY','EACCES']);
+const pause=ms=>new Promise(done=>setTimeout(done,ms));
+async function renameHeld(renameFile,from,to){
+ for(let attempt=1;;attempt++){
+  try{return await renameFile(from,to);}
+  catch(error){
+   if(!HELD.has(error?.code))throw error;
+   if(attempt>=RENAME_ATTEMPTS)fail('WATCH_LIST_BUSY','The watch list file is in use; try again.');
+   await pause(RENAME_DELAY_MS);
+  }
+ }
+}
+
 // Validates before touching the disk, so an invalid list never replaces the file.
-export async function writeWatchList({repoRoot},list){
+// renameFile is a test seam for simulating a held file; it defaults to fs rename.
+export async function writeWatchList({repoRoot,renameFile=rename},list){
  const valid=validateWatchList(list),target=listFile(repoRoot),temp=`${target}.tmp`;
  await mkdir(watchRoot(repoRoot),{recursive:true});
- try{await writeFile(temp,JSON.stringify(valid,null,2)+'\n');await rename(temp,target);}
+ try{await writeFile(temp,JSON.stringify(valid,null,2)+'\n');await renameHeld(renameFile,temp,target);}
  catch(error){await rm(temp,{force:true});throw error;}
 }
 

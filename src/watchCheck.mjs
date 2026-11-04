@@ -89,10 +89,11 @@ export async function checkDocument(original,{repoRoot,fetchImpl=fetch,testFixtu
  return {doc,results};
 }
 
-export async function checkWatchedDocuments({repoRoot,fetchImpl=fetch,testFixture=false,now=()=>new Date().toISOString(),checkId=randomUUID(),onProgress=()=>{}}={}){
+export async function checkWatchedDocuments({repoRoot,fetchImpl=fetch,testFixture=false,now=()=>new Date().toISOString(),checkId=randomUUID(),onProgress=()=>{},renameFile}={}){
  // Refuse a mis-wired injected fetch before anything is read or written (fetchSource has the same rule).
  if(fetchImpl!==fetch&&!testFixture)throw Object.assign(Error('Injected responses require fixture mode'),{code:'SOURCE_INVALID'});
- const store={repoRoot};
+ // renameFile is the store's test seam for a held watch-list.json (writeWatchList); undefined uses fs rename.
+ const store={repoRoot,...(renameFile?{renameFile}:{})};
  // A check id is used once: refuse a taken one before any fetch, not after the run at writeCheckRecord.
  if(await checkRecordExists(store,checkId))throw Object.assign(Error(`The check record ${checkId} already exists.`),{code:'WATCH_CHECK_EXISTS'});
  const started_at=now(),list=await readWatchList(store),results=[];

@@ -174,3 +174,39 @@ test('a stale temp file is never accepted as a stored copy', async t=>{
   const bad=structuredClone(list);bad.documents[0].latest=latest;
   await assert.rejects(writeWatchList({repoRoot},bad),codeOf('WATCH_LIST_INVALID'));
 });
+
+// Task 5 fix: on Windows a scanner or indexer can hold watch-list.json for a moment, so rename fails with
+// EPERM/EBUSY/EACCES. writeWatchList tries the rename up to 5 times, 50 ms apart, then throws WATCH_LIST_BUSY.
+const lockError=code=>Object.assign(Error(`${code}: operation not permitted, rename`),{code});
+test('writeWatchList retries a held rename and then succeeds', async t=>{
+  const repoRoot=await tempRoot(t);
+  const first=addDocument(emptyWatchList(),{url:'https://www.rrc.texas.gov/media/x/a.pdf',name:'A',kind:'form'},{now:'2026-11-03T00:00:00.000Z',id:'0123456789ab',via:'owner'});
+  await writeWatchList({repoRoot},first);
+  const next=addDocument(first,{url:'https://www.rrc.texas.gov/media/x/b.pdf',name:'B',kind:'form'},{now:'2026-11-03T00:00:01.000Z',id:'0123456789ac',via:'owner'});
+  const {rename}=await import('node:fs/promises');
+  let attempts=0;
+  const flaky=async(from,to)=>{attempts++;if(attempts<=2)throw lockError(attempts===1?'EPERM':'EBUSY');return rename(from,to);};
+  await writeWatchList({repoRoot,renameFile:flaky},next);
+  assert.equal(attempts,3);
+  assert.deepEqual(await readWatchList({repoRoot}),next);
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents')),['watch-list.json'],'no temp file is left behind');
+});
+
+test('writeWatchList gives up after 5 held renames with WATCH_LIST_BUSY and leaves the old file', async t=>{
+  const repoRoot=await tempRoot(t);
+  const list=addDocument(emptyWatchList(),{url:'https://www.rrc.texas.gov/media/x/a.pdf',name:'A',kind:'form'},{now:'2026-11-03T00:00:00.000Z',id:'0123456789ab',via:'owner'});
+  await writeWatchList({repoRoot},list);
+  const file=join(repoRoot,'watched-documents','watch-list.json'),before=await readFile(file);
+  let attempts=0;const started=Date.now();
+  const held=async()=>{attempts++;throw lockError('EACCES');};
+  await assert.rejects(writeWatchList({repoRoot,renameFile:held},emptyWatchList()),codeOf('WATCH_LIST_BUSY'));
+  assert.equal(attempts,5);
+  assert.ok(Date.now()-started>=150,'attempts are spaced about 50 ms apart');
+  assert.deepEqual(await readFile(file),before,'the old file is byte-identical');
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents')),['watch-list.json'],'no temp file is left behind');
+  // Any other rename error is not retried.
+  attempts=0;
+  const broken=async()=>{attempts++;throw lockError('ENOSPC');};
+  await assert.rejects(writeWatchList({repoRoot,renameFile:broken},emptyWatchList()),codeOf('ENOSPC'));
+  assert.equal(attempts,1);
+});
