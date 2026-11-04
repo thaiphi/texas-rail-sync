@@ -121,12 +121,21 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "same",
+          "at": "2026-11-04T09:41:50.540Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          }
         }
       ],
       "status": {
         "change_state": "unchanged",
         "last_result": {
-          "at": "2026-10-30T01:38:03.289Z",
+          "at": "2026-11-04T09:41:50.540Z",
           "outcome": "ok"
         },
         "watched": true
@@ -141,15 +150,15 @@
       "added_at": "2026-10-10T05:37:34.974Z",
       "added_via": "seed",
       "latest": {
-        "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
-        "bytes": 49035,
-        "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/rrc-resources.html",
-        "retrieved_at": "2026-10-29T07:31:53.304Z",
+        "sha256": "1f77451531fe339dddfe7b4d010714bebc2719112c8bb831660b9d49a0360f1c",
+        "bytes": 48540,
+        "path": "watched-documents/copies/1f77451531fe339dddfe7b4d010714bebc2719112c8bb831660b9d49a0360f1c.html",
+        "retrieved_at": "2026-11-04T09:41:50.605Z",
         "last_modified": null,
         "etag": null,
         "source": {
-          "type": "collection",
-          "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          "type": "check",
+          "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
         }
       },
       "history": [
@@ -259,12 +268,28 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "change",
+          "id": "80b511129d5a-c2",
+          "at": "2026-11-04T09:41:50.605Z",
+          "previous_sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "previous_path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/rrc-resources.html",
+          "previous_seen_at": "2026-10-30T01:38:03.350Z",
+          "sha256": "1f77451531fe339dddfe7b4d010714bebc2719112c8bb831660b9d49a0360f1c",
+          "path": "watched-documents/copies/1f77451531fe339dddfe7b4d010714bebc2719112c8bb831660b9d49a0360f1c.html",
+          "markup_only": false,
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          },
+          "review": null
         }
       ],
       "status": {
         "change_state": "changed",
         "last_result": {
-          "at": "2026-10-30T01:38:03.350Z",
+          "at": "2026-11-04T09:41:50.605Z",
           "outcome": "ok"
         },
         "watched": true
@@ -390,12 +415,21 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "same",
+          "at": "2026-11-04T09:41:51.007Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          }
         }
       ],
       "status": {
         "change_state": "unchanged",
         "last_result": {
-          "at": "2026-10-30T01:38:03.681Z",
+          "at": "2026-11-04T09:41:51.007Z",
           "outcome": "ok"
         },
         "watched": true
@@ -410,15 +444,15 @@
       "added_at": "2026-10-29T07:31:54.064Z",
       "added_via": "seed",
       "latest": {
-        "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
-        "bytes": 46388,
-        "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/srt-guidelines.html",
-        "retrieved_at": "2026-10-29T07:31:54.064Z",
+        "sha256": "ab2108db14b7494924ba2e81e73a22025d08ecd11837c0f006b6e0b3a1cc4b47",
+        "bytes": 45893,
+        "path": "watched-documents/copies/ab2108db14b7494924ba2e81e73a22025d08ecd11837c0f006b6e0b3a1cc4b47.html",
+        "retrieved_at": "2026-11-04T09:41:51.163Z",
         "last_modified": null,
         "etag": null,
         "source": {
-          "type": "collection",
-          "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          "type": "check",
+          "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
         }
       },
       "history": [
@@ -503,12 +537,28 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "change",
+          "id": "db7a3929588b-c1",
+          "at": "2026-11-04T09:41:51.163Z",
+          "previous_sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "previous_path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/srt-guidelines.html",
+          "previous_seen_at": "2026-10-30T01:38:04.206Z",
+          "sha256": "ab2108db14b7494924ba2e81e73a22025d08ecd11837c0f006b6e0b3a1cc4b47",
+          "path": "watched-documents/copies/ab2108db14b7494924ba2e81e73a22025d08ecd11837c0f006b6e0b3a1cc4b47.html",
+          "markup_only": false,
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          },
+          "review": null
         }
       ],
       "status": {
-        "change_state": "unchanged",
+        "change_state": "changed",
         "last_result": {
-          "at": "2026-10-30T01:38:04.206Z",
+          "at": "2026-11-04T09:41:51.163Z",
           "outcome": "ok"
         },
         "watched": true
@@ -616,12 +666,21 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "same",
+          "at": "2026-11-04T09:41:51.298Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          }
         }
       ],
       "status": {
         "change_state": "unchanged",
         "last_result": {
-          "at": "2026-10-30T01:38:04.292Z",
+          "at": "2026-11-04T09:41:51.298Z",
           "outcome": "ok"
         },
         "watched": true
@@ -702,12 +761,21 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "same",
+          "at": "2026-11-04T09:41:51.512Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          }
         }
       ],
       "status": {
         "change_state": "unchanged",
         "last_result": {
-          "at": "2026-10-30T01:38:05.223Z",
+          "at": "2026-11-04T09:41:51.512Z",
           "outcome": "ok"
         },
         "watched": true
@@ -788,12 +856,21 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "same",
+          "at": "2026-11-04T09:41:51.602Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          }
         }
       ],
       "status": {
         "change_state": "unchanged",
         "last_result": {
-          "at": "2026-10-30T01:38:05.292Z",
+          "at": "2026-11-04T09:41:51.602Z",
           "outcome": "ok"
         },
         "watched": true
@@ -874,12 +951,21 @@
             "type": "collection",
             "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
           }
+        },
+        {
+          "type": "same",
+          "at": "2026-11-04T09:41:51.696Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "source": {
+            "type": "check",
+            "check_id": "81fdb838-2462-4612-bedb-dee7b6a51b02"
+          }
         }
       ],
       "status": {
         "change_state": "unchanged",
         "last_result": {
-          "at": "2026-10-30T01:38:05.378Z",
+          "at": "2026-11-04T09:41:51.696Z",
           "outcome": "ok"
         },
         "watched": true
