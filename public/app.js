@@ -15,6 +15,8 @@ import {listSavedPackages,saveVerifiedPackage,verifyVersionPackage} from './brow
 import {createLegacyCollectionApi,createGuestCollectionApi} from './collection-api.js';
 import {createGuestClient} from './guest-client.js';
 import {PORTFOLIO_URL} from './portfolio-link.js';
+import {renderWatchView,renderWatchError,renderDiff,checkBar} from './watch-view.js';
+import {htmlToText} from './html-text.js';
 const $=id=>document.getElementById(id);
 // Bootstrap failure before the collection controls mount: say so instead of leaving a silent control.
 let collectionMounted=false;window.addEventListener('error',()=>{if(!collectionMounted&&$('lookup-submit')?.disabled)$('collection-status').textContent='Collection controls could not start. Reload the page to retry; saved and preserved datasets may still be browsable.';});
@@ -30,6 +32,8 @@ const compareRequest=createLatestRequest();let compareShown=null,compareState=nu
 const guestMode=document.querySelector('meta[name="trrc-mode"]')?.getAttribute('content')==='guest';
 // Guest datasets: private, verified on open, never listed in the public registry or pinned.
 const guestPackages=new Map();
+// Watched documents are local only (D7): the guest shell never shows the nav item or the screen.
+if(guestMode)document.querySelector('[data-route="watch"]').hidden=true;
 if(PORTFOLIO_URL){const link=$('portfolio-link');link.href=PORTFOLIO_URL;link.hidden=false;}
 const analyticsActive=()=>['preparing','waiting','receiving','validating','previewed'].includes(analyticsTransfer.state);
 const analyticsHandoff=createAnalyticsHandoff({window,onState:event=>{
@@ -57,11 +61,109 @@ $('analytics-cancel').addEventListener('click',()=>analyticsHandoff.cancel());
 window.addEventListener('pagehide',event=>{analyticsHandoff.cancel();if(!event?.persisted)revokeSavedUrls();});
 updateAnalyticsControls();
 
+// E12-lite watched documents (spec §6, local only D7): screen state lives only in these variables; the server owns the list.
+// Imports from watch-view.js/html-text.js are used only inside functions that run on the #watch route.
+const watchState={data:null,error:null,expanded:new Set(),diffs:new Map(),pending:new Set(),add:null};let watchPollTimer=null,watchLoad=0;
+const watchDate=value=>localTime(value,{hour:undefined,minute:undefined,second:undefined,timeZoneName:undefined});
+const watchDateTime=value=>localTime(value,{second:undefined});
+const watchJson=async response=>{try{return await response.json();}catch{return null;}};
+async function watchFetch(){
+ const response=await fetch('/api/watch',{cache:'no-store'}),body=await watchJson(response);
+ if(!response.ok||!body?.list)throw Error(body?.error?.message??(response.status===404?'Watched documents are available only in the local Explorer.':`The watch list could not be loaded (HTTP ${response.status}).`));
+ return body;
+}
+async function watchPost(action,body){
+ const response=await fetch(`/api/watch/${action}`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}),data=await watchJson(response);
+ if(!response.ok)throw Object.assign(Error(data?.error?.message??`The request did not complete (HTTP ${response.status}).`),{code:data?.error?.code,existingId:data?.existingId??null});
+ return data;
+}
+function stopWatchPoll(){clearTimeout(watchPollTimer);watchPollTimer=null;}
+function scheduleWatchPoll(){stopWatchPoll();if(currentRoute.screen==='watch'&&watchState.data?.running)watchPollTimer=setTimeout(pollWatch,1000);}
+function setWatchStatus(message,alert=false){const node=$('watch-action-status');if(!node)return;node.innerHTML=alert?`<span class="notice danger" role="alert">${escape(message)}</span>`:escape(message);}
+function renderWatch(){
+ const host=$('watch-content');
+ if(watchState.error||!watchState.data){host.innerHTML=renderWatchError(watchState.error??'The watch list could not be loaded.');return;}
+ const {list,running,lastCheck,lastRun}=watchState.data;
+ host.innerHTML=renderWatchView({list,running,lastCheck,lastRun,formatDate:watchDate,formatDateTime:watchDateTime,expanded:watchState.expanded,diffs:watchState.diffs,add:watchState.add});
+ for(const id of watchState.expanded)void loadWatchDiffs(id);
+}
+async function showWatch(){
+ const ticket=++watchLoad;
+ try{watchState.data=await watchFetch();watchState.error=null;}catch(error){watchState.data=null;watchState.error=error.message;}
+ if(ticket!==watchLoad||currentRoute.screen!=='watch')return;
+ renderWatch();scheduleWatchPoll();
+}
+// While a check runs only the Check now button and summary change, so a half-typed note or the focus is never lost.
+async function pollWatch(){
+ watchPollTimer=null;const ticket=++watchLoad;let next;
+ try{next=await watchFetch();}catch(error){if(ticket===watchLoad&&currentRoute.screen==='watch'){watchState.error=error.message;renderWatch();}return;}
+ if(ticket!==watchLoad||currentRoute.screen!=='watch')return;
+ watchState.data=next;
+ if(next.running){$('watch-checkbar-host').innerHTML=checkBar({...next,formatDate:watchDate,formatDateTime:watchDateTime});scheduleWatchPoll();return;}
+ renderWatch();setWatchStatus(next.lastRun?'The check did not complete.':'Check finished.',Boolean(next.lastRun));
+}
+// Web-page changes: fetch both verified copies as text and diff them in place; PDFs get no diff.
+async function loadWatchDiffs(docId){
+ const doc=watchState.data?.list.documents.find(item=>item.id===docId);if(!doc)return;
+ for(const ev of doc.history.filter(item=>item.type==='change'&&!/\.pdf$/i.test(item.path))){
+  if(watchState.diffs.has(ev.id)||watchState.pending.has(ev.id))continue;
+  watchState.pending.add(ev.id);
+  let entry;
+  try{
+   const [before,after]=await Promise.all([ev.previous_sha256,ev.sha256].map(async sha=>{
+    const response=await fetch(`/api/watch/copy/${docId}/${sha}`);
+    if(!response.ok){const body=await watchJson(response);throw Error(body?.error?.message??'This saved copy is not available.');}
+    return htmlToText(await response.text());
+   }));
+   entry={before,after};
+  }catch(error){entry={error:error.message};}
+  watchState.pending.delete(ev.id);watchState.diffs.set(ev.id,entry);
+  const host=$(`watch-diff-${ev.id}`);if(host)host.innerHTML=renderDiff(entry);
+ }
+}
+function focusWatchRow(id){const button=document.querySelector(`[data-watch-toggle="${id}"]`);if(button){button.focus();button.scrollIntoView?.({block:'center'});}}
+async function runWatchAction(action,body,{done,focusId}={}){
+ setWatchStatus('Saving…');
+ let result;try{result=await watchPost(action,body);}catch(error){setWatchStatus(error.message,true);return null;}
+ await showWatch();if(focusId)focusWatchRow(focusId);if(done)setWatchStatus(done);
+ return result;
+}
+async function startWatchCheck(){
+ const button=$('watch-check');if(button)button.disabled=true;
+ try{await watchPost('check',{});}catch(error){if(button)button.disabled=false;setWatchStatus(error.message,true);return;}
+ await showWatch();setWatchStatus('Check started. Each watched address is fetched once, one at a time.');
+}
+$('watch-content').addEventListener('click',event=>{
+ const target=event.target;if(!target?.closest)return;
+ if(target.closest('#watch-check')){void startWatchCheck();return;}
+ const toggle=target.closest('[data-watch-toggle]');
+ if(toggle){const id=toggle.dataset.watchToggle,open=!watchState.expanded.has(id);if(open)watchState.expanded.add(id);else watchState.expanded.delete(id);toggle.setAttribute('aria-expanded',String(open));const row=$(`watch-details-${id}`);if(row)row.hidden=!open;if(open)void loadWatchDiffs(id);return;}
+ const existing=target.closest('[data-watch-open]');
+ if(existing){event.preventDefault();const id=existing.dataset.watchOpen;watchState.expanded.add(id);renderWatch();focusWatchRow(id);return;}
+ const stop=target.closest('[data-watch-stop]');if(stop){void runWatchAction('stop',{id:stop.dataset.watchStop},{done:'Stopped watching. The row and its history are kept.',focusId:stop.dataset.watchStop});return;}
+ const again=target.closest('[data-watch-rewatch]');if(again)void runWatchAction('rewatch',{id:again.dataset.watchRewatch},{done:'Watching again.',focusId:again.dataset.watchRewatch});
+});
+$('watch-content').addEventListener('submit',event=>{
+ const form=event.target;if(!form?.dataset)return;event.preventDefault();
+ const field=name=>form.elements.namedItem(name)?.value??'';
+ if(form.dataset.watchAdd!==undefined){
+  watchState.add={url:field('url'),name:field('name'),kind:field('kind'),message:null,existingId:null};
+  void (async()=>{
+   try{const {document:doc}=await watchPost('add',{url:watchState.add.url,name:watchState.add.name,kind:watchState.add.kind});watchState.add=null;watchState.expanded.add(doc.id);await showWatch();focusWatchRow(doc.id);setWatchStatus(`Added ${doc.name}. The next Check now saves its first copy.`);}
+   catch(error){watchState.add={...watchState.add,message:error.message,existingId:error.code==='WATCH_DUPLICATE'?error.existingId:null};renderWatch();$('watch-add-url')?.focus();}
+  })();
+  return;
+ }
+ if(form.dataset.watchReview)void runWatchAction('review',{id:form.dataset.watchReview,note:field('note')},{done:'Marked reviewed.',focusId:form.dataset.watchReview});
+ else if(form.dataset.watchNote)void runWatchAction('note',{id:form.dataset.watchNote,changeId:form.dataset.change,note:field('note')},{done:'Note added.',focusId:form.dataset.watchNote});
+ else if(form.dataset.watchEdit)void runWatchAction('edit',{id:form.dataset.watchEdit,name:field('name'),kind:field('kind')},{done:'Name and kind saved.',focusId:form.dataset.watchEdit});
+});
+
 function route(focus=false){
- currentRoute=parseRoute(location.hash);const workspace=currentRoute.screen==='workspace',id=currentRoute.artifactId??requestedVersionId??data?.artifactId;
+ currentRoute=parseRoute(location.hash);if(guestMode&&currentRoute.screen==='watch')currentRoute={screen:'find'};const workspace=currentRoute.screen==='workspace',id=currentRoute.artifactId??requestedVersionId??data?.artifactId;
  if(analyticsActive()&&(!workspace||currentRoute.tab!=='downloads'||id!==analyticsVersion))analyticsHandoff.cancel();
  updateAnalyticsControls();updateSaveControl();
- for(const name of ['find','datasets','history','help','compare'])$(name+'-view').hidden=currentRoute.screen!==name;
+ for(const name of ['find','datasets','history','help','watch','compare'])$(name+'-view').hidden=currentRoute.screen!==name;
  $('dataset-workspace').hidden=!workspace;
  $('error').hidden=!workspace||!$('error').textContent;
  for(const [tab,view] of [['overview','overview'],['records','records'],['tests','tests'],['wellbore','wellbore'],['dossier','dossier'],['quality','quality'],['sources','sources'],['downloads','exports'],['collection','collection-details']])$(view+'-view').hidden=!workspace||currentRoute.tab!==tab;
@@ -74,6 +176,7 @@ function route(focus=false){
  if(workspace&&currentRoute.artifactId&&currentRoute.artifactId!==data?.artifactId&&(currentRoute.artifactId!==requestedVersionId||(focus&&currentRoute.artifactId===failedVersionId))&&(availableVersions.length||savedPackages.size||guestPackages.size))void openDataset(currentRoute.artifactId);
  if(currentRoute.screen==='datasets'&&availableVersions.length)void verifyLibrary();
  if(currentRoute.screen==='compare'){if(compareKey(currentRoute)!==compareShown)void showCompare(currentRoute);}else if(compareShown!==null||compareState){compareRequest.invalidate();compareShown=null;compareState=null;$('compare-content').innerHTML='';}
+ if(currentRoute.screen==='watch')void showWatch();else{stopWatchPoll();watchLoad++;}
  if(focus){if(currentRoute.screen==='history'&&currentRoute.runId){$('workflow-view').tabIndex=-1;$('workflow-view').focus({preventScroll:true});$('workflow-view').scrollIntoView({block:'start'});}else{$('main').focus({preventScroll:true});window.scrollTo({top:0});}}
 }
 window.addEventListener('hashchange',()=>route(true));route();

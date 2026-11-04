@@ -4,7 +4,7 @@ const validId=id=>typeof id==='string'&&/^[a-z0-9][a-z0-9._-]{0,127}$/i.test(id)
 const validRecordKey=key=>typeof key==='string'&&/^[a-z0-9][a-z0-9:._-]{0,255}$/i.test(key);
 export function parseRoute(hash){
  const key=String(hash??'').replace(/^#/,'');
- if(['find','datasets','history','help'].includes(key))return {screen:key};
+ if(['find','datasets','history','help','watch'].includes(key))return {screen:key};
  const run=/^history\/([a-f0-9-]{36})$/i.exec(key);if(run)return {screen:'history',runId:run[1]};
  if(!key||key==='workflow')return {screen:'find'};
  const legacy={records:'records',exports:'downloads',sources:'sources',quality:'quality'};
