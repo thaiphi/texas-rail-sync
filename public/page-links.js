@@ -9,15 +9,20 @@ export const newerNote=(from,to)=>`A newer version exists (changed between ${fro
 
 const sameAddress=url=>{try{return normalizeWatchAddress(url);}catch{return null;}};
 
-// The watch list (local only) knows a copy of the cited document with a different hash than the cited one.
+// The watch list (local only) knows a newer copy only when the cited hash is in that document's own history and differs
+// from its latest copy. A citation whose hash the list never saw (e.g. a version collected after the last check) gets no note.
+const carries=(event,sha)=>event?.sha256===sha||(event?.type==='change'&&event.previous_sha256===sha);
 function newerCopy({watchList,url,source,formatDate}){
  const address=sameAddress(url);
- if(!address||!Array.isArray(watchList?.documents))return null;
+ if(!address||!Array.isArray(watchList?.documents)||!source.sha256)return null;
  const doc=watchList.documents.find(item=>sameAddress(item?.url)===address);
  if(!doc?.latest?.sha256||doc.latest.sha256===source.sha256)return null;
- const changes=(doc.history??[]).filter(event=>event?.type==='change');
- const change=changes.find(event=>event.previous_sha256===source.sha256)??changes.at(-1);
- return change?newerNote(formatDate(change.previous_seen_at),formatDate(change.at)):newerNote(formatDate(source.retrieved_at),formatDate(doc.latest.retrieved_at));
+ const history=Array.isArray(doc.history)?doc.history:[];
+ const lastSeen=history.findLastIndex(event=>carries(event,source.sha256));
+ if(lastSeen<0)return null;
+ // The change that starts from the cited copy; otherwise the earliest change after the cited copy was last recorded.
+ const change=history.find(event=>event?.type==='change'&&event.previous_sha256===source.sha256)??history.slice(lastSeen+1).find(event=>event?.type==='change');
+ return change?newerNote(formatDate(change.previous_seen_at??source.retrieved_at),formatDate(change.at)):null;
 }
 
 export function citationLinks({dictionary,sources,hrefFor,pageJump,watchList=null,formatDate=value=>value}={}){

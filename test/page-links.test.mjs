@@ -59,21 +59,32 @@ test('pageJump false → no fragment and the fixed fallback label', ()=>{
  assert.deepEqual(cite({pageJump:false,hrefFor:()=>'blob:y'}).map(link=>link.href),['blob:y','blob:y','blob:y']);
 });
 
+// Fix round 1 ruling: the watch list "knows a newer copy" only when the cited hash is in that document's history.
+const change=(id,previous,at,seen,sha='e'.repeat(64))=>({type:'change',id,at,previous_sha256:previous,previous_path:'collected-sources/r/uic-manual.pdf',previous_seen_at:seen,sha256:sha,path:'watched-documents/copies/x.pdf',markup_only:false,source:{type:'check',check_id:id},review:null});
+const baseline=(sha=manual.sha256,at='2026-10-10T05:37:34.611Z')=>({type:'baseline',at,sha256:sha,path:'collected-sources/r/uic-manual.pdf',source:{type:'collection',run_id:'r'}});
+const same=(sha,at)=>({type:'same',at,sha256:sha,source:{type:'check',check_id:'s-'+at}});
+const A='a'.repeat(64),E='e'.repeat(64);
+
 test('newer copy in the watch list shows the fixed note; same hash shows none; no watch list shows none', async ()=>{
- const change=(id,previous,at,seen)=>({type:'change',id,at,previous_sha256:previous,previous_path:'collected-sources/r/uic-manual.pdf',previous_seen_at:seen,sha256:'e'.repeat(64),path:'watched-documents/copies/x.pdf',markup_only:false,source:{type:'check',check_id:id},review:null});
- const baseline={type:'baseline',at:'2026-10-10T05:37:34.611Z',sha256:manual.sha256,path:'collected-sources/r/uic-manual.pdf',source:{type:'collection',run_id:'r'}};
- // The change whose previous hash is the cited hash supplies the dates, even when a later change exists.
- const matched=cite({watchList:watchListWith([baseline,change('c0ad60b6acc9-c1',manual.sha256,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z'),change('c0ad60b6acc9-c2','e'.repeat(64),'2026-11-02T00:00:00Z','2026-10-25T00:00:00Z')])});
+ // The cited hash is an older copy with a matching change: that change supplies the dates, even when a later change exists.
+ const matched=cite({watchList:watchListWith([baseline(),change('c0ad60b6acc9-c1',manual.sha256,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z'),change('c0ad60b6acc9-c2',E,'2026-11-02T00:00:00Z','2026-10-25T00:00:00Z','f'.repeat(64))])});
  for(const link of matched)assert.equal(link.newer,'A newer version exists (changed between 2026-10-12 and 2026-10-20). Page numbers may differ.');
  assert.match(matched[0].newer,NEWER);
  // The link still opens the cited copy: a citation is never re-pointed.
  assert.deepEqual(matched.map(link=>link.href),[18,41,42].map(page=>`${base}sources/uic-manual.pdf#page=${page}`));
- // No change starts from the cited hash: the latest change supplies the dates.
- const latest=cite({watchList:watchListWith([change('c0ad60b6acc9-c1','a'.repeat(64),'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z'),change('c0ad60b6acc9-c2','e'.repeat(64),'2026-11-02T00:00:00Z','2026-10-25T00:00:00Z')])});
- assert.equal(latest[0].newer,'A newer version exists (changed between 2026-10-25 and 2026-11-02). Page numbers may differ.');
- // A newer hash with no recorded change: between the cited copy's retrieval and the newer copy's retrieval.
- const unrecorded=cite({watchList:watchListWith([baseline])});
- assert.equal(unrecorded[0].newer,`A newer version exists (changed between ${formatDate(manual.retrieved_at)} and 2026-11-02). Page numbers may differ.`);
+ // The cited hash was seen, but no change starts from it: the earliest change after the last event carrying it.
+ const later=cite({watchList:watchListWith([baseline(A,'2026-10-01T00:00:00Z'),change('c0ad60b6acc9-c0',A,'2026-10-05T00:00:00Z','2026-10-01T00:00:00Z',manual.sha256),same(manual.sha256,'2026-10-08T00:00:00Z'),
+  {type:'failed',at:'2026-10-09T00:00:00Z',reason:'empty response',http_status:200,source:{type:'check',check_id:'f1'}},
+  change('c0ad60b6acc9-c1',E,'2026-10-20T00:00:00Z','2026-10-15T00:00:00Z'),change('c0ad60b6acc9-c2',E,'2026-11-02T00:00:00Z','2026-10-25T00:00:00Z','f'.repeat(64))])});
+ assert.equal(later[0].newer,'A newer version exists (changed between 2026-10-15 and 2026-10-20). Page numbers may differ.');
+ // A chosen change without previous_seen_at: the first date is the cited copy's retrieval.
+ const unseen=cite({watchList:watchListWith([baseline(),change('c0ad60b6acc9-c1',manual.sha256,'2026-10-20T00:00:00Z',null,'f'.repeat(64))])});
+ assert.equal(unseen[0].newer,`A newer version exists (changed between ${formatDate(manual.retrieved_at)} and 2026-10-20). Page numbers may differ.`);
+ // The cited hash is unknown to the history (a version collected after the last check): no note, even though hashes differ.
+ for(const history of [[],[baseline(A)],[baseline(A),change('c0ad60b6acc9-c1',A,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z','f'.repeat(64))]])
+  for(const link of cite({watchList:watchListWith(history)}))assert.equal(link.newer,null);
+ // The cited hash is in the history but no change follows it: no note.
+ assert.equal(cite({watchList:watchListWith([baseline(A),change('c0ad60b6acc9-c1',A,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z',manual.sha256),same(manual.sha256,'2026-10-25T00:00:00Z')])})[0].newer,null);
  // Same hash (the committed seeded list today): no note.
  const seeded=await readJson('watched-documents/watch-list.json');
  assert.equal(seeded.documents.find(doc=>doc.id==='c0ad60b6acc9').latest.sha256,manual.sha256);
@@ -81,12 +92,13 @@ test('newer copy in the watch list shows the fixed note; same hash shows none; n
  // No watch list (guest, hosted or the request failed): no note.
  for(const link of cite({watchList:null}))assert.equal(link.newer,null);
  // The URL match uses the address rule: a fragment or upper-case host still matches; another document does not.
- const variant=watchListWith([baseline]);variant.documents[0].url=manual.url.replace('www.rrc.texas.gov','WWW.RRC.TEXAS.GOV')+'#page=3';
+ const matching=[baseline(),change('c0ad60b6acc9-c1',manual.sha256,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z','f'.repeat(64))];
+ const variant=watchListWith(matching);variant.documents[0].url=manual.url.replace('www.rrc.texas.gov','WWW.RRC.TEXAS.GOV')+'#page=3';
  assert.match(cite({watchList:variant})[0].newer,NEWER);
- const other=watchListWith([baseline]);other.documents[0].url='https://www.rrc.texas.gov/media/other.pdf';
+ const other=watchListWith(matching);other.documents[0].url='https://www.rrc.texas.gov/media/other.pdf';
  assert.equal(cite({watchList:other})[0].newer,null);
  // A document never fetched (latest null) says nothing.
- const unchecked=watchListWith([]);unchecked.documents[0].latest=null;
+ const unchecked=watchListWith(matching);unchecked.documents[0].latest=null;
  assert.equal(cite({watchList:unchecked})[0].newer,null);
 });
 
@@ -128,7 +140,7 @@ test('Sources downloads and ledger HTML are unchanged apart from the added Cited
  const manualCard=after[manifest.sources.indexOf(manual)];
  assert.ok(manualCard.includes(`<a class="button-link" href="${base}sources/uic-manual.pdf?download=1" download="uic-manual.pdf">View preserved response</a>`));
  // Fallback and newer note render as text, escaped.
- const fallback=links.renderSourceCards({sources:manifest.sources,citations:cite({pageJump:false,watchList:watchListWith([])}),...renderHelpers});
+ const fallback=links.renderSourceCards({sources:manifest.sources,citations:cite({pageJump:false,watchList:watchListWith([baseline(),change('c0ad60b6acc9-c1',manual.sha256,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z','f'.repeat(64))])}),...renderHelpers});
  assert.match(fallback,/>Page 41 <small>\(opens at page 1; cited page 41\)<\/small><\/a>/);
  assert.equal((fallback.match(/A newer version exists/g)??[]).length,1,'the newer note appears once per card');
 });
