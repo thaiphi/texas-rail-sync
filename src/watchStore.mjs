@@ -1,6 +1,6 @@
 // E12-lite (§8): the only code that touches watched-documents/ on disk.
 // watch-list.json is validated on every read and write and written atomically (temp file, then rename);
-// copies/<sha256>.<pdf|html> are written once and never overwritten; checks/<check_id>.json are written once.
+// copies/<sha256>[.<variant>].<pdf|html> are written once and never overwritten; checks/<check_id>.json are written once.
 // Seeded copies are read where they sit under collected-sources/ and never written.
 // Write-once files are first written in full to a unique temp file in watched-documents/.partial/ (outside
 // every stored-path root, so no stored path can name one), then hard-linked to the final name (atomic; fails
@@ -14,7 +14,7 @@ import {resolve,sep} from 'node:path';
 import {validateWatchList,isStoredPath} from '../public/watch-list.js';
 
 const LIST_FILE='watch-list.json',COPIES='copies',CHECKS='checks',PARTIAL='.partial';
-const SHA256=/^[0-9a-f]{64}$/,CHECK_ID=/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+const SHA256=/^[0-9a-f]{64}$/,VARIANT=/^[a-z0-9-]{1,64}$/,CHECK_ID=/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 const fail=(code,message,extra={})=>{throw Object.assign(Error(message),{code},extra);};
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -67,11 +67,14 @@ async function verifiedLocation(repoRoot,path){
  return full;
 }
 
-export async function saveCopy({repoRoot,writeTemp},bytes){
+// variant (optional, /^[a-z0-9-]{1,64}$/) names a second write-once copy of the same bytes,
+// copies/<sha256>.<variant>.<ext>; the check uses it to repair when a damaged file holds the plain name.
+export async function saveCopy({repoRoot,writeTemp,variant},bytes){
  if(!(bytes instanceof Uint8Array))fail('REQUEST_INVALID','A copy must be bytes.');
+ if(variant!==undefined&&(typeof variant!=='string'||!VARIANT.test(variant)))fail('REQUEST_INVALID','A copy variant must be 1 to 64 lower-case letters, digits or dashes.');
  const data=Buffer.from(bytes.buffer,bytes.byteOffset,bytes.byteLength),hash=sha256(data);
  const extension=data.subarray(0,5).toString('latin1')==='%PDF-'?'pdf':'html';
- const path=`watched-documents/${COPIES}/${hash}.${extension}`;
+ const path=`watched-documents/${COPIES}/${hash}.${variant===undefined?'':`${variant}.`}${extension}`;
  if(await writeOnce(repoRoot,path,data,writeTemp))return {path,sha256:hash,reused:false};
  const existing=await readFile(await verifiedLocation(repoRoot,path));
  if(sha256(existing)!==hash)fail('WATCH_COPY_CONFLICT',`The saved copy ${path} already exists with different bytes; it is never overwritten.`);

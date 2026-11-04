@@ -5,7 +5,7 @@ import {mkdtemp,mkdir,readFile,writeFile,rm,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {checkWatchedDocuments} from '../src/watchCheck.mjs';
+import {checkWatchedDocuments,checkDocument} from '../src/watchCheck.mjs';
 import {readWatchList,writeWatchList} from '../src/watchStore.mjs';
 import {emptyWatchList,addDocument,stopWatching,statusLabel,applyOutcome} from '../public/watch-list.js';
 
@@ -194,7 +194,7 @@ test('damaged latest copy: reported, compared against recorded hash, damaged fil
   assert.equal(statusLabel(docOf(third.list,PAGE_ID)),'Unchanged');
 });
 
-test('damaged copy under copies/ is reported but its taken name is never overwritten', async t=>{
+test('damaged copy under copies/ is repaired to a repair-<check id> copy; its taken name is never overwritten', async t=>{
   const repoRoot=await tempRoot(t);await seedList(repoRoot);
   const first=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});
   const original=docOf(first.list,PAGE_ID).latest,tampered=Buffer.from('<html><p>tampered</p></html>');
@@ -202,9 +202,33 @@ test('damaged copy under copies/ is reported but its taken name is never overwri
   const second=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-2'});
   assert.deepEqual(second.record.results.map(r=>r.outcome),['same','damaged','same']);
   const page=docOf(second.list,PAGE_ID);
-  assert.deepEqual(page.latest,original);
-  assert.deepEqual(await readFile(join(repoRoot,original.path)),tampered);
   assert.equal(statusLabel(page),'Unchanged · saved copy damaged');
+  assert.equal(page.latest.path,`watched-documents/copies/${sha(HTML1)}.repair-check-2.html`);
+  assert.equal(page.latest.sha256,original.sha256);assert.deepEqual(page.latest.source,{type:'check',check_id:'check-2'});
+  assert.deepEqual(await readFile(join(repoRoot,page.latest.path)),HTML1);
+  assert.deepEqual(await readFile(join(repoRoot,original.path)),tampered);
+  assert.deepEqual(await readWatchList({repoRoot}),second.list);
+  // The next check is a clean Unchanged against the repaired copy.
+  const third=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-3'});
+  assert.deepEqual(third.record.results.map(r=>r.outcome),['same','same']);
+  const after=docOf(third.list,PAGE_ID);
+  assert.deepEqual(after.status.last_result,{at:after.history.at(-1).at,outcome:'ok'});
+  assert.equal(statusLabel(after),'Unchanged');
+  assert.equal(after.latest.path,page.latest.path);
+  assert.deepEqual(await readFile(join(repoRoot,original.path)),tampered);
+});
+
+test('the fetch-time address gate fails a document outside the rule without fetching it', async t=>{
+  const repoRoot=await tempRoot(t);const list=await seedList(repoRoot);
+  for(const url of ['http://www.rrc.texas.gov/x','https://rrc.texas.gov.evil.example/x','https://evilrrc.texas.gov/x','https://user@www.rrc.texas.gov/x','https://www.rrc.texas.gov:8443/x']){
+    const calls=[],doc={...docOf(list,PAGE_ID),url};
+    const {doc:after,results}=await checkDocument(doc,{repoRoot,fetchImpl:fetchFrom({},calls),testFixture:true,now:()=>'2026-11-03T12:00:00.000Z',checkId:'check-1'});
+    assert.equal(calls.length,0,url);
+    assert.deepEqual(results,[{doc_id:PAGE_ID,url,outcome:'failed',http_status:null,sha256:null,bytes:null,reason:'address not allowed'}]);
+    assert.deepEqual(after.history.at(-1),{type:'failed',at:'2026-11-03T12:00:00.000Z',reason:'address not allowed',http_status:null,source:{type:'check',check_id:'check-1'}});
+    assert.equal(after.status.last_result.reason,'address not allowed');assert.equal(after.latest,null);
+  }
+  assert.deepEqual(await copies(repoRoot),[]);
 });
 
 test('damaged latest copy with a different fetch is a change against the recorded hash, never markup-only', async t=>{

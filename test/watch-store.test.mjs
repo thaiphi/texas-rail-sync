@@ -30,6 +30,33 @@ test('saveCopy is write-once and reuses identical bytes', async t=>{
   await assert.rejects(saveCopy({repoRoot},'not bytes'),codeOf('REQUEST_INVALID'));
 });
 
+test('saveCopy with a variant writes a second write-once copy beside a taken plain name', async t=>{
+  const repoRoot=await tempRoot(t);
+  const plain=await saveCopy({repoRoot},HTML),tampered=Buffer.from('<html><p>tampered</p></html>');
+  await writeFile(join(repoRoot,plain.path),tampered);
+  const repaired=await saveCopy({repoRoot,variant:'repair-check-2'},HTML);
+  assert.deepEqual(repaired,{path:`watched-documents/copies/${sha(HTML)}.repair-check-2.html`,sha256:sha(HTML),reused:false});
+  assert.deepEqual(await readFile(join(repoRoot,repaired.path)),HTML);
+  assert.deepEqual(await readFile(join(repoRoot,plain.path)),tampered,'the plain name is never overwritten');
+  assert.deepEqual(await saveCopy({repoRoot,variant:'repair-check-2'},HTML),{...repaired,reused:true});
+  assert.deepEqual(await readVerifiedCopy({repoRoot},repaired.path,sha(HTML)),HTML);
+  const pdf=await saveCopy({repoRoot,variant:'repair-1'},PDF);
+  assert.equal(pdf.path,`watched-documents/copies/${sha(PDF)}.repair-1.pdf`);
+  // Different bytes under a taken variant name: refuse and never overwrite.
+  await writeFile(join(repoRoot,pdf.path),tampered);
+  await assert.rejects(saveCopy({repoRoot,variant:'repair-1'},PDF),codeOf('WATCH_COPY_CONFLICT'));
+  assert.deepEqual(await readFile(join(repoRoot,pdf.path)),tampered);
+  for(const variant of ['','Repair','a.b','../x','a/b','a\b','x'.repeat(65),7,null])
+    await assert.rejects(saveCopy({repoRoot,variant},HTML),codeOf('REQUEST_INVALID'),String(variant));
+  // A repaired latest at the variant path is a valid stored path for the list.
+  let list=addDocument(emptyWatchList(),{url:'https://www.rrc.texas.gov/media/x/a.html',name:'A',kind:'guidance'},{now:'2026-11-03T00:00:00.000Z',id:'0123456789ab',via:'owner'});
+  const src={type:'check',check_id:'check-1'},latest=path=>({sha256:sha(HTML),bytes:HTML.length,path,retrieved_at:'2026-11-03T00:00:00.000Z',last_modified:null,etag:null,source:src});
+  list.documents[0]=applyOutcome(list.documents[0],{type:'baseline',at:'2026-11-03T00:00:00.000Z',sha256:sha(HTML),path:plain.path,source:src,latest:latest(plain.path)});
+  list.documents[0]=applyOutcome(list.documents[0],{type:'repair',latest:latest(repaired.path)});
+  await writeWatchList({repoRoot},list);
+  assert.equal((await readWatchList({repoRoot})).documents[0].latest.path,repaired.path);
+});
+
 test('readVerifiedCopy refuses damaged bytes and bad paths', async t=>{
   const repoRoot=await tempRoot(t);
   const saved=await saveCopy({repoRoot},PDF);
