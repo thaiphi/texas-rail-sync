@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join,dirname,resolve,relative,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {buildSeedList} from '../src/watchSeed.mjs';
+import {buildSeedList,SEED_RUN_IDS} from '../src/watchSeed.mjs';
 import {writeWatchList,readWatchList} from '../src/watchStore.mjs';
 import {checkWatchedDocuments} from '../src/watchCheck.mjs';
 import {emptyWatchList,addDocument} from '../public/watch-list.js';
@@ -99,7 +99,7 @@ test('artifacts/ and collected-sources/ hashes unchanged by a seed and a fixture
 
   // Seed: reads the real collected-sources, writes only to a temp root.
   const seedRoot=await mkdtemp(join(tmpdir(),'trrc-watch-gates-seed-'));t.after(()=>rm(seedRoot,{recursive:true,force:true}));
-  const seeded=await buildSeedList({repoRoot,now:'2026-11-04T00:00:00.000Z'});
+  const seeded=await buildSeedList({repoRoot,now:'2026-11-04T00:00:00.000Z',runIds:SEED_RUN_IDS});
   assert.equal(seeded.documents.length,8);
   await writeWatchList({repoRoot:seedRoot},seeded);
   assert.deepEqual(await readWatchList({repoRoot:seedRoot}),seeded);

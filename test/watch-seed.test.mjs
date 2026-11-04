@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {SEED_DOCUMENTS,buildSeedList,ownerHistory} from '../src/watchSeed.mjs';
+import {SEED_DOCUMENTS,SEED_RUN_IDS,buildSeedList,ownerHistory} from '../src/watchSeed.mjs';
 import {writeWatchList,readWatchList} from '../src/watchStore.mjs';
 import {documentId,validateWatchList,addDocument,markReviewed,addNote,applyOutcome,stopWatching} from '../public/watch-list.js';
 
@@ -51,7 +51,7 @@ async function hashTree(dir){
 test('seed reproduces the missed rrc-resources change with no network', async t=>{
   const realFetch=globalThis.fetch;globalThis.fetch=()=>{throw Error('the seed must make no network request');};
   t.after(()=>{globalThis.fetch=realFetch;});
-  const list=await buildSeedList({repoRoot,now:NOW});
+  const list=await buildSeedList({repoRoot,now:NOW,runIds:SEED_RUN_IDS});
   assert.deepEqual(validateWatchList(list),list);
   assert.equal(list.documents.length, 8);
   const res = list.documents.find(d=>d.url.endsWith('/injection-storage-permits/resources/'));
@@ -70,7 +70,7 @@ test('seed reproduces the missed rrc-resources change with no network', async t=
 });
 
 test('seed rows match spec §3.1 and replay every committed copy in order', async ()=>{
-  const list=await buildSeedList({repoRoot,now:NOW});
+  const list=await buildSeedList({repoRoot,now:NOW,runIds:SEED_RUN_IDS});
   assert.deepEqual(list.documents.map(d=>[d.name,d.kind,d.url]),SPEC_3_1);
   assert.deepEqual(SEED_DOCUMENTS.map(d=>[d.name,d.kind]),SPEC_3_1.map(([name,kind])=>[name,kind]));
   assert.ok(Object.isFrozen(SEED_DOCUMENTS));
@@ -103,7 +103,7 @@ test('seed rows match spec §3.1 and replay every committed copy in order', asyn
 test('seed never writes into collected-sources or artifacts', async t=>{
   const before={c:await hashTree(join(repoRoot,'collected-sources')),a:await hashTree(join(repoRoot,'artifacts'))};
   const out=await tempRoot(t);
-  const list=await buildSeedList({repoRoot,now:NOW});
+  const list=await buildSeedList({repoRoot,now:NOW,runIds:SEED_RUN_IDS});
   await writeWatchList({repoRoot:out},list);
   assert.deepEqual(await readWatchList({repoRoot:out}),list);
   const after={c:await hashTree(join(repoRoot,'collected-sources')),a:await hashTree(join(repoRoot,'artifacts'))};
@@ -135,7 +135,10 @@ test('seed refuses sidecars that disagree on the address', async t=>{
 test('committed watch-list.json is valid and still starts with a fresh seed (owner history only appended)', async ()=>{
   const committed=JSON.parse(await readFile(join(repoRoot,'watched-documents','watch-list.json'),'utf8'));
   assert.doesNotThrow(()=>validateWatchList(committed));
-  const fresh=await buildSeedList({repoRoot,now:NOW});
+  const fresh=await buildSeedList({repoRoot,now:NOW,runIds:SEED_RUN_IDS});
+  // Every collection the committed list cites is one it was seeded from; a later local collection is not in it.
+  for(const doc of committed.documents)for(const ev of [...doc.history,{source:doc.latest?.source}])
+    if(ev.source?.type==='collection')assert.ok(SEED_RUN_IDS.includes(ev.source.run_id),`${doc.id}: ${ev.source.run_id} is a seed collection`);
   // A review fills a seeded change's review field in place; every other field of a seeded event never changes.
   const withoutReview=ev=>{const {review,...rest}=ev;return rest;};
   for(const seed of fresh.documents){
@@ -152,9 +155,46 @@ test('committed watch-list.json is valid and still starts with a fresh seed (own
   }
 });
 
+test('SEED_RUN_IDS names the 11 committed collections and runIds limits which are read', async t=>{
+  assert.ok(Object.isFrozen(SEED_RUN_IDS));
+  assert.equal(SEED_RUN_IDS.length,11);assert.equal(new Set(SEED_RUN_IDS).size,11);
+  for(const run of SEED_RUN_IDS)await readFile(join(repoRoot,'collected-sources',run,'acquisition.json'));
+  const OCT_10=['7aecd619-c19b-48ad-b354-832f5cc0cca0','df804201-eb4a-4aa5-8ef2-c550c6a70627'];
+  // The 2026-10-10 collections hold only 3 of the 8 documents, so on the real repo the filter alone reports the gap.
+  await assert.rejects(buildSeedList({repoRoot,now:NOW,runIds:OCT_10}),error=>{assert.equal(error.code,'WATCH_SEED_INVALID');assert.match(error.message,/no committed copy of srt-guidelines/);return true;});
+  // A temp repo with every seed collection, where the full run no longer holds rrc-resources: the 10-10 runs plus the
+  // full run see rrc-resources twice with one hash (same), while reading every folder sees the 10-29 change.
+  const root=await tempRoot(t);
+  await copyRuns(root,SEED_RUN_IDS);
+  for(const name of ['rrc-resources.html','rrc-resources.source.json'])await rm(join(root,'collected-sources',FULL_RUN,name));
+  const limited=await buildSeedList({repoRoot:root,now:NOW,runIds:[...OCT_10,FULL_RUN]});
+  const res=limited.documents.find(d=>d.url.endsWith('/injection-storage-permits/resources/'));
+  assert.deepEqual(res.history.map(e=>[e.type,e.source.run_id]),[['baseline',OCT_10[0]],['same',OCT_10[1]]]);
+  assert.equal(res.status.change_state,'unchanged');
+  const all=await buildSeedList({repoRoot:root,now:NOW});
+  assert.equal(all.documents.find(d=>d.id===res.id).status.change_state,'changed');
+  for(const runIds of [['00000000-0000-4000-8000-000000000000'],[],'b7628a71-03fe-4a16-928c-033353e1fce0'])
+    await assert.rejects(buildSeedList({repoRoot,now:NOW,runIds}),error=>{assert.equal(error.code,'WATCH_SEED_INVALID');return true;});
+});
+
+test('a later local collection does not change the list seeded from SEED_RUN_IDS', async t=>{
+  const root=await tempRoot(t);
+  await copyRuns(root,SEED_RUN_IDS);
+  const extra='ffffffff-0000-4000-8000-000000000000',from=join(repoRoot,'collected-sources',FULL_RUN),to=join(root,'collected-sources',extra);
+  await mkdir(to,{recursive:true});
+  await copyFile(join(from,'rrc-resources.html'),join(to,'rrc-resources.html'));
+  const meta=JSON.parse(await readFile(join(from,'rrc-resources.source.json'),'utf8'));
+  await writeFile(join(to,'rrc-resources.source.json'),JSON.stringify({...meta,retrieved_at:'2026-11-05T00:00:00.000Z',testFixture:false}));
+  const real=await buildSeedList({repoRoot,now:NOW,runIds:SEED_RUN_IDS});
+  assert.deepEqual(await buildSeedList({repoRoot:root,now:NOW,runIds:SEED_RUN_IDS}),real,'the extra folder is ignored');
+  const unfiltered=await buildSeedList({repoRoot:root,now:NOW});
+  const res=unfiltered.documents.find(d=>d.url.endsWith('/injection-storage-permits/resources/'));
+  assert.deepEqual(res.history.at(-1).source,{type:'collection',run_id:extra},'without runIds the extra folder is read');
+});
+
 // Final-review fix 5: seed-watch-list --force must never replace a list that holds owner history.
 test('ownerHistory is null for a fresh seed and names the first owner history it finds on built lists', async ()=>{
-  const seeded=await buildSeedList({repoRoot,now:NOW});
+  const seeded=await buildSeedList({repoRoot,now:NOW,runIds:SEED_RUN_IDS});
   assert.equal(ownerHistory(seeded),null,'a pure seed may be replaced with --force');
   const res=seeded.documents.find(d=>d.history.some(e=>e.type==='change'));
   const change=res.history.find(e=>e.type==='change');

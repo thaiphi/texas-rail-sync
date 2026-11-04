@@ -20,17 +20,43 @@ export const SEED_DOCUMENTS=Object.freeze([
  {file:'form-w3',name:'Form W-3',kind:'form'},
 ].map(Object.freeze));
 
+// The collections the committed watched-documents/watch-list.json was seeded from (2026-10-10..2026-10-30).
+// Tests pass these as runIds so a later local collection (a new collected-sources/<uuid>/ folder) does not
+// change the seeded list they compare against.
+export const SEED_RUN_IDS=Object.freeze([
+ '70983258-9751-4e79-bb78-1a1cb7068e14',
+ '7aecd619-c19b-48ad-b354-832f5cc0cca0',
+ '903b89ff-452c-422c-87cf-ae3e4260b733',
+ 'a8606089-cd03-4c22-9161-11dd443331a8',
+ 'b477a317-a6bb-4ab9-b059-ac2e5d61b12d',
+ 'b7628a71-03fe-4a16-928c-033353e1fce0',
+ 'b911ce3c-2d6d-430e-bee0-8b3cb8cc7465',
+ 'd04894d1-5c27-4392-b3f7-42a399c7fbe1',
+ 'df804201-eb4a-4aa5-8ef2-c550c6a70627',
+ 'edce4598-1396-49f0-9829-96271fa93249',
+ 'fbee3ba0-9d68-4572-9331-7a545cbbade7',
+]);
+
 const fail=message=>{throw Object.assign(Error(message),{code:'WATCH_SEED_INVALID'});};
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 const byText=(x,y)=>x<y?-1:x>y?1:0;
 const exists=async path=>{try{await access(path);return true;}catch(error){if(error.code==='ENOENT')return false;throw error;}};
 
-// Every non-fixture copy of one document, verified against its sidecar, oldest first (ties by run id).
-async function collectCopies(repoRoot,file){
+// The collection folders to read: every folder under collected-sources/, or only runIds when given.
+async function runFolders(repoRoot,runIds){
+ const base=resolve(repoRoot,'collected-sources');
+ const all=(await readdir(base,{withFileTypes:true})).filter(entry=>entry.isDirectory()).map(entry=>entry.name);
+ if(runIds===undefined)return all;
+ if(!Array.isArray(runIds)||!runIds.length||runIds.some(run=>typeof run!=='string'||!run))fail('runIds must be a non-empty list of collection folder names');
+ for(const run of runIds)if(!all.includes(run))fail(`collected-sources/${run} is not a collection folder`);
+ return [...new Set(runIds)];
+}
+
+// Every non-fixture copy of one document in the given runs, verified against its sidecar, oldest first (ties by run id).
+async function collectCopies(repoRoot,file,runs){
  const base=resolve(repoRoot,'collected-sources'),copies=[];
- for(const entry of await readdir(base,{withFileTypes:true})){
-  if(!entry.isDirectory())continue;
-  const run=entry.name,sidecar=resolve(base,run,`${file}.source.json`);
+ for(const run of runs){
+  const sidecar=resolve(base,run,`${file}.source.json`);
   let meta;
   try{meta=JSON.parse(await readFile(sidecar,'utf8'));}
   catch(error){if(error.code==='ENOENT')continue;fail(`collected-sources/${run}/${file}.source.json can't be read`);}
@@ -55,11 +81,13 @@ async function collectCopies(repoRoot,file){
 const latestOf=copy=>({sha256:copy.meta.sha256,bytes:copy.meta.bytes,path:copy.path,retrieved_at:copy.meta.retrieved_at,
  last_modified:copy.meta.last_modified??null,etag:copy.meta.etag??null,source:{type:'collection',run_id:copy.run}});
 
-export async function buildSeedList({repoRoot,now}={}){
+// runIds (optional): only these collected-sources/ folders are read; without it, every folder is.
+export async function buildSeedList({repoRoot,now,runIds}={}){
  if(typeof now!=='string'||!now)fail('the seed needs the current time');
+ const runs=await runFolders(repoRoot,runIds);
  let list=emptyWatchList();
  for(const seed of SEED_DOCUMENTS){
-  const copies=await collectCopies(repoRoot,seed.file),url=copies[0].meta.url;
+  const copies=await collectCopies(repoRoot,seed.file,runs),url=copies[0].meta.url;
   list=addDocument(list,{url,name:seed.name,kind:seed.kind},{now:copies[0].meta.retrieved_at,id:await documentId(url),via:'seed'});
   let doc=list.documents.at(-1),previous=null;
   for(const copy of copies){

@@ -3,14 +3,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-import {buildSeedList} from '../src/watchSeed.mjs';
+import {buildSeedList,SEED_RUN_IDS} from '../src/watchSeed.mjs';
 import {htmlToText} from '../public/html-text.js';
 import {applyOutcome,markReviewed,addNote,deriveStatus} from '../public/watch-list.js';
 const view=await import('../public/watch-view.js').catch(()=>({}));
 
 const root=new URL('../',import.meta.url);
 // The seeded list is built fresh from the committed collected-sources: watch-list.json itself is live data.
-const seeded=()=>buildSeedList({repoRoot:fileURLToPath(root),now:'2026-11-03T00:00:00.000Z'});
+const seeded=()=>buildSeedList({repoRoot:fileURLToPath(root),now:'2026-11-03T00:00:00.000Z',runIds:SEED_RUN_IDS});
 const formatDate=value=>new Date(value).toISOString().slice(5,10);
 const render=options=>view.renderWatchView({running:null,lastCheck:null,lastRun:null,formatDate,expanded:new Set(),diffs:null,...options});
 const resourcesId='80b511129d5a',changeId='80b511129d5a-c1';

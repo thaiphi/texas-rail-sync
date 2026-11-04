@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-import {buildSeedList} from '../src/watchSeed.mjs';
+import {buildSeedList,SEED_RUN_IDS} from '../src/watchSeed.mjs';
 import {dispositionRows} from '../public/presentation.js';
 import {facts,filterInventory,sourceUrl,countText} from '../public/presentation.js';
 import {clearDatasetEvidence,historyState} from '../public/dataset-state.js';
@@ -27,7 +27,7 @@ test('#watch parses to {screen:"watch"} and only the bare route is accepted',()=
  for(const hash of ['#watch/80b511129d5a','#watch/../escape','#watched'])assert.deepEqual(nav.parseRoute(hash),{screen:'datasets'});
 });
 test('#watch shows only the watch screen, loads /api/watch and renders the seeded table',async()=>{
- const list=await buildSeedList({repoRoot:fileURLToPath(new URL('../',import.meta.url)),now:'2026-11-03T00:00:00.000Z'}),fetchLog=[];
+ const list=await buildSeedList({repoRoot:fileURLToPath(new URL('../',import.meta.url)),now:'2026-11-03T00:00:00.000Z',runIds:SEED_RUN_IDS}),fetchLog=[];
  const ui=await startUI({hash:'#watch',watchBody:{schemaVersion:1,list,running:null,lastCheck:null,lastRun:null},fetchLog});await new Promise(setImmediate);
  assert.equal(ui.element('watch-view').hidden,false);for(const name of ['find','datasets','history','help','compare'])assert.equal(ui.element(name+'-view').hidden,true);
  assert.ok(fetchLog.includes('/api/watch'));assert.match(ui.element('watch-content').innerHTML,/Injection-Storage Resources/);assert.match(ui.element('watch-content').innerHTML,/id="watch-check"/);
