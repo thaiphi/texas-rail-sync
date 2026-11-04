@@ -332,3 +332,35 @@ test('a run failing with an unlisted error reports only a generic message',async
   const write=await json(await post('/api/watch/stop',{id:PAGE_ID}));
   assert.equal(write.body.error.code,'REQUEST_FAILED');assert.ok(!JSON.stringify(write.body).includes('secret'));
 });
+
+// Final-review fix 1: watchBusy belongs to one server instance. A review posted on instance A while a
+// Check now runs on instance B (same repo root) must survive B's write, and B's outcomes must be recorded.
+test('two instances: a review and note posted on A during a check on B both survive, and B records its outcomes',async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot,{baselines:true});
+  const HTML2=Buffer.from('<html><body><p>Rule 3.9 amended</p></body></html>'),bodies={[PAGE_URL]:HTML2,[PDF_URL]:PDF1};
+  const a=await watchServer(t,repoRoot,{bodies});
+  assert.equal((await a.post('/api/watch/check',{})).status,202);
+  const change=(await waitIdle(a.get)).list.documents.find(doc=>doc.id===PAGE_ID).history.findLast(ev=>ev.type==='change');
+  assert.ok(change,'the page has an unreviewed change');
+  const gate=deferred(),calls=[];
+  const b=await watchServer(t,repoRoot,{bodies,gate:gate.promise,calls});
+  const started=await json(await b.post('/api/watch/check',{}));
+  assert.equal(started.status,202);
+  // B has read the list once its first fetch is waiting on the gate.
+  for(let i=0;i<200&&!calls.length;i++)await new Promise(resolve=>setTimeout(resolve,10));
+  assert.equal(calls.length,1,'B is mid-run');
+  const review=await json(await a.post('/api/watch/review',{id:PAGE_ID,note:'Read it'}));
+  assert.equal(review.status,200,JSON.stringify(review.body));
+  const note=await json(await a.post('/api/watch/note',{id:PAGE_ID,changeId:change.id,note:'Rule 3.9 amended'}));
+  assert.equal(note.status,200,JSON.stringify(note.body));
+  assert.equal((await readWatchList({repoRoot})).documents.find(doc=>doc.id===PAGE_ID).status.change_state,'reviewed');
+  gate.open();
+  const after=await waitIdle(b.get);
+  const page=after.list.documents.find(doc=>doc.id===PAGE_ID),pdf=after.list.documents.find(doc=>doc.id===PDF_ID);
+  assert.equal(page.status.change_state,'reviewed');
+  assert.deepEqual(page.history.find(ev=>ev.id===change.id).review.note,'Read it');
+  assert.ok(page.history.some(ev=>ev.type==='note'&&ev.note==='Rule 3.9 amended'),'the note survives');
+  const fromB=ev=>ev.source?.check_id===started.body.checkId;
+  assert.equal(page.history.findLast(fromB)?.type,'same');assert.equal(pdf.history.findLast(fromB)?.type,'same');
+  assert.deepEqual(after.list,await readWatchList({repoRoot}));
+});

@@ -11,6 +11,8 @@ const RESULT_TYPES=new Set(['baseline','same','change','failed','damaged']);
 const OUTCOME_LIMIT=5;
 
 const isPdf=path=>/\.pdf$/i.test(String(path??''));
+// A text diff needs both copies to be web pages; a PDF on either side gets the fixed PDF text.
+export const textDiffable=ev=>!isPdf(ev?.path)&&!isPdf(ev?.previous_path);
 const copyHref=(docId,sha)=>`/api/watch/copy/${encodeURIComponent(docId)}/${encodeURIComponent(sha)}`;
 const shortHash=sha=>String(sha??'').slice(0,12);
 const changes=doc=>(doc.history??[]).filter(ev=>ev.type==='change');
@@ -76,7 +78,7 @@ export const renderDiff=diffBlock;
 function changeItem(doc,ev,{formatDate,diffs,newestUnreviewed,running}){
  const notes=(doc.history??[]).filter(item=>item.type==='note'&&item.change_id===ev.id);
  const links=`<a href="${escape(copyHref(doc.id,ev.previous_sha256))}" target="_blank" rel="noopener">Before copy</a> · <a href="${escape(copyHref(doc.id,ev.sha256))}" target="_blank" rel="noopener">After copy</a>`;
- const body=isPdf(ev.path)?`<p>${escape(PDF_TEXT)}</p>`:`${ev.markup_only?'<p class="note">Markup only: the visible text is the same.</p>':''}<div id="watch-diff-${escape(ev.id)}" class="watch-diff-host">${diffBlock(diffs?.get(ev.id))}</div>`;
+ const body=!textDiffable(ev)?`<p>${escape(PDF_TEXT)}</p>`:`${ev.markup_only?'<p class="note">Markup only: the visible text is the same.</p>':''}<div id="watch-diff-${escape(ev.id)}" class="watch-diff-host">${diffBlock(diffs?.get(ev.id))}</div>`;
  const review=ev.review?`<p class="watch-review"><strong>Reviewed ${escape(formatDate(ev.review.at))}</strong>${ev.review.note?`: ${escape(ev.review.note)}`:''}</p>`:'<p class="watch-review"><strong>Not reviewed</strong></p>';
  const noteList=notes.length?`<ul class="watch-notes">${notes.map(note=>`<li>Note ${escape(formatDate(note.at))}: ${escape(note.note)}</li>`).join('')}</ul>`:'';
  const disabled=running?' disabled':'';

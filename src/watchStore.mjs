@@ -4,8 +4,9 @@
 // Seeded copies are read where they sit under collected-sources/ and never written.
 // Write-once files are first written in full to a unique temp file in watched-documents/.partial/ (outside
 // every stored-path root, so no stored path can name one), then hard-linked to the final name (atomic; fails
-// with EEXIST instead of replacing, NTFS included). The temp file is always removed, so a crash or full disk
-// mid-write never leaves a truncated file under the final name.
+// with EEXIST instead of replacing, NTFS included). A crash or full disk mid-write never leaves a truncated
+// file under the final name. Removing the temp file afterwards is best-effort: on Windows a scanner may hold it
+// (EPERM/EBUSY), and a leftover .partial file is harmless because no stored path can name one.
 // Errors carry error.code: WATCH_LIST_MISSING, WATCH_LIST_INVALID, WATCH_COPY_CONFLICT, WATCH_PATH_INVALID,
 // WATCH_COPY_MISSING, WATCH_COPY_DAMAGED (+actualSha256), WATCH_CHECK_EXISTS, WATCH_LIST_BUSY, REQUEST_INVALID.
 import {readFile,writeFile,rename,mkdir,lstat,rm,link} from 'node:fs/promises';
@@ -22,8 +23,8 @@ const watchRoot=repoRoot=>resolve(repoRoot,'watched-documents');
 const listFile=repoRoot=>resolve(watchRoot(repoRoot),LIST_FILE);
 
 // Claims the final name with complete bytes; false when the name already exists (it is never replaced).
-// writeTemp is a test seam for simulating a failed write; it defaults to fs writeFile.
-async function writeOnce(repoRoot,path,data,writeTemp=writeFile){
+// writeTemp and removeTemp are test seams for a failed write and a held temp file; they default to fs.
+async function writeOnce(repoRoot,path,data,writeTemp=writeFile,removeTemp=rm){
  const final=resolve(repoRoot,...path.split('/')),partialDir=resolve(watchRoot(repoRoot),PARTIAL);
  await mkdir(resolve(final,'..'),{recursive:true});await mkdir(partialDir,{recursive:true});
  const temp=resolve(partialDir,`${randomUUID()}.partial`);
@@ -31,7 +32,7 @@ async function writeOnce(repoRoot,path,data,writeTemp=writeFile){
   await writeTemp(temp,data,{flag:'wx'});
   try{await link(temp,final);return true;}
   catch(error){if(error.code==='EEXIST')return false;throw error;}
- }finally{await rm(temp,{force:true});}
+ }finally{try{await removeTemp(temp,{force:true});}catch{}}
 }
 
 export async function readWatchList({repoRoot}){
@@ -86,13 +87,13 @@ async function verifiedLocation(repoRoot,path){
 
 // variant (optional, /^[a-z0-9-]{1,64}$/) names a second write-once copy of the same bytes,
 // copies/<sha256>.<variant>.<ext>; the check uses it to repair when a damaged file holds the plain name.
-export async function saveCopy({repoRoot,writeTemp,variant},bytes){
+export async function saveCopy({repoRoot,writeTemp,removeTemp,variant},bytes){
  if(!(bytes instanceof Uint8Array))fail('REQUEST_INVALID','A copy must be bytes.');
  if(variant!==undefined&&(typeof variant!=='string'||!VARIANT.test(variant)))fail('REQUEST_INVALID','A copy variant must be 1 to 64 lower-case letters, digits or dashes.');
  const data=Buffer.from(bytes.buffer,bytes.byteOffset,bytes.byteLength),hash=sha256(data);
  const extension=data.subarray(0,5).toString('latin1')==='%PDF-'?'pdf':'html';
  const path=`watched-documents/${COPIES}/${hash}.${variant===undefined?'':`${variant}.`}${extension}`;
- if(await writeOnce(repoRoot,path,data,writeTemp))return {path,sha256:hash,reused:false};
+ if(await writeOnce(repoRoot,path,data,writeTemp,removeTemp))return {path,sha256:hash,reused:false};
  const existing=await readFile(await verifiedLocation(repoRoot,path));
  if(sha256(existing)!==hash)fail('WATCH_COPY_CONFLICT',`The saved copy ${path} already exists with different bytes; it is never overwritten.`);
  return {path,sha256:hash,reused:true};
@@ -118,8 +119,8 @@ export async function checkRecordExists({repoRoot},id){
  catch(error){if(error.code==='ENOENT')return false;throw error;}
 }
 
-export async function writeCheckRecord({repoRoot,writeTemp},record){
+export async function writeCheckRecord({repoRoot,writeTemp,removeTemp},record){
  const id=record?.check_id,path=checkPath(id);
- if(!await writeOnce(repoRoot,path,JSON.stringify(record,null,2)+'\n',writeTemp))fail('WATCH_CHECK_EXISTS',`The check record ${id} already exists.`);
+ if(!await writeOnce(repoRoot,path,JSON.stringify(record,null,2)+'\n',writeTemp,removeTemp))fail('WATCH_CHECK_EXISTS',`The check record ${id} already exists.`);
  return path;
 }

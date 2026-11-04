@@ -210,3 +210,19 @@ test('writeWatchList gives up after 5 held renames with WATCH_LIST_BUSY and leav
   await assert.rejects(writeWatchList({repoRoot,renameFile:broken},emptyWatchList()),codeOf('ENOSPC'));
   assert.equal(attempts,1);
 });
+
+// Final-review fix 6: on Windows a scanner can hold the .partial temp file after the hard link succeeded.
+// Removing it is best-effort, so a write that succeeded is never reported as failed.
+test('a temp file that cannot be removed after a successful link does not fail the write', async t=>{
+  const repoRoot=await tempRoot(t);
+  let removes=0;
+  const heldRemover=async()=>{removes++;throw lockError('EBUSY');};
+  const saved=await saveCopy({repoRoot,removeTemp:heldRemover},PDF);
+  assert.equal(saved.reused,false);
+  assert.deepEqual(await readVerifiedCopy({repoRoot},saved.path,saved.sha256),PDF);
+  const path=await writeCheckRecord({repoRoot,removeTemp:async()=>{removes++;throw lockError('EPERM');}},{check_id:'c-held',results:[]});
+  assert.deepEqual(JSON.parse(await readFile(join(repoRoot,path),'utf8')),{check_id:'c-held',results:[]});
+  assert.equal(removes,2,'the remover was tried once per write');
+  // A failed write still reports its own error, not the remover's.
+  await assert.rejects(saveCopy({repoRoot,writeTemp:failingWriter,removeTemp:heldRemover},HTML),codeOf('ENOSPC'));
+});

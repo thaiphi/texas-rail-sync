@@ -78,3 +78,19 @@ export async function buildSeedList({repoRoot,now}={}){
  }
  return validateWatchList(list);
 }
+
+// Owner history the seed cannot rebuild: a row the owner added, a review or note, or any history event that
+// did not come from a collected copy (a check outcome, stop, rewatch, edit). Returns a plain reason naming
+// the first one found, or null when the list holds only seed history and may be replaced.
+export function ownerHistory(list){
+ for(const doc of list?.documents??[]){
+  const name=`"${doc.name}"`;
+  if(doc.added_via!=='seed')return `${name} was added by the owner`;
+  for(const ev of doc.history??[]){
+   if(ev.type==='note')return `${name} has a note`;
+   if(ev.review)return `${name} has a review`;
+   if(ev.source?.type!=='collection')return `${name} has a ${ev.source?.type==='check'?'check result':`${ev.type} event`}`;
+  }
+ }
+ return null;
+}

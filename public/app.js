@@ -15,7 +15,7 @@ import {listSavedPackages,saveVerifiedPackage,verifyVersionPackage} from './brow
 import {createLegacyCollectionApi,createGuestCollectionApi} from './collection-api.js';
 import {createGuestClient} from './guest-client.js';
 import {PORTFOLIO_URL} from './portfolio-link.js';
-import {renderWatchView,renderWatchError,renderDiff,checkBar} from './watch-view.js';
+import {renderWatchView,renderWatchError,renderDiff,checkBar,textDiffable} from './watch-view.js';
 import {htmlToText} from './html-text.js';
 import {citationLinks,renderSourceCards} from './page-links.js';
 const $=id=>document.getElementById(id);
@@ -107,10 +107,10 @@ async function pollWatch(){
  if(next.running){$('watch-checkbar-host').innerHTML=checkBar({...next,formatDate:watchDate,formatDateTime:watchDateTime});scheduleWatchPoll();return;}
  renderWatch();setWatchStatus(next.lastRun?'The check did not complete.':'Check finished.',Boolean(next.lastRun));
 }
-// Web-page changes: fetch both verified copies as text and diff them in place; PDFs get no diff.
+// Web-page changes: fetch both verified copies as text and diff them in place; a PDF on either side gets no diff.
 async function loadWatchDiffs(docId){
  const doc=watchState.data?.list.documents.find(item=>item.id===docId);if(!doc)return;
- for(const ev of doc.history.filter(item=>item.type==='change'&&!/\.pdf$/i.test(item.path))){
+ for(const ev of doc.history.filter(item=>item.type==='change'&&textDiffable(item))){
   if(watchState.diffs.has(ev.id)||watchState.pending.has(ev.id))continue;
   watchState.pending.add(ev.id);
   let entry;

@@ -4,7 +4,7 @@
 
 **Scope.** A local, owner-triggered check of a watch list of official RRC documents (rrc.texas.gov only), plus page links from the Sources tab into Explorer's saved copies of cited PDFs. The owner widened E12-lite (D17) from page links to watched documents plus page links on 2026-11-03; the frozen contract is [the E12-lite design](docs/superpowers/specs/2026-11-03-e12-lite-watched-documents-design.md).
 - The list and its copies live under `watched-documents/` (`rrc-watch-list-v1`). Copies are written once and never overwritten or deleted.
-- Network requests happen only inside a Check now run the owner started: one request per watched address, sequentially, through `src/sourceFetch.mjs`. There is no scheduler, startup hook or network retry loop; the only timer is a bounded local retry of a held `watch-list.json` rename.
+- Network requests happen only inside a Check now run the owner started: one request per watched address, sequentially, through `src/sourceFetch.mjs`. There is no scheduler, startup hook or network retry loop, and no server-side timer except a bounded local retry of a held `watch-list.json` rename; the browser polls only while a check the owner started is running.
 - Addresses must be `https:` on `rrc.texas.gov` or a subdomain of it; the rule is enforced when a document is added and again at fetch time.
 - Local only (D7): the guest and hosted runtimes expose no watch route.
 - Nothing under `artifacts/` or `collected-sources/` is written, and no dataset version or Analytics package changes.

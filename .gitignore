@@ -37,3 +37,4 @@ Thumbs.db
 
 # E12-lite: interrupted watch-store temp writes (never copies)
 watched-documents/.partial/
+watched-documents/watch-list.json.tmp

@@ -7,7 +7,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {checkWatchedDocuments,checkDocument} from '../src/watchCheck.mjs';
 import {readWatchList,writeWatchList} from '../src/watchStore.mjs';
-import {emptyWatchList,addDocument,stopWatching,statusLabel,applyOutcome} from '../public/watch-list.js';
+import {emptyWatchList,addDocument,stopWatching,statusLabel,applyOutcome,markReviewed,addNote,editDocument} from '../public/watch-list.js';
 
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const tempRoot=async t=>{const dir=await mkdtemp(join(tmpdir(),'trrc-watch-check-'));t.after(()=>rm(dir,{recursive:true,force:true}));return dir;};
@@ -349,4 +349,60 @@ test('the check refuses injected fetch outside fixture mode before any request o
   assert.equal(calls.length,0);
   assert.deepEqual(await readFile(file),before);
   await assert.rejects(readdir(join(repoRoot,'watched-documents','checks')),{code:'ENOENT'});
+});
+
+// Final-review fix 1: another server instance (or a hand edit) may write the list while a run is fetching.
+// The run re-reads the list before its write and re-applies only its own outcomes, so nothing is lost.
+test('a list written by someone else mid-run keeps their review, note, stop and new row, plus this run\'s outcomes', async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});
+  await run(repoRoot,{[PAGE_URL]:HTML2,[PDF_URL]:PDF1},{checkId:'check-2'});
+  const NEW_ID='cccccccccccc',NEW_URL='https://www.rrc.texas.gov/media/x/new.pdf';
+  let edited=null;
+  // The edit runs inside the PDF fetch, so it lands after the run read the list and before its write.
+  const editThenPdf=async()=>{
+    // Between the run's start and its write: review + note on the page, stop the PDF, add a new row.
+    let list=await readWatchList({repoRoot});
+    const page=docOf(list,PAGE_ID),changeId=page.history.findLast(ev=>ev.type==='change').id;
+    const reviewed=addNote(markReviewed(page,{note:'Read it',now:'2026-11-03T11:00:00.000Z'}),{changeId,note:'Rule 3.15 added',now:'2026-11-03T11:00:01.000Z'});
+    list={...list,documents:list.documents.map(doc=>doc.id===PAGE_ID?reviewed:doc)};
+    list=stopWatching(list,PDF_ID,{now:'2026-11-03T11:00:02.000Z'});
+    list=addDocument(list,{url:NEW_URL,name:'New form',kind:'form'},{now:'2026-11-03T11:00:03.000Z',id:NEW_ID,via:'owner'});
+    await writeWatchList({repoRoot},list);edited=list;
+    return new Response(PDF1,{status:200});
+  };
+  const {record,list}=await checkWatchedDocuments({repoRoot,fetchImpl:fetchFrom({[PAGE_URL]:HTML2,[PDF_URL]:editThenPdf}),testFixture:true,now:times(),checkId:'check-3'});
+  assert.ok(edited,'the list was edited mid-run');
+  assert.deepEqual(record.results.map(r=>[r.doc_id,r.outcome]),[[PAGE_ID,'same'],[PDF_ID,'same']]);
+  const page=docOf(list,PAGE_ID),pdf=docOf(list,PDF_ID);
+  // The review and the note survive, and this run's outcome is appended after them.
+  assert.equal(page.status.change_state,'reviewed');
+  assert.deepEqual(page.history.findLast(ev=>ev.type==='change').review,{at:'2026-11-03T11:00:00.000Z',note:'Read it'});
+  assert.deepEqual(page.history.slice(-2).map(ev=>ev.type),['note','same']);
+  assert.equal(page.history.at(-2).note,'Rule 3.15 added');
+  assert.deepEqual(page.history.at(-1).source,{type:'check',check_id:'check-3'});
+  // A row stopped mid-run still records the outcome this run saw (history is append-only).
+  assert.equal(pdf.watched,false);
+  assert.deepEqual(pdf.history.slice(-2).map(ev=>ev.type),['stopped','same']);
+  // A row the run never processed is exactly as the other writer left it.
+  assert.deepEqual(docOf(list,NEW_ID),docOf(edited,NEW_ID));
+  // The returned list is the list on disk.
+  assert.deepEqual(await readWatchList({repoRoot}),list);
+});
+
+test('a change outcome re-applied onto a list written mid-run keeps its fields and sets the new latest', async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});
+  const renameThenPdf=async()=>{
+    const list=await readWatchList({repoRoot});
+    await writeWatchList({repoRoot},editDocument(list,PDF_ID,{name:'UIC manual (renamed)',kind:'manual'},{now:'2026-11-03T11:00:00.000Z'}));
+    return new Response(PDF2,{status:200});
+  };
+  const {list}=await checkWatchedDocuments({repoRoot,fetchImpl:fetchFrom({[PAGE_URL]:HTML2,[PDF_URL]:renameThenPdf}),testFixture:true,now:times(),checkId:'check-2'});
+  const page=docOf(list,PAGE_ID),pdf=docOf(list,PDF_ID);
+  assert.equal(page.history.at(-1).type,'change');assert.equal(page.latest.sha256,sha(HTML2));assert.equal(page.status.change_state,'changed');
+  assert.equal(pdf.name,'UIC manual (renamed)');
+  assert.deepEqual(pdf.history.slice(-2).map(ev=>ev.type),['edited','change']);
+  assert.equal(pdf.history.at(-1).previous_sha256,sha(PDF1));assert.equal(pdf.latest.sha256,sha(PDF2));
+  assert.deepEqual(await readWatchList({repoRoot}),list);
 });

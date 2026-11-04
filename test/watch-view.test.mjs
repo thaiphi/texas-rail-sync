@@ -152,3 +152,23 @@ test('the screen is wired: nav link, view section and guest-mode hiding',async()
  assert.match(index,/<section id="watch-view" class="view" aria-labelledby="watch-title" hidden>/);
  assert.match(app,/if\(guestMode\)[^\n]*data-route="watch"/);
 });
+
+// Final-review fix 3: a text diff needs both copies to be web pages; a PDF address that became a page
+// (or the reverse) gets the fixed PDF text, and app.js loads no diff for it.
+test('a change between a PDF and a web page shows the fixed PDF text, not a diff',()=>{
+ const pdfToHtml=changed(fixtureDoc(),'html'),ev=pdfToHtml.history.at(-1);
+ assert.match(ev.previous_path,/\.pdf$/);assert.match(ev.path,/\.html$/);
+ const html=render({list:{schema:'rrc-watch-list-v1',documents:[pdfToHtml]},expanded:new Set([pdfToHtml.id]),diffs:new Map()});
+ assert.match(html,/Changed: the file is different\. Open both copies to compare\./);
+ assert.doesNotMatch(html,/diff-add|diff-del|Loading the text comparison|watch-diff-host/);
+ const htmlToPdf=changed(fixtureDoc({path:'watched-documents/copies/'+'a'.repeat(64)+'.html'}),'pdf');
+ assert.equal(view.textDiffable(htmlToPdf.history.at(-1)),false);
+ assert.equal(view.textDiffable(ev),false);
+ assert.equal(view.textDiffable(changed(fixtureDoc({path:'watched-documents/copies/'+'a'.repeat(64)+'.html'}),'html').history.at(-1)),true);
+});
+
+test('app.js loads diffs only for changes textDiffable allows',async()=>{
+ const app=await readFile(new URL('public/app.js',root),'utf8');
+ assert.match(app,/import \{[^}]*\btextDiffable\b[^}]*\} from '\.\/watch-view\.js'/);
+ assert.match(app,/item\.type==='change'&&textDiffable\(item\)/);
+});

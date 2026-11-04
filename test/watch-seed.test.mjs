@@ -6,9 +6,9 @@ import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {SEED_DOCUMENTS,buildSeedList} from '../src/watchSeed.mjs';
+import {SEED_DOCUMENTS,buildSeedList,ownerHistory} from '../src/watchSeed.mjs';
 import {writeWatchList,readWatchList} from '../src/watchStore.mjs';
-import {documentId,validateWatchList} from '../public/watch-list.js';
+import {documentId,validateWatchList,addDocument,markReviewed,addNote,applyOutcome,stopWatching} from '../public/watch-list.js';
 
 const repoRoot=fileURLToPath(new URL('../',import.meta.url));
 const NOW='2026-11-03T00:00:00.000Z';
@@ -135,4 +135,49 @@ test('committed watch-list.json deep-equals a fresh seed (no field depends on no
   const fresh=await buildSeedList({repoRoot,now:NOW});
   // The seed takes every timestamp from the sidecars (added_at = first copy), so no field depends on now.
   assert.deepEqual(committed,fresh);
+});
+
+// Final-review fix 5: seed-watch-list --force must never replace a list that holds owner history.
+test('ownerHistory is null for a pure seed and names the first owner history it finds', async ()=>{
+  const seeded=await buildSeedList({repoRoot,now:NOW});
+  assert.equal(ownerHistory(seeded),null,'a pure seed may be replaced with --force');
+  const committed=JSON.parse(await readFile(join(repoRoot,'watched-documents','watch-list.json'),'utf8'));
+  assert.equal(ownerHistory(committed),null);
+  const res=seeded.documents.find(d=>d.history.some(e=>e.type==='change'));
+  const change=res.history.find(e=>e.type==='change');
+  const swap=doc=>({...seeded,documents:seeded.documents.map(d=>d.id===doc.id?doc:d)});
+  const reviewed=swap(markReviewed(res,{note:'',now:NOW}));
+  assert.match(ownerHistory(reviewed),/review/);
+  const noted=swap(addNote(markReviewed(res,{note:'ok',now:NOW}),{changeId:change.id,note:'n',now:NOW}));
+  assert.ok(ownerHistory(noted));
+  const checked=swap(applyOutcome(res,{type:'failed',at:NOW,reason:'timeout',http_status:null,source:{type:'check',check_id:'c1'}}));
+  assert.match(ownerHistory(checked),/check/);
+  assert.ok(ownerHistory(stopWatching(seeded,res.id,{now:NOW})),'a stop event has no collection source');
+  const added=addDocument(seeded,{url:'https://www.rrc.texas.gov/media/x/new.pdf',name:'New',kind:'form'},{now:NOW,id:'cccccccccccc',via:'owner'});
+  assert.match(ownerHistory(added),/added/);
+});
+
+test('seed-watch-list --force refuses a list with owner history and leaves it byte-identical', async t=>{
+  const {spawnSync}=await import('node:child_process');
+  const root=await tempRoot(t);
+  // A minimal copy of the repo layout the script resolves from its own location.
+  for(const file of ['scripts/seed-watch-list.mjs','src/watchSeed.mjs','src/watchStore.mjs','public/watch-list.js','public/html-text.js']){
+    await mkdir(join(root,file,'..'),{recursive:true});await copyFile(join(repoRoot,file),join(root,file));
+  }
+  await copyFile(join(repoRoot,'package.json'),join(root,'package.json'));
+  await copyRuns(root,[FULL_RUN]);
+  const seeded=await buildSeedList({repoRoot:root,now:NOW});
+  const run=()=>spawnSync(process.execPath,[join(root,'scripts','seed-watch-list.mjs'),'--force'],{encoding:'utf8'});
+  await writeWatchList({repoRoot:root},seeded);
+  const pure=run();
+  assert.equal(pure.status,0,pure.stderr);
+  const res=seeded.documents.find(d=>d.id===seeded.documents[1].id);
+  const owned={...seeded,documents:seeded.documents.map(d=>d.id===res.id?applyOutcome(d,{type:'failed',at:NOW,reason:'timeout',http_status:null,source:{type:'check',check_id:'c1'}}):d)};
+  await writeWatchList({repoRoot:root},owned);
+  const file=join(root,'watched-documents','watch-list.json'),before=await readFile(file);
+  const refused=run();
+  assert.equal(refused.status,1);
+  assert.match(refused.stderr,/owner history/);
+  assert.doesNotMatch(refused.stderr,/at .*\.mjs:\d+/,'a plain message, no stack trace');
+  assert.deepEqual(await readFile(file),before);
 });
