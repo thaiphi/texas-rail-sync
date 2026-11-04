@@ -1,6 +1,6 @@
 # E12-lite design: watched official RRC documents and page links
 
-Date: 2026-11-03. Status: **draft for owner approval.** Built from the owner's brainstorming answers on 2026-11-03. Anything marked *(Main's call)* was not decided by the owner and can be overruled while reading.
+Date: 2026-11-03. Status: **draft for owner approval** (builder check done; its points are settled in sections 3.1, 4, 6, 7 and 10). Built from the owner's brainstorming answers on 2026-11-03. Anything marked *(Main's call)* was not decided by the owner and can be overruled while reading.
 
 - **Authority:** [PRD](../../expansion-prd-2026-10-17.md) §RRC-E12, cut to E12-lite by the [v1.1 review](../../expansion-prd-review-v1.1-2026-10-17.md) D17. Full E12 (text extraction, OCR, document index) belongs to `ai-swd-permitting` (AI-02/AI-04) and stays out. This design widens E12-lite from "page links" to "watched documents plus page links" on the owner's instruction. It needs a new tracker row (**RRC-18**, proposed) and a scope line in `SPEC.md` and `AGENTS.md` (section 9).
 - **Baseline:** `origin/main` at `0933590`.
@@ -62,7 +62,13 @@ Explorer saves official RRC documents with every collection (UIC manual, BHP gui
 
 The owner wanted pages "where RRC announces new rules and procedures" on the list too. Main suggested the RRC Proposed Rules page but has **not verified its address**. *(Main's call:)* it is not seeded. The owner adds it through the Add box (section 3.2) as the first real use of that feature, after checking the address in a browser.
 
-**History seed** *(Main's call)*: on first use, Explorer builds each seeded document's history from the copies already committed under `collected-sources/` (11 collections, matched by URL), using their existing `.source.json` sidecars. It does this without any network request. The table then opens already showing the real 10-10 → 10-29 change to Injection-Storage Resources as "Changed, not reviewed". Seeded copies are referenced where they already sit and are never copied or modified. Each history entry's source is labelled "from collection `<run id>`" rather than "from Check now".
+**History seed** *(Main's call)*:
+- **When it runs:** once, during the build. It is a one-off script (for example `scripts/seed-watch-list.mjs`), and its output `watched-documents/watch-list.json` is committed in the PR. The app only reads the file on GET; the server's GET paths stay read-only. The file is written only on owner actions: Check now, Add, Stop watching and Mark reviewed, all of them POSTs.
+- **What it reads:** each seeded document's history comes from the copies already committed under `collected-sources/` (11 collections, matched by URL), using their existing `.source.json` sidecars. It makes no network request.
+- **Result:** the table opens already showing the real 10-10 → 10-29 change to Injection-Storage Resources as "Changed, not reviewed".
+- **Seeded copies:** referenced where they already sit, never copied or modified.
+- **Labels:** each history entry's source reads "from collection `<run id>`" rather than "from Check now".
+- **Status after seeding:** the second and later identical copies in the seed count as checks, so a document seen more than once with the same hash reads **Unchanged**. A document seen once reads "Watched since".
 
 ### 3.2 Adding, removing and duplicates
 
@@ -84,7 +90,12 @@ The owner wanted pages "where RRC announces new rules and procedures" on the lis
   - redirects refused, 30 s timeout, 10 MB cap, the SHA-256 and sidecar fields, `testFixture` for tests;
   - the Socrata app token is never sent, since no watched address is `data.texas.gov`.
   - `src/sourceFetch.mjs` currently says "Targets come only from sources.mjs". The builder extends that rule to "…or from the validated watch list (section 3.2)". The address check must run again at fetch time, not only when a document is added.
-- **No retry loop.** A 429 or any failure marks the row **Check failed** with a plain reason (unreachable, HTTP status, too large, redirect refused, timeout). The last good copy and status stay as they were, and the failure is recorded in history.
+- **Two separate fields** *(Main's call)*: each document has a **change state** (Not yet checked, Watched since, Unchanged, Changed, Changed (markup only), Reviewed) and, separately, a **last check result** (ok, failed with reason, saved copy damaged). A failure never replaces the change state, so an unreviewed change stays visible.
+- **No retry loop.** A 429 or any failure sets the last check result to **Check failed** with a plain reason: unreachable, HTTP status, too large, redirect refused or timeout. The change state and the last good copy stay as they were, and the failure is recorded in history.
+- **Damaged copy** *(Main's call)*:
+  - Before comparing, the check re-hashes the latest good copy on disk (only that copy; older copies are verified when someone opens them).
+  - If the hash doesn't match the record, the last check result is **Saved copy damaged**, and the fetched bytes are compared against the *recorded* hash, not the damaged file.
+  - The fresh copy is then written under `watched-documents/copies/` with its own hash. If its hash equals the recorded one, the latest good copy is re-pointed to it; this is the only repair. The damaged file is never overwritten or deleted, and nothing under `collected-sources/` is touched.
 - **Comparison, per document:**
   - Same SHA-256 as the latest good copy: **Unchanged**. The new bytes are not stored again; the history records "checked, same".
   - Different SHA-256: save the new copy and mark the row **Changed, not reviewed**.
@@ -118,16 +129,16 @@ The owner wanted pages "where RRC announces new rules and procedures" on the lis
 
 **Columns:** Document (name, with a link to the official page ↗), Kind, Status, Dates, Last checked.
 
-- **Status** is one of:
+- **Status** shows the change state, one of:
   - Not yet checked
   - Watched since `<date>`
   - Unchanged
   - ⚠ Changed, not reviewed
   - Changed (markup only), not reviewed
   - Reviewed `<date>`
-  - Check failed
   - No longer watched
-- **Rows needing attention sort first.** That means changed and not reviewed, then failed; the rest follow by name.
+- **Last check result** appears beside the status when it isn't ok, for example "⚠ Changed, not reviewed · last check failed (HTTP 404)" or "Unchanged · saved copy damaged".
+- **Rows needing attention sort first.** That means changed and not reviewed, then saved copy damaged, then failed; the rest follow by name.
 - **Dates:** each date is labelled with its source.
   - "Server: 2026-06-02" (`Last-Modified`).
   - "Changed between 10-10 and 10-29": the last check that saw the old copy and the first check that saw the new one.
@@ -140,6 +151,7 @@ The owner wanted pages "where RRC announces new rules and procedures" on the lis
 
 **Mark reviewed:**
 - The button sits on the newest unreviewed change. It takes an optional note and records the time.
+- **One press covers every unreviewed change up to the newest** *(Main's call)*. The row shows "Changed, not reviewed" while any change is unreviewed. Each covered change records the same review.
 - The row shows "Reviewed `<date>`" until a later check finds a new change, which flips it back to "⚠ Changed, not reviewed".
 - Each change keeps its own review.
 - A review can't be edited or removed *(Main's call)*. A follow-up note is added instead.
@@ -150,6 +162,10 @@ The owner wanted pages "where RRC announces new rules and procedures" on the lis
 
 ## 7. Page links into saved PDFs
 
+- **Which modes** *(Main's call)*:
+  - Page links work wherever the Sources tab opens a verified PDF copy. That includes the local app, the hosted guest view and datasets saved in the browser, because they need only the version's own bytes in the browser and no watch route.
+  - The "newer version exists" note uses the local `watch-list.json`, so it appears only in the local app.
+  - The local Sources links today use `?download=1`, which forces a download. Page links need an inline way to open the copy.
 - **Where they appear:**
   - In the dataset **Sources** tab, every recorded page citation becomes a link. Today that is the dictionary's `units_source: {url, pdf_pages: [18, 41, 42]}` for the UIC manual.
   - In the watched-document details, the copy links.
@@ -212,7 +228,11 @@ The owner wanted pages "where RRC announces new rules and procedures" on the lis
    - Mark reviewed persists across restarts.
    - A later change flips the row back to "Changed, not reviewed".
    - History keeps both changes and the note.
-5. **Tamper:** altering a saved copy's bytes makes opening it refuse with the fingerprint message, and the check reports it rather than treating the copy as the baseline.
+5. **Tamper:**
+   - Altering a saved copy's bytes makes opening it refuse with the fingerprint message.
+   - The next check shows "saved copy damaged" and compares against the recorded hash.
+   - The damaged file is left as it is; a matching fresh fetch becomes the new latest good copy.
+   - A failed check on a row with an unreviewed change still shows "Changed, not reviewed".
 6. **Page links:**
    - Each UIC manual citation (18, 41, 42) opens the version's own saved copy at that page in Chrome and Edge, or shows the truthful "opens at page 1" label (section 7).
    - The "newer version exists" note appears when a fixture adds a different-hash UIC manual copy.
