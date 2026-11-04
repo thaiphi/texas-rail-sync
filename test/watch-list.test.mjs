@@ -276,3 +276,42 @@ test('functions never mutate their inputs', ()=>{
   validateWatchList(withDoc);
   assert.equal(doc.history.length,0);
 });
+
+test('applyOutcome refuses paths the validator would refuse', ()=>{
+  const doc=newDoc(),sha='a'.repeat(64),good=`watched-documents/copies/${sha}.pdf`;
+  const bad=['artifacts/x.pdf','watched-documents/copies/../x','watched-documents\\copies\\x.pdf','collected-sources//x','',null];
+  for (const path of bad) {
+    assert.throws(()=>applyOutcome(doc,{type:'baseline',at:'t',sha256:sha,path:good,source:src,latest:{...latest(sha),path}}),{code:'REQUEST_INVALID'},`baseline latest ${path}`);
+    assert.throws(()=>applyOutcome(doc,{type:'baseline',at:'t',sha256:sha,path,source:src,latest:latest(sha)}),{code:'REQUEST_INVALID'},`baseline path ${path}`);
+  }
+  const based=baseline(doc);
+  for (const path of bad) {
+    assert.throws(()=>applyOutcome(based,{type:'change',at:'t',sha256:'b'.repeat(64),path,markup_only:false,source:src,latest:latest('b'.repeat(64))}),{code:'REQUEST_INVALID'},`change path ${path}`);
+    assert.throws(()=>applyOutcome(based,{type:'change',at:'t',sha256:'b'.repeat(64),path:good,markup_only:false,source:src,latest:{...latest('b'.repeat(64)),path}}),{code:'REQUEST_INVALID'},`change latest ${path}`);
+    assert.throws(()=>applyOutcome(based,{type:'damaged',at:'t',path,expected_sha256:sha,actual_sha256:'f'.repeat(64),source:src}),{code:'REQUEST_INVALID'},`damaged ${path}`);
+    assert.throws(()=>applyOutcome(based,{type:'repair',latest:{...latest(sha),path}}),{code:'REQUEST_INVALID'},`repair ${path}`);
+  }
+  // seeded copies under collected-sources/ are accepted
+  const seeded=applyOutcome(doc,{type:'baseline',at:'t',sha256:sha,path:'collected-sources/run-1/a.pdf',source:{type:'collection',run_id:'run-1'},latest:{...latest(sha),path:'collected-sources/run-1/a.pdf'}});
+  assert.equal(seeded.latest.path,'collected-sources/run-1/a.pdf');
+});
+
+test('addDocument refuses an id, via or now the validator would refuse', ()=>{
+  const ok={url:URL_A,name:'A',kind:'manual'};
+  for (const opts of [{now:'t',id:'NOT-AN-ID'},{now:'t',id:'aaaaaaaaaaa'},{now:'t',id:'AAAAAAAAAAAA'},{now:'t'},
+    {now:'t',id:'aaaaaaaaaaaa',via:'robot'},{now:'t',id:'aaaaaaaaaaaa',via:null},{id:'aaaaaaaaaaaa'},{now:'',id:'aaaaaaaaaaaa'},{now:5,id:'aaaaaaaaaaaa'}])
+    assert.throws(()=>addDocument(emptyWatchList(),ok,opts),{code:'REQUEST_INVALID'},JSON.stringify(opts));
+});
+
+test('every model function returns a list the validator accepts', ()=>{
+  let list=baseList();
+  const put=fn=>{list={...list,documents:list.documents.map(fn)};validateWatchList(list);};
+  validateWatchList(list);
+  put(baseline);put(same);put(doc=>change(doc));put(doc=>failed(doc));put(doc=>damaged(doc));
+  put(doc=>applyOutcome(doc,{type:'repair',latest:latest('b'.repeat(64))}));
+  put(doc=>markReviewed(doc,{note:'n',now:'t'}));
+  put(doc=>addNote(doc,{changeId:doc.history.find(ev=>ev.type==='change').id,note:'n',now:'t'}));
+  for (const step of [l=>stopWatching(l,'aaaaaaaaaaaa',{now:'t'}),l=>rewatch(l,'aaaaaaaaaaaa',{now:'t'}),l=>editDocument(l,'aaaaaaaaaaaa',{name:' Renamed ',kind:'form'},{now:'t'}),
+    l=>addDocument(l,{url:URL_B,name:'B',kind:'guidance'},{now:'t',id:'bbbbbbbbbbbb',via:'seed'})]) { list=step(list); validateWatchList(list); }
+  assert.equal(list.documents.length,2);
+});

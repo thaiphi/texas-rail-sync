@@ -7,6 +7,7 @@
 export const WATCH_LIST_SCHEMA='rrc-watch-list-v1';
 export const KINDS=Object.freeze({manual:'Manual',guidance:'Guidance',form:'Form',announcements:'Announcements'});
 export const NAME_MAX=120,NOTE_MAX=2000;
+export const ID_PATTERN=/^[0-9a-f]{12}$/,ADDED_VIA=Object.freeze(['seed','owner']);
 export const PATH_ROOTS=Object.freeze(['watched-documents/copies/','collected-sources/']);
 const EVENT_FIELDS={
  baseline:['at','sha256','path','source'],
@@ -78,7 +79,9 @@ export function addDocument(list,{url,name,kind}={},{now,id,via='owner'}={}){
  const normalized=normalizeWatchAddress(url),cleanName=checkName(name);checkKind(kind);
  const existing=list.documents.find(doc=>doc.url===normalized);
  if(existing)fail('WATCH_DUPLICATE',`This address is already on the list as "${existing.name}".`,{existingId:existing.id});
- if(typeof id!=='string'||!id)invalid('A document id is required.');
+ if(typeof id!=='string'||!ID_PATTERN.test(id))invalid('A document id must be 12 lower-case hex characters.');
+ if(!ADDED_VIA.includes(via))invalid('A document is added by the seed or the owner.');
+ if(typeof now!=='string'||!now)invalid('The time a document is added is required.');
  if(list.documents.some(doc=>doc.id===id))fail('WATCH_DUPLICATE','This document id is already on the list.',{existingId:id});
  const doc=withStatus({id,url:normalized,name:cleanName,kind,watched:true,added_at:now,added_via:via,latest:null,history:[]});
  return {...structuredClone(list),documents:[...structuredClone(list.documents),doc]};
@@ -109,11 +112,13 @@ export const editDocument=(list,id,{name,kind}={},{now}={})=>updateDocument(list
 // a change id is minted as `<doc id>-c<n>` when the caller gives none; review always starts null.
 export function applyOutcome(doc,outcome){
  const copy=structuredClone(doc),type=outcome?.type,newLatest=outcome?.latest;
- if(type==='repair'){if(!isObject(newLatest))invalid('A repair needs the copy to point to.');return withStatus({...copy,latest:structuredClone(newLatest)});}
+ const checkLatest=()=>{if(!isObject(newLatest)||!isStoredPath(newLatest.path))invalid('A new copy needs its latest record, stored under watched-documents/copies/ or collected-sources/.');};
+ if(type==='repair'){checkLatest();return withStatus({...copy,latest:structuredClone(newLatest)});}
  if(!RESULT_TYPES.has(type))invalid('Unknown check outcome.');
  if(type==='baseline'&&copy.latest)invalid('This document already has a first copy.');
  if((type==='same'||type==='change'||type==='damaged')&&!copy.latest)invalid('This document has no saved copy yet.');
- if((type==='baseline'||type==='change')&&!isObject(newLatest))invalid('A new copy needs its latest record.');
+ if(type==='baseline'||type==='change')checkLatest();
+ if((type==='baseline'||type==='change'||type==='damaged')&&!isStoredPath(outcome.path))invalid('A copy path must be stored under watched-documents/copies/ or collected-sources/.');
  if(type==='failed'&&(typeof outcome.reason!=='string'||!outcome.reason))invalid('A failed check needs a reason.');
  let event={type,...pick(structuredClone(outcome),EVENT_FIELDS[type])};
  if(type==='change'){
@@ -157,7 +162,7 @@ export function validateWatchList(input){
  copy.documents=copy.documents.map((doc,index)=>{
   const where=`document ${index+1}`;
   if(!isObject(doc))refuse(`${where} is not an object`);
-  if(typeof doc.id!=='string'||!/^[0-9a-f]{12}$/.test(doc.id))refuse(`${where} has a bad id`);
+  if(typeof doc.id!=='string'||!ID_PATTERN.test(doc.id))refuse(`${where} has a bad id`);
   let url=null;try{url=normalizeWatchAddress(doc.url);}catch{}
   if(url===null||url!==doc.url)refuse(`${where} has an address outside the watch rule`);
   if(ids.has(doc.id)||urls.has(doc.url))refuse(`${where} repeats an id or address`);
