@@ -1,0 +1,889 @@
+{
+  "schema": "rrc-watch-list-v1",
+  "documents": [
+    {
+      "id": "c0ad60b6acc9",
+      "url": "https://www.rrc.texas.gov/media/v3onmigl/uic_manual_uia010_3116.pdf",
+      "name": "UIC manual (UIA010)",
+      "kind": "manual",
+      "watched": true,
+      "added_at": "2026-10-10T05:37:34.611Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+        "bytes": 1077385,
+        "path": "collected-sources/7aecd619-c19b-48ad-b354-832f5cc0cca0/uic-manual.pdf",
+        "retrieved_at": "2026-10-10T05:37:34.611Z",
+        "last_modified": "Tue, 02 Jun 2026 17:37:44 GMT",
+        "etag": "\"1dcf2b684d89489\"",
+        "source": {
+          "type": "collection",
+          "run_id": "7aecd619-c19b-48ad-b354-832f5cc0cca0"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-10T05:37:34.611Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "path": "collected-sources/7aecd619-c19b-48ad-b354-832f5cc0cca0/uic-manual.pdf",
+          "source": {
+            "type": "collection",
+            "run_id": "7aecd619-c19b-48ad-b354-832f5cc0cca0"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-10T12:35:23.562Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "df804201-eb4a-4aa5-8ef2-c550c6a70627"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:52.858Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:55.512Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "fbee3ba0-9d68-4572-9331-7a545cbbade7"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:57.548Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "b911ce3c-2d6d-430e-bee0-8b3cb8cc7465"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:15.937Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:19.406Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:22.715Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:26.029Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:39.899Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:03.289Z",
+          "sha256": "09f3744d1ae5ea6ba98e07e6f32d545c2a04fe3e2959bed60b401bfdff7a492c",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:03.289Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "80b511129d5a",
+      "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/resources/",
+      "name": "Injection-Storage Resources",
+      "kind": "announcements",
+      "watched": true,
+      "added_at": "2026-10-10T05:37:34.974Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+        "bytes": 49035,
+        "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/rrc-resources.html",
+        "retrieved_at": "2026-10-29T07:31:53.304Z",
+        "last_modified": null,
+        "etag": null,
+        "source": {
+          "type": "collection",
+          "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-10T05:37:34.974Z",
+          "sha256": "d8173dcf819e194260145bc9de7e0e461fb8e9e9b420c4b49274cbfdcfa4d2d1",
+          "path": "collected-sources/7aecd619-c19b-48ad-b354-832f5cc0cca0/rrc-resources.html",
+          "source": {
+            "type": "collection",
+            "run_id": "7aecd619-c19b-48ad-b354-832f5cc0cca0"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-10T12:35:23.686Z",
+          "sha256": "d8173dcf819e194260145bc9de7e0e461fb8e9e9b420c4b49274cbfdcfa4d2d1",
+          "source": {
+            "type": "collection",
+            "run_id": "df804201-eb4a-4aa5-8ef2-c550c6a70627"
+          }
+        },
+        {
+          "type": "change",
+          "id": "80b511129d5a-c1",
+          "at": "2026-10-29T07:31:53.304Z",
+          "previous_sha256": "d8173dcf819e194260145bc9de7e0e461fb8e9e9b420c4b49274cbfdcfa4d2d1",
+          "previous_path": "collected-sources/7aecd619-c19b-48ad-b354-832f5cc0cca0/rrc-resources.html",
+          "previous_seen_at": "2026-10-10T12:35:23.686Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/rrc-resources.html",
+          "markup_only": false,
+          "source": {
+            "type": "collection",
+            "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          },
+          "review": null
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:55.637Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "fbee3ba0-9d68-4572-9331-7a545cbbade7"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:57.681Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "b911ce3c-2d6d-430e-bee0-8b3cb8cc7465"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:16.082Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:19.470Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:22.777Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:26.093Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:39.985Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:03.350Z",
+          "sha256": "237547a1903f2c7f684d2020756d2ba9547133bf38ba13c230764c479e94fec9",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "changed",
+        "last_result": {
+          "at": "2026-10-30T01:38:03.350Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "eb79214f8892",
+      "url": "https://webapps2.rrc.texas.gov/EWA/help/UICGeneralHowTo.html",
+      "name": "UIC query help",
+      "kind": "guidance",
+      "watched": true,
+      "added_at": "2026-10-10T05:37:35.206Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+        "bytes": 42272,
+        "path": "collected-sources/7aecd619-c19b-48ad-b354-832f5cc0cca0/uic-query-help.html",
+        "retrieved_at": "2026-10-10T05:37:35.206Z",
+        "last_modified": "Fri, 17 Apr 2026 15:25:08 GMT",
+        "etag": null,
+        "source": {
+          "type": "collection",
+          "run_id": "7aecd619-c19b-48ad-b354-832f5cc0cca0"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-10T05:37:35.206Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "path": "collected-sources/7aecd619-c19b-48ad-b354-832f5cc0cca0/uic-query-help.html",
+          "source": {
+            "type": "collection",
+            "run_id": "7aecd619-c19b-48ad-b354-832f5cc0cca0"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-10T12:35:24.011Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "df804201-eb4a-4aa5-8ef2-c550c6a70627"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:53.508Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:55.716Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "fbee3ba0-9d68-4572-9331-7a545cbbade7"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:57.766Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "b911ce3c-2d6d-430e-bee0-8b3cb8cc7465"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:16.306Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:19.570Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:22.861Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:28.869Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:40.263Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:03.681Z",
+          "sha256": "563b33af66a36b52d20a1773ec2004b42d2217ad4404a83b2fbb639520efc16d",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:03.681Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "db7a3929588b",
+      "url": "https://www.rrc.texas.gov/oil-and-gas/applications-and-permits/injection-storage-permits/oil-and-gas-waste-disposal/injection-disposal-permit-procedures/technical-review/step-rate-test-guidelines/",
+      "name": "Step-rate test guidelines",
+      "kind": "guidance",
+      "watched": true,
+      "added_at": "2026-10-29T07:31:54.064Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+        "bytes": 46388,
+        "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/srt-guidelines.html",
+        "retrieved_at": "2026-10-29T07:31:54.064Z",
+        "last_modified": null,
+        "etag": null,
+        "source": {
+          "type": "collection",
+          "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-29T07:31:54.064Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/srt-guidelines.html",
+          "source": {
+            "type": "collection",
+            "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:56.279Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "fbee3ba0-9d68-4572-9331-7a545cbbade7"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:58.311Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "b911ce3c-2d6d-430e-bee0-8b3cb8cc7465"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:16.923Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:20.245Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:23.424Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:29.383Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:40.940Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:04.206Z",
+          "sha256": "caef891d686288afd66571f8130591fc5d7628b0a9929c0b30bc1d9d93ed5369",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:04.206Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "ce06467403d5",
+      "url": "https://www.rrc.texas.gov/media/sm5bzzpg/nto-disposal-well-monitoring-reporting-requirements-in-the-permian-basin-12-19-2023.pdf",
+      "name": "BHP monitoring NTO (Permian)",
+      "kind": "guidance",
+      "watched": true,
+      "added_at": "2026-10-29T07:31:54.299Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+        "bytes": 183088,
+        "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/bhp-permian-nto.pdf",
+        "retrieved_at": "2026-10-29T07:31:54.299Z",
+        "last_modified": "Tue, 02 Jun 2026 17:37:01 GMT",
+        "etag": "\"1dcf2b66b2557b0\"",
+        "source": {
+          "type": "collection",
+          "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-29T07:31:54.299Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "path": "collected-sources/a8606089-cd03-4c22-9161-11dd443331a8/bhp-permian-nto.pdf",
+          "source": {
+            "type": "collection",
+            "run_id": "a8606089-cd03-4c22-9161-11dd443331a8"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:56.442Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "fbee3ba0-9d68-4572-9331-7a545cbbade7"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T07:31:58.463Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "b911ce3c-2d6d-430e-bee0-8b3cb8cc7465"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:17.006Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:20.349Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:23.507Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:29.474Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:41.283Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:04.292Z",
+          "sha256": "728baacda48c9f0d8f3ef1b67f18332a76c9ec52bd9dc395c6e2ba42af00d83c",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:04.292Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "1f7b242d21f6",
+      "url": "https://www.rrc.texas.gov/media/cx2i4xrm/wba091_well-bore-database.pdf",
+      "name": "Wellbore database manual (WBA091)",
+      "kind": "manual",
+      "watched": true,
+      "added_at": "2026-10-29T19:04:17.921Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+        "bytes": 804319,
+        "path": "collected-sources/903b89ff-452c-422c-87cf-ae3e4260b733/wellbore-wba091.pdf",
+        "retrieved_at": "2026-10-29T19:04:17.921Z",
+        "last_modified": "Tue, 02 Jun 2026 17:36:08 GMT",
+        "etag": "\"1dcf2b64b9c31df\"",
+        "source": {
+          "type": "collection",
+          "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-29T19:04:17.921Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "path": "collected-sources/903b89ff-452c-422c-87cf-ae3e4260b733/wellbore-wba091.pdf",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:21.153Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:24.307Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:30.109Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:42.263Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:05.223Z",
+          "sha256": "71891d48dede8a82c9ac73d2c35710de28ec18737598bd7e0cce9fd4fa027e24",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:05.223Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "68a9f0857cbe",
+      "url": "https://www.rrc.texas.gov/media/sdbph42m/w-2-0114.pdf",
+      "name": "Form W-2",
+      "kind": "form",
+      "watched": true,
+      "added_at": "2026-10-29T19:04:18.055Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+        "bytes": 59078,
+        "path": "collected-sources/903b89ff-452c-422c-87cf-ae3e4260b733/form-w2.pdf",
+        "retrieved_at": "2026-10-29T19:04:18.055Z",
+        "last_modified": "Tue, 02 Jun 2026 17:37:04 GMT",
+        "etag": "\"1dcf2b66cf186c6\"",
+        "source": {
+          "type": "collection",
+          "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-29T19:04:18.055Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "path": "collected-sources/903b89ff-452c-422c-87cf-ae3e4260b733/form-w2.pdf",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:21.237Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:24.386Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:30.246Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:42.351Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:05.292Z",
+          "sha256": "46e753d3f47444291f2f3ff9b2af6d8b436b760cb1d309484117d80b228819c1",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:05.292Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    },
+    {
+      "id": "9350e188ddd5",
+      "url": "https://www.rrc.texas.gov/media/lw0bmny4/w-3p.pdf",
+      "name": "Form W-3",
+      "kind": "form",
+      "watched": true,
+      "added_at": "2026-10-29T19:04:18.140Z",
+      "added_via": "seed",
+      "latest": {
+        "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+        "bytes": 117481,
+        "path": "collected-sources/903b89ff-452c-422c-87cf-ae3e4260b733/form-w3.pdf",
+        "retrieved_at": "2026-10-29T19:04:18.140Z",
+        "last_modified": "Tue, 02 Jun 2026 17:37:03 GMT",
+        "etag": "\"1dcf2b66c590369\"",
+        "source": {
+          "type": "collection",
+          "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+        }
+      },
+      "history": [
+        {
+          "type": "baseline",
+          "at": "2026-10-29T19:04:18.140Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "path": "collected-sources/903b89ff-452c-422c-87cf-ae3e4260b733/form-w3.pdf",
+          "source": {
+            "type": "collection",
+            "run_id": "903b89ff-452c-422c-87cf-ae3e4260b733"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:21.321Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "source": {
+            "type": "collection",
+            "run_id": "b477a317-a6bb-4ab9-b059-ac2e5d61b12d"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:24.488Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "source": {
+            "type": "collection",
+            "run_id": "edce4598-1396-49f0-9829-96271fa93249"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-29T19:04:30.332Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "source": {
+            "type": "collection",
+            "run_id": "70983258-9751-4e79-bb78-1a1cb7068e14"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:16:42.441Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "source": {
+            "type": "collection",
+            "run_id": "d04894d1-5c27-4392-b3f7-42a399c7fbe1"
+          }
+        },
+        {
+          "type": "same",
+          "at": "2026-10-30T01:38:05.378Z",
+          "sha256": "c4a6d98222b00fed17be9c561135f7b60b13b707636b9f5d733eabfde9396131",
+          "source": {
+            "type": "collection",
+            "run_id": "b7628a71-03fe-4a16-928c-033353e1fce0"
+          }
+        }
+      ],
+      "status": {
+        "change_state": "unchanged",
+        "last_result": {
+          "at": "2026-10-30T01:38:05.378Z",
+          "outcome": "ok"
+        },
+        "watched": true
+      }
+    }
+  ]
+}
