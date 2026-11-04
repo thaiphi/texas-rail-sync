@@ -36,7 +36,7 @@ test('pinned version: three links to the preserved uic-manual.pdf at pages 18, 4
  assert.deepEqual(result.map(link=>link.href),[18,41,42].map(page=>`${base}sources/uic-manual.pdf#page=${page}`));
  for(const link of result){
   assert.ok(!link.href.includes('download=1'));
-  assert.equal(link.label,`Page ${link.page}`);
+  assert.equal(link.label,`PDF page ${link.page}`);
   assert.equal(link.fallbackLabel,null);assert.equal(link.newer,null);assert.equal(link.unavailable,null);
   assert.equal(link.rawFile,'sources/uic-manual.pdf');assert.equal(link.official,manual.url);
  }
@@ -133,7 +133,7 @@ test('Sources downloads and ledger HTML are unchanged apart from the added Cited
   assert.equal(after[index],old.slice(0,cut)+added+old.slice(cut));
   assert.match(added,/^<p class="cited-pages">Cited pages: /);
   assert.ok(!added.includes(' download'),'page links never download');
-  for(const page of [18,41,42])assert.ok(added.includes(`href="${base}sources/uic-manual.pdf#page=${page}" target="_blank" rel="noopener">Page ${page}</a>`));
+  for(const page of [18,41,42])assert.ok(added.includes(`href="${base}sources/uic-manual.pdf#page=${page}" target="_blank" rel="noopener">PDF page ${page}</a>`));
   assert.ok(added.includes(`<a href="${escape(manual.url)}" target="_blank" rel="noreferrer">Official page ↗</a>`));
  });
  // The preserved-response link keeps its download behaviour exactly.
@@ -141,6 +141,6 @@ test('Sources downloads and ledger HTML are unchanged apart from the added Cited
  assert.ok(manualCard.includes(`<a class="button-link" href="${base}sources/uic-manual.pdf?download=1" download="uic-manual.pdf">View preserved response</a>`));
  // Fallback and newer note render as text, escaped.
  const fallback=links.renderSourceCards({sources:manifest.sources,citations:cite({pageJump:false,watchList:watchListWith([baseline(),change('c0ad60b6acc9-c1',manual.sha256,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z','f'.repeat(64))])}),...renderHelpers});
- assert.match(fallback,/>Page 41 <small>\(opens at page 1; cited page 41\)<\/small><\/a>/);
+ assert.match(fallback,/>PDF page 41 <small>\(opens at page 1; cited page 41\)<\/small><\/a>/);
  assert.equal((fallback.match(/A newer version exists/g)??[]).length,1,'the newer note appears once per card');
 });

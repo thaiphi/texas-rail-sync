@@ -32,7 +32,7 @@ export function citationLinks({dictionary,sources,hrefFor,pageJump,watchList=nul
  const inline=source?hrefFor(source.raw_file)||null:null;
  const newer=inline?newerCopy({watchList,url:citation.url,source,formatDate}):null;
  return citation.pdf_pages.map(page=>({
-  label:`Page ${page}`,page,official:citation.url??null,rawFile:inline?source.raw_file:null,
+  label:`PDF page ${page}`,page,official:citation.url??null,rawFile:inline?source.raw_file:null,
   href:inline?(pageJump?`${inline}#page=${page}`:inline):null,
   fallbackLabel:inline&&!pageJump?fallbackLabel(page):null,
   newer,unavailable:inline?null:UNAVAILABLE,
