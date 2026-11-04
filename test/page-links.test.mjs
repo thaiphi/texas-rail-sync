@@ -2,6 +2,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {buildSeedList} from '../src/watchSeed.mjs';
 import {escapeHtml as escape,formatNumber as fmt} from '../public/inspection.js';
 import {sourceUrl} from '../public/presentation.js';
 const links=await import('../public/page-links.js').catch(()=>({}));
@@ -85,8 +87,8 @@ test('newer copy in the watch list shows the fixed note; same hash shows none; n
   for(const link of cite({watchList:watchListWith(history)}))assert.equal(link.newer,null);
  // The cited hash is in the history but no change follows it: no note.
  assert.equal(cite({watchList:watchListWith([baseline(A),change('c0ad60b6acc9-c1',A,'2026-10-20T00:00:00Z','2026-10-12T00:00:00Z',manual.sha256),same(manual.sha256,'2026-10-25T00:00:00Z')])})[0].newer,null);
- // Same hash (the committed seeded list today): no note.
- const seeded=await readJson('watched-documents/watch-list.json');
+ // Same hash (the seeded list, built fresh from the committed collected-sources): no note.
+ const seeded=await buildSeedList({repoRoot:fileURLToPath(root),now:'2026-11-03T00:00:00.000Z'});
  assert.equal(seeded.documents.find(doc=>doc.id==='c0ad60b6acc9').latest.sha256,manual.sha256);
  for(const link of cite({watchList:seeded}))assert.equal(link.newer,null);
  // No watch list (guest, hosted or the request failed): no note.

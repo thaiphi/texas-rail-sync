@@ -130,19 +130,32 @@ test('seed refuses sidecars that disagree on the address', async t=>{
   await assert.rejects(buildSeedList({repoRoot:root,now:NOW}),error=>{assert.equal(error.code,'WATCH_SEED_INVALID');assert.match(error.message,/uic-manual/);return true;});
 });
 
-test('committed watch-list.json deep-equals a fresh seed (no field depends on now)', async ()=>{
+// watch-list.json is live data: every Check now, review, note, edit, stop or rewatch appends to it. What must stay
+// true is that the seed is still inside it: the same seeded rows, each history starting with the seed's history.
+test('committed watch-list.json is valid and still starts with a fresh seed (owner history only appended)', async ()=>{
   const committed=JSON.parse(await readFile(join(repoRoot,'watched-documents','watch-list.json'),'utf8'));
+  assert.doesNotThrow(()=>validateWatchList(committed));
   const fresh=await buildSeedList({repoRoot,now:NOW});
-  // The seed takes every timestamp from the sidecars (added_at = first copy), so no field depends on now.
-  assert.deepEqual(committed,fresh);
+  // A review fills a seeded change's review field in place; every other field of a seeded event never changes.
+  const withoutReview=ev=>{const {review,...rest}=ev;return rest;};
+  for(const seed of fresh.documents){
+    const doc=committed.documents.find(item=>item.id===seed.id);
+    assert.ok(doc,`seeded document ${seed.id} is in the committed list`);
+    // An edit event may rename or re-kind a row; the latest edit wins, otherwise the seed's name and kind hold.
+    const edit=doc.history.filter(ev=>ev.type==='edited').at(-1);
+    assert.deepEqual({id:doc.id,url:doc.url,name:doc.name,kind:doc.kind,added_at:doc.added_at,added_via:doc.added_via},
+      {id:seed.id,url:seed.url,name:edit?.name??seed.name,kind:edit?.kind??seed.kind,added_at:seed.added_at,added_via:seed.added_via});
+    assert.ok(doc.history.length>=seed.history.length,`${seed.id} keeps its seed history`);
+    assert.deepEqual(doc.history.slice(0,seed.history.length).map(withoutReview),seed.history.map(withoutReview),`${seed.id} history begins with the seed history`);
+    for(const ev of doc.history.slice(seed.history.length))
+      assert.ok(['note','edited','stopped','rewatched'].includes(ev.type)||(ev.source&&ev.source.type!=='collection'),`${seed.id}: an appended ${ev.type} event is owner history, not a collection`);
+  }
 });
 
 // Final-review fix 5: seed-watch-list --force must never replace a list that holds owner history.
-test('ownerHistory is null for a pure seed and names the first owner history it finds', async ()=>{
+test('ownerHistory is null for a fresh seed and names the first owner history it finds on built lists', async ()=>{
   const seeded=await buildSeedList({repoRoot,now:NOW});
   assert.equal(ownerHistory(seeded),null,'a pure seed may be replaced with --force');
-  const committed=JSON.parse(await readFile(join(repoRoot,'watched-documents','watch-list.json'),'utf8'));
-  assert.equal(ownerHistory(committed),null);
   const res=seeded.documents.find(d=>d.history.some(e=>e.type==='change'));
   const change=res.history.find(e=>e.type==='change');
   const swap=doc=>({...seeded,documents:seeded.documents.map(d=>d.id===doc.id?doc:d)});

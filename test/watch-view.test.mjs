@@ -2,12 +2,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {buildSeedList} from '../src/watchSeed.mjs';
 import {htmlToText} from '../public/html-text.js';
 import {applyOutcome,markReviewed,addNote,deriveStatus} from '../public/watch-list.js';
 const view=await import('../public/watch-view.js').catch(()=>({}));
 
 const root=new URL('../',import.meta.url);
-const seeded=async()=>JSON.parse(await readFile(new URL('watched-documents/watch-list.json',root),'utf8'));
+// The seeded list is built fresh from the committed collected-sources: watch-list.json itself is live data.
+const seeded=()=>buildSeedList({repoRoot:fileURLToPath(root),now:'2026-11-03T00:00:00.000Z'});
 const formatDate=value=>new Date(value).toISOString().slice(5,10);
 const render=options=>view.renderWatchView({running:null,lastCheck:null,lastRun:null,formatDate,expanded:new Set(),diffs:null,...options});
 const resourcesId='80b511129d5a',changeId='80b511129d5a-c1';
@@ -20,7 +23,7 @@ function fixtureDoc({id='aaaaaaaaaaaa',name='Fixture',kind='form',path='watched-
 }
 const changed=(doc,ext='pdf')=>applyOutcome(doc,{type:'change',at:at(1,3),previous_seen_at:at(1,2),sha256:'b'.repeat(64),path:`watched-documents/copies/${'b'.repeat(64)}.${ext}`,markup_only:false,source:{type:'check',check_id:'c2'},latest:{sha256:'b'.repeat(64),bytes:4,path:`watched-documents/copies/${'b'.repeat(64)}.${ext}`,retrieved_at:at(1,3),last_modified:null,etag:null,source:{type:'check',check_id:'c2'}}});
 
-test('seeded list renders Injection-Storage Resources first as ⚠ Changed, not reviewed with its date range',async()=>{
+test('fresh seeded list renders Injection-Storage Resources first as ⚠ Changed, not reviewed with its date range',async()=>{
  assert.equal(typeof view.renderWatchView,'function');
  const list=await seeded(),html=render({list});
  const rows=rowNames(html);assert.equal(rows.length,8);assert.equal(rows[0],resourcesId);
@@ -39,7 +42,7 @@ test('seeded list renders Injection-Storage Resources first as ⚠ Changed, not 
  assert.match(first,/<button[^>]*aria-expanded="false"[^>]*aria-controls="watch-details-80b511129d5a"/);
 });
 
-test('summary line counts watched, changed-not-reviewed and failed',async()=>{
+test('summary line counts watched, changed-not-reviewed and failed on the fresh seeded list',async()=>{
  assert.equal(typeof view.watchSummary,'function');
  const list=await seeded();
  assert.match(view.watchSummary(list,null,formatDate),/· 8 watched · 1 changed, not reviewed · 0 failed$/);
