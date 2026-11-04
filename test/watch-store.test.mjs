@@ -98,3 +98,44 @@ test('stored paths use forward slashes on every platform', async t=>{
   const bad=structuredClone(list);bad.documents[0].latest.path=saved.path.replaceAll('/','\\');
   await assert.rejects(writeWatchList({repoRoot},bad),codeOf('WATCH_LIST_INVALID'));
 });
+
+// A writer that leaves half the bytes on disk and then fails, like a crash or a full disk.
+const failingWriter=async(path,data,options)=>{const bytes=Buffer.from(data);await writeFile(path,bytes.subarray(0,Math.floor(bytes.length/2)),options);throw Object.assign(Error('no space left on device'),{code:'ENOSPC'});};
+const exists=async path=>{try{await readFile(path);return true;}catch(error){if(error.code==='ENOENT')return false;throw error;}};
+
+test('a failed copy write leaves no final file and the next identical save succeeds', async t=>{
+  const repoRoot=await tempRoot(t),final=join(repoRoot,'watched-documents','copies',`${sha(PDF)}.pdf`);
+  await assert.rejects(saveCopy({repoRoot,writeTemp:failingWriter},PDF),codeOf('ENOSPC'));
+  assert.equal(await exists(final),false,'no truncated file under the final name');
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents','.partial')),[],'the temp file is removed on failure');
+  const saved=await saveCopy({repoRoot},PDF);
+  assert.equal(saved.reused,false);
+  assert.deepEqual(await readVerifiedCopy({repoRoot},saved.path,saved.sha256),PDF);
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents','.partial')),[],'the temp file is removed on success');
+  assert.deepEqual(await saveCopy({repoRoot},PDF),{...saved,reused:true});
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents','copies')),[`${sha(PDF)}.pdf`],'only final names in copies/');
+});
+
+test('a failed check record write leaves no record and the same id can be written', async t=>{
+  const repoRoot=await tempRoot(t),record={check_id:'c-1',results:[]};
+  await assert.rejects(writeCheckRecord({repoRoot,writeTemp:failingWriter},record),codeOf('ENOSPC'));
+  assert.equal(await exists(join(repoRoot,'watched-documents','checks','c-1.json')),false);
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents','.partial')),[]);
+  const path=await writeCheckRecord({repoRoot},record);
+  assert.deepEqual(JSON.parse(await readFile(join(repoRoot,path),'utf8')),record);
+  assert.deepEqual(await readdir(join(repoRoot,'watched-documents','.partial')),[]);
+});
+
+test('a stale temp file is never accepted as a stored copy', async t=>{
+  const repoRoot=await tempRoot(t);
+  await mkdir(join(repoRoot,'watched-documents','.partial'),{recursive:true});
+  await writeFile(join(repoRoot,'watched-documents','.partial','stale.partial'),PDF.subarray(0,5));
+  await assert.rejects(readVerifiedCopy({repoRoot},'watched-documents/.partial/stale.partial',sha(PDF)),codeOf('WATCH_PATH_INVALID'));
+  const saved=await saveCopy({repoRoot},PDF);
+  assert.equal(saved.reused,false,'a stale temp does not block the save');
+  const list=addDocument(emptyWatchList(),{url:'https://www.rrc.texas.gov/media/x/a.pdf',name:'A',kind:'form'},{now:'2026-11-03T00:00:00.000Z',id:'0123456789ab',via:'owner'});
+  const latest={sha256:saved.sha256,bytes:PDF.length,path:'watched-documents/.partial/stale.partial',retrieved_at:'2026-11-03T00:00:00.000Z',last_modified:null,etag:null,source:{type:'check',check_id:'c1'}};
+  assert.throws(()=>applyOutcome(list.documents[0],{type:'baseline',at:latest.retrieved_at,sha256:saved.sha256,path:latest.path,source:latest.source,latest}),codeOf('REQUEST_INVALID'));
+  const bad=structuredClone(list);bad.documents[0].latest=latest;
+  await assert.rejects(writeWatchList({repoRoot},bad),codeOf('WATCH_LIST_INVALID'));
+});

@@ -130,7 +130,7 @@ test('seed refuses sidecars that disagree on the address', async t=>{
   await assert.rejects(buildSeedList({repoRoot:root,now:NOW}),error=>{assert.equal(error.code,'WATCH_SEED_INVALID');assert.match(error.message,/uic-manual/);return true;});
 });
 
-test('committed watch-list.json equals a fresh seed except added/now timestamps', async ()=>{
+test('committed watch-list.json deep-equals a fresh seed (no field depends on now)', async ()=>{
   const committed=JSON.parse(await readFile(join(repoRoot,'watched-documents','watch-list.json'),'utf8'));
   const fresh=await buildSeedList({repoRoot,now:NOW});
   // The seed takes every timestamp from the sidecars (added_at = first copy), so no field depends on now.
