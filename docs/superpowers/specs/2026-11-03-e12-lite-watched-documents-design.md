@@ -1,6 +1,6 @@
 # E12-lite design: watched official RRC documents and page links
 
-Date: 2026-11-03. Status: **draft for owner approval** (builder check done; its points are settled in sections 3.1, 4, 6, 7 and 10). Built from the owner's brainstorming answers on 2026-11-03. Anything marked *(Main's call)* was not decided by the owner and can be overruled while reading.
+Date: 2026-11-03. Status: **approved by the owner 2026-11-03**, including every (Main's call) item (builder check done; its points are settled in sections 3.1, 4, 6, 7 and 10). Built from the owner's brainstorming answers on 2026-11-03. Anything marked *(Main's call)* was not decided by the owner and can be overruled while reading.
 
 - **Authority:** [PRD](../../expansion-prd-2026-10-17.md) §RRC-E12, cut to E12-lite by the [v1.1 review](../../expansion-prd-review-v1.1-2026-10-17.md) D17. Full E12 (text extraction, OCR, document index) belongs to `ai-swd-permitting` (AI-02/AI-04) and stays out. This design widens E12-lite from "page links" to "watched documents plus page links" on the owner's instruction. It needs a new tracker row (**RRC-18**, proposed) and a scope line in `SPEC.md` and `AGENTS.md` (section 9).
 - **Baseline:** `origin/main` at `0933590`.
