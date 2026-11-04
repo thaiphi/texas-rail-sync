@@ -89,10 +89,20 @@ export async function readVerifiedCopy({repoRoot},path,expectedSha256){
  return bytes;
 }
 
-export async function writeCheckRecord({repoRoot,writeTemp},record){
- const id=record?.check_id;
+const checkPath=id=>{
  if(typeof id!=='string'||!CHECK_ID.test(id)||id.includes('..'))fail('REQUEST_INVALID','A check id must be letters, digits, dot, dash or underscore.');
- const path=`watched-documents/${CHECKS}/${id}.json`;
+ return `watched-documents/${CHECKS}/${id}.json`;
+};
+
+// Lets a check refuse a taken id before it fetches anything; writeCheckRecord still refuses at write time.
+export async function checkRecordExists({repoRoot},id){
+ const path=checkPath(id);
+ try{await lstat(resolve(repoRoot,...path.split('/')));return true;}
+ catch(error){if(error.code==='ENOENT')return false;throw error;}
+}
+
+export async function writeCheckRecord({repoRoot,writeTemp},record){
+ const id=record?.check_id,path=checkPath(id);
  if(!await writeOnce(repoRoot,path,JSON.stringify(record,null,2)+'\n',writeTemp))fail('WATCH_CHECK_EXISTS',`The check record ${id} already exists.`);
  return path;
 }

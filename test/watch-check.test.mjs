@@ -231,6 +231,52 @@ test('the fetch-time address gate fails a document outside the rule without fetc
   assert.deepEqual(await copies(repoRoot),[]);
 });
 
+test('A to B to A with copy A tampered: the change saves a repair-<check id> copy and the run carries on', async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});
+  await run(repoRoot,{[PAGE_URL]:HTML2,[PDF_URL]:PDF1},{checkId:'check-2'});
+  const copyA=join(repoRoot,`watched-documents/copies/${sha(HTML1)}.html`),tampered=Buffer.from('<html><p>tampered</p></html>');
+  await writeFile(copyA,tampered);
+  const third=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-3'});
+  assert.deepEqual(third.record.results.map(r=>[r.doc_id,r.outcome]),[[PAGE_ID,'change'],[PDF_ID,'same']]);
+  const page=docOf(third.list,PAGE_ID),change=page.history.at(-1);
+  assert.equal(change.type,'change');assert.equal(change.previous_sha256,sha(HTML2));
+  assert.equal(change.path,`watched-documents/copies/${sha(HTML1)}.repair-check-3.html`);
+  assert.equal(page.latest.path,change.path);assert.equal(page.latest.sha256,sha(HTML1));
+  assert.deepEqual(await readFile(join(repoRoot,change.path)),HTML1);
+  assert.deepEqual(await readFile(copyA),tampered,'the damaged file is untouched');
+  assert.equal(docOf(third.list,PDF_ID).status.last_result.outcome,'ok');
+  assert.deepEqual(await readWatchList({repoRoot}),third.list);
+  assert.deepEqual(JSON.parse(await readFile(join(repoRoot,'watched-documents/checks/check-3.json'),'utf8')),third.record);
+});
+
+test('a new row whose first copy collides with the damaged copy of another row saves a repair-<check id> baseline', async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  const first=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});
+  const damagedPdf=join(repoRoot,docOf(first.list,PDF_ID).latest.path),tampered=Buffer.from('%PDF-1.7\ntampered\n');
+  await writeFile(damagedPdf,tampered);
+  const NEW_URL='https://www.rrc.texas.gov/media/y/copy-of-manual.pdf',NEW_ID='cccccccccccc';
+  await writeWatchList({repoRoot},addDocument(first.list,{url:NEW_URL,name:'Manual copy',kind:'manual'},{now:'2026-11-03T00:00:00.000Z',id:NEW_ID,via:'owner'}));
+  const second=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF2,[NEW_URL]:PDF1},{checkId:'check-2'});
+  assert.deepEqual(second.record.results.map(r=>[r.doc_id,r.outcome]),[[PAGE_ID,'same'],[PDF_ID,'change'],[PDF_ID,'damaged'],[NEW_ID,'baseline']]);
+  const added=docOf(second.list,NEW_ID);
+  assert.equal(added.latest.path,`watched-documents/copies/${sha(PDF1)}.repair-check-2.pdf`);
+  assert.equal(added.history.at(-1).path,added.latest.path);assert.equal(added.status.change_state,'watched_since');
+  assert.deepEqual(await readFile(join(repoRoot,added.latest.path)),PDF1);
+  assert.deepEqual(await readFile(damagedPdf),tampered,'the damaged file is untouched');
+  assert.deepEqual(await readWatchList({repoRoot}),second.list);
+});
+
+test('a check id already used is refused before any fetch or write', async t=>{
+  const repoRoot=await tempRoot(t);await seedList(repoRoot);
+  await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});
+  const file=join(repoRoot,'watched-documents','watch-list.json'),before=await readFile(file),beforeCopies=await copies(repoRoot),calls=[];
+  await assert.rejects(run(repoRoot,{[PAGE_URL]:HTML2,[PDF_URL]:PDF2},{checkId:'check-1',calls}),error=>{assert.equal(error.code,'WATCH_CHECK_EXISTS');return true;});
+  assert.equal(calls.length,0);
+  assert.deepEqual(await readFile(file),before);
+  assert.deepEqual(await copies(repoRoot),beforeCopies);
+});
+
 test('damaged latest copy with a different fetch is a change against the recorded hash, never markup-only', async t=>{
   const repoRoot=await tempRoot(t);await seedList(repoRoot);
   const first=await run(repoRoot,{[PAGE_URL]:HTML1,[PDF_URL]:PDF1},{checkId:'check-1'});

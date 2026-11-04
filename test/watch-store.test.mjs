@@ -5,7 +5,7 @@ import {mkdtemp,mkdir,readFile,writeFile,rm,symlink,readdir} from 'node:fs/promi
 import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {readWatchList,writeWatchList,saveCopy,readVerifiedCopy,writeCheckRecord} from '../src/watchStore.mjs';
+import {readWatchList,writeWatchList,saveCopy,readVerifiedCopy,writeCheckRecord,checkRecordExists} from '../src/watchStore.mjs';
 import {emptyWatchList,addDocument,applyOutcome} from '../public/watch-list.js';
 
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -109,6 +109,14 @@ test('writeCheckRecord writes once under checks/ and refuses bad ids', async t=>
   assert.deepEqual(JSON.parse(await readFile(join(repoRoot,path),'utf8')),record,'never overwritten');
   for(const check_id of ['../x','a/b','a\\b','..','',null,'.hidden'])
     await assert.rejects(writeCheckRecord({repoRoot},{...record,check_id}),codeOf('REQUEST_INVALID'),String(check_id));
+});
+
+test('checkRecordExists answers for a written record and refuses bad ids', async t=>{
+  const repoRoot=await tempRoot(t);
+  assert.equal(await checkRecordExists({repoRoot},'check-1'),false);
+  await writeCheckRecord({repoRoot},{check_id:'check-1'});
+  assert.equal(await checkRecordExists({repoRoot},'check-1'),true);
+  for(const id of ['../x','a/b','',null])await assert.rejects(checkRecordExists({repoRoot},id),codeOf('REQUEST_INVALID'),String(id));
 });
 
 test('stored paths use forward slashes on every platform', async t=>{

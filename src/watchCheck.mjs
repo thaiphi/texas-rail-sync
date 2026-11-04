@@ -6,7 +6,7 @@
 // once at the end, then the check record is written once.
 import {randomUUID} from 'node:crypto';
 import {fetchSource} from './sourceFetch.mjs';
-import {readWatchList,writeWatchList,saveCopy,readVerifiedCopy,writeCheckRecord} from './watchStore.mjs';
+import {readWatchList,writeWatchList,saveCopy,readVerifiedCopy,writeCheckRecord,checkRecordExists} from './watchStore.mjs';
 import {normalizeWatchAddress,applyOutcome} from '../public/watch-list.js';
 import {htmlToText} from '../public/html-text.js';
 
@@ -17,6 +17,13 @@ const isPdf=bytes=>Buffer.from(bytes.buffer,bytes.byteOffset,bytes.byteLength).s
 const mentionsRedirect=error=>{for(let cause=error?.cause,depth=0;cause&&depth<5;cause=cause.cause,depth++)if(/redirect/i.test(String(cause.message??'')))return true;return false;};
 // saveCopy variants are /^[a-z0-9-]{1,64}$/; a check id (UUID by default) is folded into that alphabet.
 const repairVariant=checkId=>`repair-${String(checkId).toLowerCase().replace(/[^a-z0-9-]/g,'-')}`.slice(0,64);
+// Every copy the check writes goes through here. The plain content-addressed name is tried first; when a
+// damaged file already holds it (WATCH_COPY_CONFLICT: same name, different bytes), a write-once
+// copies/<sha256>.repair-<check id>.<ext> is saved instead, so one damaged file never stops a run.
+async function saveFresh(store,body,checkId){
+ try{return await saveCopy(store,body);}
+ catch(error){if(error?.code!=='WATCH_COPY_CONFLICT')throw error;return saveCopy({...store,variant:repairVariant(checkId)},body);}
+}
 const sameLines=(x,y)=>x.length===y.length&&x.every((line,index)=>line===y[index]);
 
 // A fetch error as the plain reason the table shows (§4).
@@ -29,7 +36,7 @@ function failureReason(error,status){
   case 'SOURCE_THROTTLED':return 'HTTP 429';
   case 'SOURCE_LIMIT':return 'too large';
   case 'SOURCE_INVALID':return 'empty response';
-  default:return 'unreachable';
+  default:return 'unreachable'; // any other throw before usable bytes reads as unreachable, on purpose
  }
 }
 
@@ -56,7 +63,7 @@ export async function checkDocument(original,{repoRoot,fetchImpl=fetch,testFixtu
   const latestFor=saved=>({sha256:metadata.sha256,bytes:metadata.bytes,path:saved.path,retrieved_at:metadata.retrieved_at,last_modified:metadata.last_modified,etag:metadata.etag,source});
   const previous=doc.latest;
   if(!previous){
-   const saved=await saveCopy(store,body);
+   const saved=await saveFresh(store,body,checkId);
    doc=applyOutcome(doc,{type:'baseline',at,sha256:metadata.sha256,path:saved.path,source,latest:latestFor(saved)});ok('baseline');
   }else{
    let oldBytes=null,broken=null;
@@ -65,16 +72,9 @@ export async function checkDocument(original,{repoRoot,fetchImpl=fetch,testFixtu
    if(metadata.sha256===previous.sha256){
     doc=applyOutcome(doc,{type:'same',at,sha256:metadata.sha256,source});ok('same');
     // The only repair: matching fresh bytes become the latest good copy under copies/; the damaged file stays.
-    // The plain name is tried first (seeded collected-sources rows, deleted copies); when the damaged file
-    // itself holds copies/<sha256>.<ext>, a write-once copies/<sha256>.repair-<check id>.<ext> is saved instead.
-    if(broken){
-     let repaired;
-     try{repaired=await saveCopy(store,body);}
-     catch(error){if(error?.code!=='WATCH_COPY_CONFLICT')throw error;repaired=await saveCopy({...store,variant:repairVariant(checkId)},body);}
-     doc=applyOutcome(doc,{type:'repair',latest:latestFor(repaired)});
-    }
+    if(broken)doc=applyOutcome(doc,{type:'repair',latest:latestFor(await saveFresh(store,body,checkId))});
    }else{
-    const saved=await saveCopy(store,body);
+    const saved=await saveFresh(store,body,checkId);
     const markup_only=oldBytes!==null&&!isPdf(oldBytes)&&!isPdf(body)&&sameLines(htmlToText(oldBytes.toString('utf8')),htmlToText(body.toString('utf8')));
     const previous_seen_at=doc.history.findLast(ev=>ev.sha256===previous.sha256)?.at??previous.retrieved_at??null;
     doc=applyOutcome(doc,{type:'change',at,previous_seen_at,sha256:metadata.sha256,path:saved.path,markup_only,source,latest:latestFor(saved)});ok('change');
@@ -92,8 +92,10 @@ export async function checkDocument(original,{repoRoot,fetchImpl=fetch,testFixtu
 export async function checkWatchedDocuments({repoRoot,fetchImpl=fetch,testFixture=false,now=()=>new Date().toISOString(),checkId=randomUUID(),onProgress=()=>{}}={}){
  // Refuse a mis-wired injected fetch before anything is read or written (fetchSource has the same rule).
  if(fetchImpl!==fetch&&!testFixture)throw Object.assign(Error('Injected responses require fixture mode'),{code:'SOURCE_INVALID'});
- const store={repoRoot},started_at=now();
- const list=await readWatchList(store),results=[];
+ const store={repoRoot};
+ // A check id is used once: refuse a taken one before any fetch, not after the run at writeCheckRecord.
+ if(await checkRecordExists(store,checkId))throw Object.assign(Error(`The check record ${checkId} already exists.`),{code:'WATCH_CHECK_EXISTS'});
+ const started_at=now(),list=await readWatchList(store),results=[];
  const watched=list.documents.filter(doc=>doc.watched!==false),total=watched.length;
  let done=0;
  for(const original of watched){
