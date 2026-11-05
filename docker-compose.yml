@@ -15,6 +15,7 @@ services:
       POSTGRES_PASSWORD: explorer-dev-only   # local development only; never reuse
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U explorer -d explorer"]
       interval: 5s
@@ -27,9 +28,10 @@ services:
     environment:
       PORT: "4391"
       TRRC_LISTEN_HOST: 0.0.0.0
-      TRRC_TRUSTED_REMOTE_ADDRESSES: 172.30.0.1   # the app network's gateway: where published-port traffic arrives from
+      TRRC_TRUSTED_REMOTE_ADDRESSES: ${SWD_GATEWAY:-172.30.0.1}   # the app network's gateway: where published-port traffic arrives from
       DATABASE_URL: postgres://explorer:explorer-dev-only@db:5432/explorer
       TRRC_SOCRATA_APP_TOKEN: ${TRRC_SOCRATA_APP_TOKEN:-}   # optional; read from your shell, never written to a file
+    restart: unless-stopped
     ports:
       - "127.0.0.1:4391:4391"
     depends_on:
@@ -40,6 +42,7 @@ services:
   analytics:
     build:
       context: docker/analytics
+    restart: unless-stopped
     ports:
       - "127.0.0.1:4290:4290"
     networks: [app]
@@ -48,8 +51,9 @@ networks:
   app:
     ipam:
       config:
-        - subnet: 172.30.0.0/24
-          gateway: 172.30.0.1
+        # Override both if this range is already used on your machine or VPN, e.g. SWD_SUBNET=172.31.9.0/24 SWD_GATEWAY=172.31.9.1
+        - subnet: ${SWD_SUBNET:-172.30.0.0/24}
+          gateway: ${SWD_GATEWAY:-172.30.0.1}
 
 volumes:
   pgdata:

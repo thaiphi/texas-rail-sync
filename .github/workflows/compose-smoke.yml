@@ -43,6 +43,19 @@ jobs:
           cat /tmp/no.json; echo; test "$code" = 403
           jq -e '.error.code=="ORIGIN_FORBIDDEN"' /tmp/no.json
 
+      - name: Explorer survives a Postgres restart and the index recovers
+        run: |
+          sleep 12   # let the healthcheck leave an idle pooled connection open
+          docker compose restart db
+          for i in $(seq 1 30); do
+            body=$(curl -fsS http://127.0.0.1:4391/api/health) && echo "$body" | jq -e '.database.status=="ok"' >/dev/null && break
+            sleep 2
+          done
+          echo "$body"
+          echo "$body" | jq -e '.database.status=="ok" and .database.runs>0'
+          test "$(docker compose ps --format '{{.Service}} {{.State}}' | grep '^explorer ' | awk '{print $2}')" = running
+          test "$(docker inspect --format '{{.RestartCount}}' $(docker compose ps -q explorer))" = 0
+
       - name: Analytics is up on the handoff origin
         run: |
           curl -fsS http://127.0.0.1:4290/ | head -c 400

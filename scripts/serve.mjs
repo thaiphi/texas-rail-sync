@@ -30,7 +30,8 @@ export function trustedAddressList(value){
  for(const item of list)if(!isIP(item))throw Error(`TRRC_TRUSTED_REMOTE_ADDRESSES: not an IP address: ${item}`);
  return Object.freeze([...new Set([...LOOPBACK,...list])]);
 }
-export const isSameOriginWrite=({address,port,host,origin,trusted=LOOPBACK})=>trusted.includes(address)&&[`127.0.0.1:${port}`,`localhost:${port}`,`[::1]:${port}`].includes(host)&&origin===`http://${host}`;
+const plainAddress=address=>String(address??'').replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i,'');
+export const isSameOriginWrite=({address,port,host,origin,trusted=LOOPBACK})=>trusted.some(item=>plainAddress(item)===plainAddress(address))&&[`127.0.0.1:${port}`,`localhost:${port}`,`[::1]:${port}`].includes(host)&&origin===`http://${host}`;
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.csv':'text/csv; charset=utf-8','.pdf':'application/pdf'};
 export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root,trustedAddresses=LOOPBACK,runIndex=null,onCheckError=()=>{},watchRenameFile}={}){
  // watchRoot switches the /api/watch* routes on; the store resolves watched-documents/ under repoRoot.
@@ -48,7 +49,11 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   if(!body||typeof body!=='object'||Array.isArray(body))throw apiError(400,'REQUEST_INVALID','Request object required');return body;
  }
  function guardWrite(req){
-  if(!isSameOriginWrite({address:req.socket.remoteAddress,port:req.socket.localPort,host:req.headers.host,origin:req.headers.origin,trusted:trustedAddresses}))throw apiError(403,'ORIGIN_FORBIDDEN','Same-origin loopback request required');
+  if(!isSameOriginWrite({address:req.socket.remoteAddress,port:req.socket.localPort,host:req.headers.host,origin:req.headers.origin,trusted:trustedAddresses})){
+   // Only with a configured address list (containers): makes a gateway mismatch visible. Peer address only, never headers.
+   if(trustedAddresses!==LOOPBACK)console.warn(`write refused from peer ${req.socket.remoteAddress}`);
+   throw apiError(403,'ORIGIN_FORBIDDEN','Same-origin loopback request required');
+  }
  }
  async function readRun(id){
   if(!/^[a-f0-9-]{36}$/i.test(id))throw Error('Invalid run');
@@ -171,7 +176,7 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
       await mkdir(sourceRoot,{recursive:true});const id=randomUUID(),artifactId=`rrc-${new Date().toISOString().slice(0,10)}-uic${scope.monthlyUic}-${id}`;
       const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture,appToken});
       const pins=JSON.parse(result.files['version-pins.json']);send(res,201,{artifactId,version:pins,run:result.record,scope:result.manifest.scope,realHistoryStatus:result.manifest.real_history_status});
-     }finally{collecting=false;await refreshIndex();}return;
+     }finally{collecting=false;void refreshIndex();}return;
     }catch(error){
      const status=error.status??WATCH_STATUS[error.code]??(error.record?502:error.code==='HTTP_ERROR'?502:error.code==='SOURCE_THROTTLED'?503:400),allowed=ALLOWED_CODES;
      const recognized=allowed.includes(error.code);send(res,status,{error:{code:recognized?error.code:'REQUEST_FAILED',message:error.record?'Collection did not complete; inspect retained run evidence.':recognized?error.message:'Requested source evidence is unavailable or invalid.'},...(error.record?{run:error.record}: {}),...(error.code==='WATCH_DUPLICATE'&&typeof error.existingId==='string'?{existingId:error.existingId}:{})});return;
@@ -229,5 +234,6 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
  const port=Number(process.argv[2]??process.env.PORT??4174),host=process.env.TRRC_LISTEN_HOST?.trim()||'127.0.0.1';
  const runIndex=process.env.DATABASE_URL?await connectRunIndex({connectionString:process.env.DATABASE_URL}):null;
  const server=createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root,trustedAddresses:trustedAddressList(process.env.TRRC_TRUSTED_REMOTE_ADDRESSES),runIndex});
+ if(!['127.0.0.1','::1','localhost'].includes(host))console.warn(`Listening on ${host}: publish this port on the host's loopback only (see docker-compose.yml).`);
  server.listen(port,host,()=>{console.log(`Texas RRC Explorer: http://127.0.0.1:${port}${host==='127.0.0.1'?'':` (listening on ${host})`}${runIndex?' · run index: Postgres':''}`);server.refreshIndex();});
 }
