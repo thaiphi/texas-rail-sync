@@ -88,4 +88,8 @@ Pressure means public reported injection pressure in source psi. Calendar-day ra
 
 ## License
 
-MIT (owner decision D19, 2026-11-05). See [LICENSE](LICENSE). Source data comes from the Railroad Commission of Texas and the Texas Open Data Portal and keeps its own terms.
+Copyright (c) 2026 Thai Phi. Licensed under the GNU Affero General Public License v3.0 only (AGPL-3.0-only); see [LICENSE](LICENSE). Anyone who distributes this software, or runs a modified version as a network service, must make its complete source available under the same licence. For use under other terms, contact the copyright holder.
+
+Owner decision D19, 2026-11-05. Versions up to commit `4b4977e` were briefly published under MIT on the same day; later versions are AGPL-3.0-only.
+
+Source data comes from the Railroad Commission of Texas and the Texas Open Data Portal and keeps its own terms.
