@@ -85,3 +85,7 @@ The fixed collection map shows source loading/preservation, normalization/linkag
 Actual terminal run records are preserved at `runs/<run-id>/record.json`; GET/HEAD `/api/runs` and `/api/runs/<run-id>` expose validated records. Demonstration fixtures cannot enter actual history. Each invocation has separate event IDs and times; failure records retain prior successes and downstream skips. Records are written at completion, so an interrupted process may leave no history; this is not continuous live monitoring. A history-write failure makes the CLI exit unsuccessfully even if artifact export completed, and does not invent an export failure or acknowledgement. Follow the printed diagnostic before relying on history availability.
 
 Pressure means public reported injection pressure in source psi. Calendar-day rates are calculated, not observed daily rates. Permit maxima are regulatory constraints, not sustainable capacity. ODP does not provide annulus fields or original H-10 document revision identities. No GIS, permitting, LLM, credentials or synthetic public records are included. Portfolio and deployment destinations are not configured because no verified destination was supplied.
+
+## License
+
+MIT (owner decision D19, 2026-11-05). See [LICENSE](LICENSE). Source data comes from the Railroad Commission of Texas and the Texas Open Data Portal and keeps its own terms.
