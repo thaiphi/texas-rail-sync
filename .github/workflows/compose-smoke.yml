@@ -1,0 +1,57 @@
+# Proves `docker compose up` starts the whole system (ZC-02, issue #38). No live RRC request is made.
+name: compose-smoke
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start Explorer, Analytics and Postgres
+        run: docker compose up --build --detach --wait --wait-timeout 180
+
+      - name: Explorer is up and its Postgres index is filled from the files
+        run: |
+          health=$(curl -fsS http://127.0.0.1:4391/api/health)
+          echo "$health"
+          echo "$health" | jq -e '.status=="ok" and .database.status=="ok" and .database.runs>0 and .database.versions>0'
+          curl -fsS http://127.0.0.1:4391/ | grep -q 'RRC'
+          curl -fsS http://127.0.0.1:4391/api/versions | jq -e '.versions|length>0'
+
+      - name: The index rows are really in Postgres
+        run: |
+          docker compose exec -T db psql -U explorer -d explorer -tAc "select count(*) from explorer_runs" | grep -qv '^0$'
+          docker compose exec -T db psql -U explorer -d explorer -tAc "select count(*) from explorer_versions where default_pinned" | grep -qx '1'
+
+      - name: Same-origin writes pass the guard through the published port; other origins stay refused
+        run: |
+          # An empty JSON object reaches request validation (400), which proves the guard accepted the peer and origin.
+          code=$(curl -s -o /tmp/ok.json -w '%{http_code}' -X POST http://127.0.0.1:4391/api/collect -H 'content-type: application/json' -H 'origin: http://127.0.0.1:4391' -d '{"unexpected":1}')
+          cat /tmp/ok.json; echo; test "$code" = 400
+          jq -e '.error.code=="REQUEST_INVALID"' /tmp/ok.json
+          code=$(curl -s -o /tmp/no.json -w '%{http_code}' -X POST http://127.0.0.1:4391/api/collect -H 'content-type: application/json' -H 'origin: https://evil.example' -d '{}')
+          cat /tmp/no.json; echo; test "$code" = 403
+          jq -e '.error.code=="ORIGIN_FORBIDDEN"' /tmp/no.json
+
+      - name: Analytics is up on the handoff origin
+        run: |
+          curl -fsS http://127.0.0.1:4290/ | head -c 400
+          curl -fsS -o /dev/null http://127.0.0.1:4290/
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail 200
+
+      - name: Stop
+        if: always()
+        run: docker compose down --volumes
