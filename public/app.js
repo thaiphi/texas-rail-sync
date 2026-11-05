@@ -64,9 +64,10 @@ updateAnalyticsControls();
 
 // E12-lite watched documents (spec §6, local only D7): screen state lives only in these variables; the server owns the list.
 // Imports from watch-view.js/html-text.js are used only inside functions that run on the #watch route.
-// E12-lite page links (spec §7). PAGE_JUMP records, per mode, whether #page=N was proven to open the cited page (Chrome 156, 2026-11-04, local and browser-saved; Edge, 2026-11-04, local copy checked by the owner; Edge browser-saved not checked)
-// (local: the /artifacts/ route served inline; saved: the browser-saved or guest blob URL). Unproven modes use the fallback label.
-const PAGE_JUMP=Object.freeze({local:true,saved:true});
+// E12-lite page links (spec §7). PAGE_JUMP records, per mode, whether #page=N was proven to open the cited page in every browser checked
+// (local: the /artifacts/ route served inline, proven in Chrome 156 and Edge on 2026-11-04; saved: the browser-saved or guest blob URL,
+// proven in Chrome only, Edge not checked, so the owner chose the fallback label on 2026-11-05). Unproven modes use the fallback label.
+const PAGE_JUMP=Object.freeze({local:true,saved:false});
 let sourcesWatchLoad=0;
 const watchState={data:null,error:null,expanded:new Set(),diffs:new Map(),pending:new Set(),add:null};let watchPollTimer=null,watchLoad=0;
 const watchDate=value=>localTime(value,{hour:undefined,minute:undefined,second:undefined,timeZoneName:undefined});

@@ -57,12 +57,14 @@ The cited UIC manual pages (18, 41, 42; `units_source` in the data dictionary) a
 | Edge | Local server copy | Opens at page 41 (checked by the owner, 2026-11-04) |
 | Edge | Browser-saved copy | Not checked |
 
+Because Edge was not checked with a browser-saved copy, the owner chose on 2026-11-05 not to rely on the page jump there. Links from a browser-saved or guest copy open the file at page 1 and are labelled "PDF page N (opens at page 1; cited page N)" in every browser. Links from the local server copy keep the jump to page N.
+
 ## Not covered
 
 - **A real failed fetch.** The live run had none. Failed fetches are covered only by fixture tests.
 - **A real PDF change.** No PDF changed. A changed PDF shows "Changed: the file is different. Open both copies to compare." (fixture tests only).
 - **A real damaged copy or repair.** Covered by fixture tests only.
-- **Edge with a browser-saved copy, and guest mode in either browser.**
+- **Edge with a browser-saved copy, and guest mode in either browser.** Browser-saved and guest links use the page-1 fallback label instead (owner choice, 2026-11-05).
 - **The automatic daily check.** It is future work (RRC-08) and was not built.
 - **A screen reader run.**
 - **Two Explorer servers running Check now on the same document at the same time.** The final review left this as a follow-up. Owner reviews and notes are kept either way, but a spurious second "Changed" entry is possible.
