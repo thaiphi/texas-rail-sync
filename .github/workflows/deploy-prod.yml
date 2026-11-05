@@ -56,7 +56,9 @@ jobs:
       - name: Deploy the trrc-explorer function
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase functions deploy trrc-explorer --project-ref "$PROJECT_REF" --no-verify-jwt
+        # CLI 3 picks the project with --remote and needs --yes for hosted changes; Docker bundling
+        # is the default, the same bundler `functions serve` uses in deploy-dev.
+        run: supabase functions deploy trrc-explorer --remote="$PROJECT_REF" --no-verify-jwt --yes
 
       - name: Smoke-test production
         run: |

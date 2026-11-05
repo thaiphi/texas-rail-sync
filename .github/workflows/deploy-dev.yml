@@ -37,7 +37,10 @@ jobs:
         run: |
           supabase functions deploy --help | tee deploy-help.txt
           grep -q -- '--no-verify-jwt' deploy-help.txt
-          grep -q -- '--use-docker' deploy-help.txt
+          grep -q -- '--remote' deploy-help.txt
+          grep -q -- '--yes' deploy-help.txt
+          # Docker bundling (what functions serve proves below) is the default; --use-api opts out.
+          grep -q -- '--use-api .*without using Docker' deploy-help.txt
 
       - name: Start the replica and apply supabase/migrations
         run: supabase start -x studio,mailpit,imgproxy,realtime,logflare,vector,supavisor,storage-api,postgres-meta
