@@ -1,0 +1,79 @@
+# Manual production deploy and rollback (ZC-04, issue #40). Run it from the Actions tab.
+# It deploys ONLY the trrc-explorer Edge Function to the Supabase project. It never runs
+# `db push`: the guest migration in supabase/migrations is deliberately not applied to
+# production. Rollback = run it again with an earlier commit. See docs/deployment.md.
+name: deploy-prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit on main to deploy (use an earlier one to roll back)
+        required: true
+        default: main
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+env:
+  PROJECT_REF: phxiqnsebqaalvkanljb
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Only commits on main whose tests passed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          git merge-base --is-ancestor "$sha" origin/main || { echo "::error::$sha is not on main"; exit 1; }
+          test=$(gh api "repos/${{ github.repository }}/commits/$sha/check-runs?check_name=test" -q '[.check_runs[]|select(.conclusion=="success")]|length')
+          [ "$test" -gt 0 ] || { echo "::error::the ci 'test' check did not pass on $sha"; exit 1; }
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+
+      - name: Supabase access token is configured
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: '[ -n "$SUPABASE_ACCESS_TOKEN" ] || { echo "::error::Add the SUPABASE_ACCESS_TOKEN secret to the production environment"; exit 1; }'
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+
+      - name: Deploy the trrc-explorer function
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy trrc-explorer --project-ref "$PROJECT_REF" --no-verify-jwt
+
+      - name: Smoke-test production
+        run: |
+          base="https://$PROJECT_REF.supabase.co/functions/v1/trrc-explorer"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o versions.json -w '%{http_code}' --max-time 30 "$base/api/versions") && [ "$code" = 200 ] && break; sleep 10
+          done
+          echo "GET /api/versions -> $code"
+          jq -e '.versions|length>0' versions.json
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/api/collect")
+          echo "POST /api/collect -> $code"; [ "$code" = 401 ]
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Production deploy of \`${SHA:-${{ inputs.ref }}}\`"
+            echo "Edge Function \`trrc-explorer\` on Supabase project \`$PROJECT_REF\`. Database untouched."
+            echo "Next: open Lovable and click **Publish** so the website matches. To roll back, run this workflow again with the previous commit."
+          } >> "$GITHUB_STEP_SUMMARY"
