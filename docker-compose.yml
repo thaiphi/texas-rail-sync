@@ -1,0 +1,59 @@
+# The whole system with one command: `docker compose up --build`  (ZC-02, issue #38)
+#   Explorer   http://127.0.0.1:4391   collects and verifies Texas RRC well data
+#   Analytics  http://127.0.0.1:4290   analyses an Explorer dataset handed over in the browser (ADR 003)
+#   Postgres   internal only           index of Explorer's collection runs and dataset versions
+# Ports are published on the host's loopback only: the Explorer → Analytics handoff checks these exact origins, and
+# Explorer's write routes trust the fixed network gateway below, which is safe only while nothing is published elsewhere.
+name: swd-system
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: explorer
+      POSTGRES_USER: explorer
+      POSTGRES_PASSWORD: explorer-dev-only   # local development only; never reuse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U explorer -d explorer"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [app]
+
+  explorer:
+    build: .
+    environment:
+      PORT: "4391"
+      TRRC_LISTEN_HOST: 0.0.0.0
+      TRRC_TRUSTED_REMOTE_ADDRESSES: ${SWD_GATEWAY:-172.30.0.1}   # the app network's gateway: where published-port traffic arrives from
+      DATABASE_URL: postgres://explorer:explorer-dev-only@db:5432/explorer
+      TRRC_SOCRATA_APP_TOKEN: ${TRRC_SOCRATA_APP_TOKEN:-}   # optional; read from your shell, never written to a file
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4391:4391"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [app]
+
+  analytics:
+    build:
+      context: docker/analytics
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4290:4290"
+    networks: [app]
+
+networks:
+  app:
+    ipam:
+      config:
+        # Override both if this range is already used on your machine or VPN, e.g. SWD_SUBNET=172.31.9.0/24 SWD_GATEWAY=172.31.9.1
+        - subnet: ${SWD_SUBNET:-172.30.0.0/24}
+          gateway: ${SWD_GATEWAY:-172.30.0.1}
+
+volumes:
+  pgdata:

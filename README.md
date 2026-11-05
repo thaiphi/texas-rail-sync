@@ -41,6 +41,22 @@ A dependency-free Node 24 acquisition/parser/export and browser inspection app f
 
 **Deadline:** Before October 14, 2026; delivery must be complete before that date.
 
+## Run the whole system (Docker)
+
+One command starts Explorer, SWD Injection Analytics and Postgres ([design](docs/superpowers/specs/2026-11-05-zc02-docker-compose-design.md), issue #38):
+
+```
+docker compose up --build
+```
+
+- Explorer: http://127.0.0.1:4391
+- Analytics: http://127.0.0.1:4290. Open a dataset in Explorer, then use **Downloads → Use in Injection Analytics**.
+- Postgres keeps an index of collection runs and dataset versions. It is shown on **Collection history** and at `/api/health`. The files in this repository stay the record.
+- Optional: export `TRRC_SOCRATA_APP_TOKEN` in your shell first. It is passed through and never written to a file.
+- Stop with `docker compose down`. Add `--volumes` to also drop the index.
+
+`.github/workflows/compose-smoke.yml` starts the same stack on every pull request.
+
 ## Run
 
 ```powershell

@@ -11,6 +11,9 @@ import {boundedRelationScope} from '../src/sources.mjs';
 import {collectPublicSnapshot} from '../src/acquisition.mjs';
 import {sha256} from '../src/normalize.mjs';
 import {randomUUID} from 'node:crypto';
+import {isIP} from 'node:net';
+// ZC-02: optional Postgres index of runs and versions (DATABASE_URL); files stay authoritative.
+import {connectRunIndex} from '../src/runIndex.mjs';
 import {mkdir} from 'node:fs/promises';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
 // E12-lite watched official RRC documents (local only, D7): routes exist only when watchRoot is given.
@@ -18,8 +21,19 @@ import {readWatchList,writeWatchList,readVerifiedCopy} from '../src/watchStore.m
 import {checkWatchedDocuments} from '../src/watchCheck.mjs';
 import {normalizeWatchAddress,documentId,addDocument,stopWatching,rewatch,editDocument,markReviewed,addNote,ID_PATTERN} from '../public/watch-list.js';
 const root=resolve(fileURLToPath(new URL('../',import.meta.url)));
+// Write routes accept only these peer addresses. The default is loopback; a container passes its network gateway
+// explicitly (TRRC_TRUSTED_REMOTE_ADDRESSES) and must publish its port on the host's loopback only (docker-compose.yml).
+export const LOOPBACK=Object.freeze(['127.0.0.1','::1','::ffff:127.0.0.1']);
+export function trustedAddressList(value){
+ const list=String(value??'').split(',').map(item=>item.trim()).filter(Boolean);
+ if(!list.length)return LOOPBACK;
+ for(const item of list)if(!isIP(item))throw Error(`TRRC_TRUSTED_REMOTE_ADDRESSES: not an IP address: ${item}`);
+ return Object.freeze([...new Set([...LOOPBACK,...list])]);
+}
+const plainAddress=address=>String(address??'').replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i,'');
+export const isSameOriginWrite=({address,port,host,origin,trusted=LOOPBACK})=>trusted.some(item=>plainAddress(item)===plainAddress(address))&&[`127.0.0.1:${port}`,`localhost:${port}`,`[::1]:${port}`].includes(host)&&origin===`http://${host}`;
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.csv':'text/csv; charset=utf-8','.pdf':'application/pdf'};
-export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root,onCheckError=()=>{},watchRenameFile}={}){
+export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root,trustedAddresses=LOOPBACK,runIndex=null,onCheckError=()=>{},watchRenameFile}={}){
  // watchRoot switches the /api/watch* routes on; the store resolves watched-documents/ under repoRoot.
  if(watchRoot!==null&&resolve(watchRoot)!==resolve(repoRoot,'watched-documents'))throw Error('watchRoot must be <repoRoot>/watched-documents');
  let collecting=false,lookingUp=false,watchBusy=false,running=null,lastRun=null;
@@ -35,8 +49,11 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   if(!body||typeof body!=='object'||Array.isArray(body))throw apiError(400,'REQUEST_INVALID','Request object required');return body;
  }
  function guardWrite(req){
-  const address=req.socket.remoteAddress,port=req.socket.localPort,host=req.headers.host;
-  if(!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(address)||![`127.0.0.1:${port}`,`localhost:${port}`,`[::1]:${port}`].includes(host)||req.headers.origin!==`http://${host}`)throw apiError(403,'ORIGIN_FORBIDDEN','Same-origin loopback request required');
+  if(!isSameOriginWrite({address:req.socket.remoteAddress,port:req.socket.localPort,host:req.headers.host,origin:req.headers.origin,trusted:trustedAddresses})){
+   // Only with a configured address list (containers): makes a gateway mismatch visible. Peer address only, never headers.
+   if(trustedAddresses!==LOOPBACK)console.warn(`write refused from peer ${req.socket.remoteAddress}`);
+   throw apiError(403,'ORIGIN_FORBIDDEN','Same-origin loopback request required');
+  }
  }
  async function readRun(id){
   if(!/^[a-f0-9-]{36}$/i.test(id))throw Error('Invalid run');
@@ -56,6 +73,17 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    versions.push({...pins,publicationPinsSha256:output.sha256,runId:record.runId,startedAt:record.startedAt,defaultPinned:false});seen.add(id);
   }catch{}}
   return versions;
+ }
+ async function listRuns(){
+  const runs=[];let unavailableRecords=0,entries=[];
+  try{entries=await readdir(runRoot,{withFileTypes:true});}catch(error){if(error.code!=='ENOENT')throw error;}
+  for(const entry of entries){if(!entry.isDirectory()){unavailableRecords++;continue;}try{const record=await readRun(entry.name);runs.push({runId:record.runId,startedAt:record.startedAt,endedAt:record.endedAt,mode:record.mode,status:record.status,testFixture:false,artifactId:record.events.find(e=>e.stage==='export'&&e.status==='succeeded')?.evidence.artifactId??null});}catch{unavailableRecords++;}}
+  runs.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)||b.runId.localeCompare(a.runId));return {runs,unavailableRecords};
+ }
+ // Refreshes the optional Postgres index from the files; an index failure never fails a request.
+ async function refreshIndex(){
+  if(!runIndex)return;
+  try{await runIndex.sync({runs:(await listRuns()).runs,versions:await listVersions()});}catch(error){console.error(`run index: ${error.code??'SYNC_FAILED'}`);}
  }
  // One watch write or check at a time; the list is re-read from disk on every request, never cached.
  const WATCH_FIELDS={check:[],add:['url','name','kind'],stop:['id'],rewatch:['id'],edit:['id','name','kind'],review:['id','note'],note:['id','changeId','note']};
@@ -129,7 +157,7 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   if(damaged)throw apiError(409,'WATCH_COPY_DAMAGED','This saved copy no longer matches its recorded fingerprint');
   throw Error('Unknown copy');
  }
- return createServer(async(req,res)=>{
+  const server=createServer(async(req,res)=>{
   try{
    const url=new URL(req.url,'http://localhost'),path=decodeURIComponent(url.pathname);
    const watchAction=watchRoot!==null&&req.method==='POST'?/^\/api\/watch\/([a-z]+)$/.exec(path)?.[1]:undefined;
@@ -148,13 +176,16 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
       await mkdir(sourceRoot,{recursive:true});const id=randomUUID(),artifactId=`rrc-${new Date().toISOString().slice(0,10)}-uic${scope.monthlyUic}-${id}`;
       const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture,appToken});
       const pins=JSON.parse(result.files['version-pins.json']);send(res,201,{artifactId,version:pins,run:result.record,scope:result.manifest.scope,realHistoryStatus:result.manifest.real_history_status});
-     }finally{collecting=false;}return;
+     }finally{collecting=false;void refreshIndex();}return;
     }catch(error){
      const status=error.status??WATCH_STATUS[error.code]??(error.record?502:error.code==='HTTP_ERROR'?502:error.code==='SOURCE_THROTTLED'?503:400),allowed=ALLOWED_CODES;
      const recognized=allowed.includes(error.code);send(res,status,{error:{code:recognized?error.code:'REQUEST_FAILED',message:error.record?'Collection did not complete; inspect retained run evidence.':recognized?error.message:'Requested source evidence is unavailable or invalid.'},...(error.record?{run:error.record}: {}),...(error.code==='WATCH_DUPLICATE'&&typeof error.existingId==='string'?{existingId:error.existingId}:{})});return;
     }
    }
    if(!['GET','HEAD'].includes(req.method))throw Error('Forbidden');
+   if(path==='/api/health'){
+    send(res,200,{schemaVersion:1,status:'ok',database:runIndex?await runIndex.status():{status:'off'}},req.method==='HEAD');return;
+   }
    if(path==='/api/versions'){
     send(res,200,{schemaVersion:1,versions:await listVersions()},req.method==='HEAD');return;
    }
@@ -180,10 +211,7 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    if(path==='/api/runs'||path.startsWith('/api/runs/')){
     let data;
     if(path==='/api/runs'){
-     const runs=[];let unavailableRecords=0,entries=[];
-     try{entries=await readdir(runRoot,{withFileTypes:true});}catch(error){if(error.code!=='ENOENT')throw error;}
-     for(const entry of entries){if(!entry.isDirectory()){unavailableRecords++;continue;}try{const record=await readRun(entry.name);runs.push({runId:record.runId,startedAt:record.startedAt,endedAt:record.endedAt,mode:record.mode,status:record.status,testFixture:false,artifactId:record.events.find(e=>e.stage==='export'&&e.status==='succeeded')?.evidence.artifactId??null});}catch{unavailableRecords++;}}
-     runs.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)||b.runId.localeCompare(a.runId));data={schemaVersion:1,runs,unavailableRecords};
+     data={schemaVersion:1,...await listRuns()};
     }else data=await readRun(path.slice('/api/runs/'.length));
     bytes=Buffer.from(JSON.stringify(data));headers={'content-type':'application/json; charset=utf-8'};
    }else{
@@ -200,5 +228,12 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    res.writeHead(200,headers);res.end(req.method==='HEAD'?undefined:bytes);
   }catch{res.writeHead(404,{'content-type':'text/plain'});res.end('File not found');}
  });
+ server.refreshIndex=refreshIndex;return server;
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){const port=Number(process.argv[2]??process.env.PORT??4174);createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root}).listen(port,'127.0.0.1',()=>console.log(`Texas RRC Explorer: http://127.0.0.1:${port}`));}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
+ const port=Number(process.argv[2]??process.env.PORT??4174),host=process.env.TRRC_LISTEN_HOST?.trim()||'127.0.0.1';
+ const runIndex=process.env.DATABASE_URL?await connectRunIndex({connectionString:process.env.DATABASE_URL}):null;
+ const server=createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root,trustedAddresses:trustedAddressList(process.env.TRRC_TRUSTED_REMOTE_ADDRESSES),runIndex});
+ if(!['127.0.0.1','::1','localhost'].includes(host))console.warn(`Listening on ${host}: publish this port on the host's loopback only (see docker-compose.yml).`);
+ server.listen(port,host,()=>{console.log(`Texas RRC Explorer: http://127.0.0.1:${port}${host==='127.0.0.1'?'':` (listening on ${host})`}${runIndex?' · run index: Postgres':''}`);server.refreshIndex();});
+}

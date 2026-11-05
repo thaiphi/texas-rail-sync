@@ -1,0 +1,16 @@
+**
+!package.json
+!LICENSE
+!public/**
+!src/**
+!scripts/**
+!lookups/**
+!artifacts/**
+!collected-sources/**
+!runs/**
+!watched-documents/**
+src/test/**
+src/hosted/**
+**/node_modules
+watched-documents/.partial/**
+watched-documents/watch-list.json.tmp

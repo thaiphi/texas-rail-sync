@@ -71,8 +71,17 @@ export async function mountWorkflow(manifest){
   context='dataset';datasetId=id;datasetVerified=true;manifest=verifiedManifest;associationKey=key;selector.disabled=true;selector.innerHTML=runId?`<option value="${escape(runId)}">Associated invocation ${escape(runId)}</option>`:'<option value="historical">No associated run record</option>';selector.value=runId??'historical';$('workspace-run-association').textContent=runId?`Associated dataset ${id} · run ${runId}. This is recorded execution, not the current collection request.`:`No successful run record is associated with dataset ${id}. Source retrieval evidence cannot establish historical stage success.`;void choose();
  }
  function showHistory(runId=null){if(context==='history'&&(!runId||runId===historySelected))return;context='history';datasetId=null;associationKey=null;selector.disabled=false;options();if(runId){historySelected=runId;if(!historyRuns.some(run=>run.runId===runId))selector.insertAdjacentHTML('beforeend',`<option value="${escape(runId)}">Requested invocation ${escape(runId)}</option>`);}selector.value=runId??(historyRuns.some(run=>run.runId===historySelected)?historySelected:'historical');void choose();}
+ // ZC-02: the optional Postgres run index (container setup). Absent or unreachable, the line stays hidden; files stay authoritative.
+ async function showIndex(){
+  const line=$('history-index');if(!line)return;
+  try{const health=await fetch('/api/health').then(response=>response.ok?response.json():null),db=health?.database;
+   if(db?.status==='ok'||db?.status==='degraded'){line.textContent=`Run index (Postgres): ${db.runs} runs and ${db.versions} dataset versions indexed${db.indexedAt?` at ${localTime(db.indexedAt)}`:''}${db.status==='degraded'?' · last refresh failed, showing the previous index':''}. The files remain the record.`;line.hidden=false;}
+   else line.hidden=true;
+  }catch{line.hidden=true;}
+ }
  async function refresh(){try{
   const history=await fetch('/api/runs').then(response=>{if(!response.ok)throw Error('Run history unavailable');return response.json();});
+  void showIndex();
   historyRuns=history.runs;if(context==='history'){options();selector.value=historyRuns.some(run=>run.runId===historySelected)?historySelected:'historical';}
   $('run-history-note').textContent=`${history.runs.length} recorded invocations. ${history.unavailableRecords?`${history.unavailableRecords} invalid or unavailable records excluded. `:''}Marked fixtures excluded. Record browsing stays on the explicitly selected dataset version.`;
   $('export-history').innerHTML=history.runs.length?`<ul class="export-history-list">${history.runs.map(run=>`<li><div>${escape(localTime(run.startedAt))} ${badge(run.status)}<small>${escape(modeLabel(run.mode))} · ${escape(run.artifactId??'No completed export')}</small></div><button type="button" data-run="${escape(run.runId)}" aria-label="Inspect run ${escape(run.runId)}">Inspect run</button></li>`).join('')}</ul>`:'<p class="note">No instrumented invocations available.</p>';
