@@ -57,6 +57,8 @@ docker compose up --build
 
 `.github/workflows/compose-smoke.yml` starts the same stack on every pull request.
 
+Dev and production deploys, rollback and the one-time owner setup are in [docs/deployment.md](docs/deployment.md).
+
 ## Run
 
 ```powershell

@@ -1,0 +1,95 @@
+# Automatic dev deploy (ZC-04, issue #40). After `ci` passes on main, the merged commit is
+# deployed to a throwaway Supabase replica inside this job (database, API gateway and Edge
+# runtime from the Supabase CLI), smoke-tested, and the website is built. Nothing stays
+# online and no hosted project is touched. See docs/deployment.md.
+name: deploy-dev
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: true
+
+jobs:
+  dev:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.0.0
+
+      - name: The production deploy command accepts the flags deploy-prod uses
+        run: |
+          supabase functions deploy --help | tee deploy-help.txt
+          grep -q -- '--no-verify-jwt' deploy-help.txt
+          grep -q -- '--remote' deploy-help.txt
+          grep -q -- '--yes' deploy-help.txt
+          # Docker bundling (what functions serve proves below) is the default; --use-api opts out.
+          grep -q -- '--use-api .*without using Docker' deploy-help.txt
+
+      - name: Start the replica and apply supabase/migrations
+        run: supabase start -x studio,mailpit,imgproxy,realtime,logflare,vector,supavisor,storage-api,postgres-meta
+
+      - name: Apply the archive schema that production already has
+        run: |
+          db=$(supabase status -o json | jq -r .DB_URL)
+          psql "$db" -v ON_ERROR_STOP=1 -q -f docs/sql/trrc-archive.sql
+          psql "$db" -v ON_ERROR_STOP=1 -q -f docs/sql/trrc-archive-rpc-proposed.sql
+          psql "$db" -tA -c "select string_agg(nspname, ',' order by nspname) from pg_namespace where nspname in ('trrc_archive','trrc_guest')" | grep -qx 'trrc_archive,trrc_guest'
+
+      - name: Deploy the trrc-explorer function to the replica
+        run: |
+          supabase functions serve trrc-explorer --no-verify-jwt > serve.log 2>&1 &
+          # Ready = the function itself answered; the gateway returns 502 while the runtime boots.
+          for i in $(seq 1 90); do curl -s http://127.0.0.1:54321/functions/v1/trrc-explorer/api/versions | jq -e .error.code >/dev/null 2>&1 && exit 0; sleep 2; done
+          cat serve.log; exit 1
+
+      - name: Smoke-test the deployed function
+        run: |
+          base=http://127.0.0.1:54321/functions/v1/trrc-explorer
+          check() { code=$(curl -s -o body.json -w '%{http_code}' -X "$1" "$base$2"); echo "$1 $2 -> $code $(cat body.json)"; [ "$code" = "$3" ] && jq -e --arg c "$4" '.error.code==$c' body.json >/dev/null; }
+          check POST /api/collect 401 AUTH_REQUIRED
+          check POST /api/lookup 401 AUTH_REQUIRED
+          check PUT /api/versions 405 METHOD_NOT_ALLOWED
+          # The read path only trusts the frozen production snapshot over HTTPS, so a replica
+          # must refuse it cleanly. The production deploy checks the real read path.
+          check GET /api/versions 503 EVIDENCE_UNAVAILABLE
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Build the website (what Lovable builds from main)
+        run: |
+          npm ci
+          npm run build
+          test -n "$(ls -A .output 2>/dev/null || ls -A dist 2>/dev/null)"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Dev deploy of \`${{ github.event.workflow_run.head_sha || github.sha }}\`"
+            echo "Throwaway Supabase replica: migrations, archive schema and \`trrc-explorer\` function deployed and smoke-tested; website built."
+            echo "Production is released by hand with the **deploy-prod** workflow."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Function log on failure
+        if: failure()
+        run: cat serve.log || true
