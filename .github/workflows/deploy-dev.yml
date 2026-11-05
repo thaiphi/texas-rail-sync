@@ -55,7 +55,8 @@ jobs:
       - name: Deploy the trrc-explorer function to the replica
         run: |
           supabase functions serve trrc-explorer --no-verify-jwt > serve.log 2>&1 &
-          for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:54321/functions/v1/trrc-explorer/api/versions && exit 0; sleep 2; done
+          # Ready = the function itself answered; the gateway returns 502 while the runtime boots.
+          for i in $(seq 1 90); do curl -s http://127.0.0.1:54321/functions/v1/trrc-explorer/api/versions | jq -e .error.code >/dev/null 2>&1 && exit 0; sleep 2; done
           cat serve.log; exit 1
 
       - name: Smoke-test the deployed function
