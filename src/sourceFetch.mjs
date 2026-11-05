@@ -1,5 +1,5 @@
-// Trusted internal one-source fetch shared by lookup and collection. Targets come only
-// from sources.mjs; no filesystem, storage, scheduler or HTTP-route surface exists here.
+// Trusted internal one-source fetch shared by lookup, collection and the watch check. Targets come only
+// from sources.mjs or the validated watch list (src/watchCheck.mjs); no filesystem, storage, scheduler or HTTP-route surface exists here.
 import {Buffer} from 'node:buffer';
 import {sha256} from './normalize.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});

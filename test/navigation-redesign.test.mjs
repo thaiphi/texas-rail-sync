@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {buildSeedList,SEED_RUN_IDS} from '../src/watchSeed.mjs';
 import {dispositionRows} from '../public/presentation.js';
 import {facts,filterInventory,sourceUrl,countText} from '../public/presentation.js';
 import {clearDatasetEvidence,historyState} from '../public/dataset-state.js';
@@ -19,6 +21,21 @@ test('invalid dataset routes cannot become paths or arbitrary tabs',()=>{
  assert.equal(typeof nav.parseRoute,'function');
  for(const hash of ['#dataset/../records','#dataset/a%2Fb/records','#dataset/v1/not-a-tab'])assert.deepEqual(nav.parseRoute(hash),{screen:'datasets'});
  assert.throws(()=>nav.datasetRoute('../escape','records'),/version|identity/i);
+});
+test('#watch parses to {screen:"watch"} and only the bare route is accepted',()=>{
+ assert.deepEqual(nav.parseRoute('#watch'),{screen:'watch'});assert.deepEqual(nav.parseRoute('watch'),{screen:'watch'});
+ for(const hash of ['#watch/80b511129d5a','#watch/../escape','#watched'])assert.deepEqual(nav.parseRoute(hash),{screen:'datasets'});
+});
+test('#watch shows only the watch screen, loads /api/watch and renders the seeded table',async()=>{
+ const list=await buildSeedList({repoRoot:fileURLToPath(new URL('../',import.meta.url)),now:'2026-11-03T00:00:00.000Z',runIds:SEED_RUN_IDS}),fetchLog=[];
+ const ui=await startUI({hash:'#watch',watchBody:{schemaVersion:1,list,running:null,lastCheck:null,lastRun:null},fetchLog});await new Promise(setImmediate);
+ assert.equal(ui.element('watch-view').hidden,false);for(const name of ['find','datasets','history','help','compare'])assert.equal(ui.element(name+'-view').hidden,true);
+ assert.ok(fetchLog.includes('/api/watch'));assert.match(ui.element('watch-content').innerHTML,/Injection-Storage Resources/);assert.match(ui.element('watch-content').innerHTML,/id="watch-check"/);
+ ui.env.location.hash='#find';ui.route();assert.equal(ui.element('watch-view').hidden,true);
+});
+test('#watch without local watch routes says so instead of a table',async()=>{
+ const ui=await startUI({hash:'#watch'});await new Promise(setImmediate);
+ assert.match(ui.element('watch-content').innerHTML,/role="alert"[^>]*>Watched documents are available only in the local Explorer\./);assert.doesNotMatch(ui.element('watch-content').innerHTML,/<table/);
 });
 test('historical run bookmarks retain a distinct run identity without borrowing dataset identity',()=>{
  assert.deepEqual(nav.parseRoute('#history/c24eb125-53eb-42cb-9d5a-d73c5387ce05'),{screen:'history',runId:'c24eb125-53eb-42cb-9d5a-d73c5387ce05'});assert.deepEqual(nav.parseRoute('#history/../escape'),{screen:'datasets'});
@@ -42,7 +59,7 @@ test('quality exposes inventory quarantine and unmatched monthly dispositions wi
 test('reporting confirmation accepts 36 inclusive months and refuses 37, reversed or invalid inputs',()=>{
  assert.equal(typeof nav.monthWindow,'function');assert.equal(nav.monthWindow('2024-12','2027-11'),36);assert.throws(()=>nav.monthWindow('2024-12','2027-12'),/36/);assert.throws(()=>nav.monthWindow('2024-02','2024-01'),/period|month/i);assert.throws(()=>nav.monthWindow(['2024-01'],'2024-02'),/month/i);
 });
-async function startUI({hash='#find',failPinned=false,failRegistry=false,verify,workflowSpy}={}){
+async function startUI({hash='#find',failPinned=false,failRegistry=false,verify,workflowSpy,watchBody=null,fetchLog=null}={}){
  const original=JSON.parse(await readFile(new URL('../artifacts/rrc-2026-10-09-uic000020838-v1/normalized.json',import.meta.url))),nodes=new Map(),handlers={};
  const downloadLinks=[{handlers:{},addEventListener(type,handler){this.handlers[type]=handler;}}];
  const element=id=>{if(!nodes.has(id))nodes.set(id,{value:'',textContent:'',innerHTML:'',hidden:false,handlers:{},addEventListener(type,handler){this.handlers[type]=handler;},setAttribute(){},removeAttribute(){},appendChild(){},focus(){},querySelectorAll(selector){return id==='downloads'&&selector==='a'?downloadLinks:[];},replaceChildren(){this.textContent='';this.innerHTML='';},insertAdjacentHTML(position,text){this.innerHTML=position==='afterbegin'?text+this.innerHTML:this.innerHTML+text;}});if(id==='version-selection'&&!nodes.get(id).strictValue){const node=nodes.get(id);let selectedValue='';Object.defineProperty(node,'value',{get(){return selectedValue;},set(value){selectedValue=node.innerHTML.includes('value="'+value+'"')?value:'';}});node.strictValue=true;}return nodes.get(id);};
@@ -50,9 +67,10 @@ async function startUI({hash='#find',failPinned=false,failRegistry=false,verify,
  const handoff={starts:[],cancelled:0,destroyed:false,state:{state:'idle'},emit(value){this.state=value;this.onState?.(value);},start(value){if(this.destroyed)return false;this.starts.push(value);this.emit({state:'preparing',artifactId:value.artifact.artifactId,message:'Preparing whole version'});return true;},cancel(){this.cancelled++;this.emit({state:'cancelled',message:'Cancelled'});},destroy(){this.destroyed=true;}};
  const next=structuredClone(original);next.artifactId='requested-b';next.manifest.artifact_id='requested-b';
  const auxiliaryLinks=['Export dataset','Inspect version & provenance'].map(label=>({textContent:label,href:'#exports',getAttribute(name){return this[name];}}));
- const env={document:{getElementById:element,querySelector:element,querySelectorAll:selector=>selector==='#dataset-workspace a[href^="#"]'?auxiliaryLinks:[]},window:{addEventListener:(name,handler)=>{handlers[name]=handler;},scrollTo(){},matchMedia:()=>({matches:false})},location:{hash},fetch:async path=>({ok:!((typeof failRegistry==='function'?failRegistry():failRegistry)&&path==='/api/versions'),json:async()=>path==='/artifact-path.json'?{artifact_id:original.artifactId,path:pins.path}:path==='/artifact-integrity.json'?pins:{versions:[pins,requested]}}),loadPinnedArtifact:async()=>{if(failPinned)throw Error('Pinned hash mismatch');return original;},loadVerifiedVersion:async value=>verify?verify(value,next):(value.artifactId===original.artifactId?original:next),mountCollection:options=>{hooks=options;},createLatestRequest,clearDatasetEvidence,historyState,...nav,chart:()=>'',fmt:formatNumber,escape:escapeHtml,mountWorkflow:async()=>({refresh(){},forDataset(){},showHistory(){},clearDataset:message=>workflowSpy?.(message)}),facts,filterInventory,dispositionRows,sourceUrl,countText};
+ const env={document:{getElementById:element,querySelector:element,querySelectorAll:selector=>selector==='#dataset-workspace a[href^="#"]'?auxiliaryLinks:[]},window:{addEventListener:(name,handler)=>{handlers[name]=handler;},scrollTo(){},matchMedia:()=>({matches:false})},location:{hash},fetch:async path=>{fetchLog?.push(path);if(path==='/api/watch')return {ok:Boolean(watchBody),status:watchBody?200:404,json:async()=>{if(!watchBody)throw SyntaxError('not json');return watchBody;}};return {ok:!((typeof failRegistry==='function'?failRegistry():failRegistry)&&path==='/api/versions'),json:async()=>path==='/artifact-path.json'?{artifact_id:original.artifactId,path:pins.path}:path==='/artifact-integrity.json'?pins:{versions:[pins,requested]}};},loadPinnedArtifact:async()=>{if(failPinned)throw Error('Pinned hash mismatch');return original;},loadVerifiedVersion:async value=>verify?verify(value,next):(value.artifactId===original.artifactId?original:next),mountCollection:options=>{hooks=options;},createLatestRequest,clearDatasetEvidence,historyState,...nav,chart:()=>'',fmt:formatNumber,escape:escapeHtml,mountWorkflow:async()=>({refresh(){},forDataset(){},showHistory(){},clearDataset:message=>workflowSpy?.(message)}),facts,filterInventory,dispositionRows,sourceUrl,countText};
  env.createAnalyticsHandoff=options=>{handoff.onState=options.onState;return handoff;};
- env.document.querySelector=selector=>selector.startsWith('meta[')?null:element(selector);Object.assign(env,{renderTestsView,testReportsCollected,renderWellboreView,wellboreCollected,renderDossierView,dossierCollected,loadVerifiedSidecar,...await import('../public/compare-view.js'),compareVersions:()=>({schemaVersion:1,comparison_version:'rrc-compare-v1',uic_number:'000020838',sides:{a:{},b:{}},datasets:[],sources:[],source_revisions:{a:{},b:{}}}),history:{state:null,replaceState(){}},PORTFOLIO_URL:'',createLegacyCollectionApi:()=>({mode:'local'}),createGuestCollectionApi:()=>({mode:'guest'}),createGuestClient:()=>({})});
+ env.document.querySelector=selector=>selector.startsWith('meta[')?null:element(selector);Object.assign(env,{...await import('../public/watch-view.js'),...await import('../public/html-text.js'),renderTestsView,testReportsCollected,renderWellboreView,wellboreCollected,renderDossierView,dossierCollected,loadVerifiedSidecar,...await import('../public/compare-view.js'),compareVersions:()=>({schemaVersion:1,comparison_version:'rrc-compare-v1',uic_number:'000020838',sides:{a:{},b:{}},datasets:[],sources:[],source_revisions:{a:{},b:{}}}),history:{state:null,replaceState(){}},PORTFOLIO_URL:'',createLegacyCollectionApi:()=>({mode:'local'}),createGuestCollectionApi:()=>({mode:'guest'}),createGuestClient:()=>({})});
+ {const {citationLinks,renderSourceCards}=await import(new URL('../public/page-links.js',import.meta.url).href);Object.assign(env,{citationLinks,renderSourceCards});}// Task 7: the names app.js imports from page-links.js
  const code=(await readFile(new URL('../public/app.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,''),AsyncFunction=Object.getPrototypeOf(async()=>{}).constructor;await new AsyncFunction(...Object.keys(env),code)(...Object.values(env));return {element,env,route:()=>handlers.hashchange(),pagehide:()=>handlers.pagehide({persisted:true}),hooks,auxiliaryLinks,handoff,downloadLinks};
 }
 

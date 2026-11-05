@@ -34,3 +34,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 # Keep raw/, artifacts/, source-proof records, scripts, tests and public assets.
+
+# E12-lite: interrupted watch-store temp writes (never copies)
+watched-documents/.partial/
+watched-documents/watch-list.json.tmp

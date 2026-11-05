@@ -1,6 +1,6 @@
 # Scope
 
-Work in the independent `texas-rrc-explorer` repository. Its scope is bounded official UIC, H-10 and related RRC ODP wellbore/test records for explicitly selected wells: acquisition, normalization, source/identity/quality checks, versioned exports and browser inspection.
+Work in the independent `texas-rrc-explorer` repository. Its scope is bounded official UIC, H-10 and related RRC ODP wellbore/test records for explicitly selected wells: acquisition, normalization, source/identity/quality checks, versioned exports and browser inspection. It also covers watched official RRC documents (owner-triggered check, rrc.texas.gov only) under RRC-18.
 - The related ODP datasets are BHP `qxfy-wcfs`, SRT `h54t-xnbi`, casing `u9m4-xnh6` and plugging `wfzn-9fje`. They are queried per selected well under [ADR 004](docs/adr/004-wellbore-identity-and-relations.md) and requirements RRC-11 to RRC-16. Each phase still needs its own authorized brief.
 - New datasets are local only until a separate hosted-parity decision is made.
 - Analytics, permitting (E05, full E12) and portfolio implementation belong to their own sibling repositories.
