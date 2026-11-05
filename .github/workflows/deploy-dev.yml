@@ -10,8 +10,6 @@ on:
     types: [completed]
     branches: [main]
   workflow_dispatch:
-  push:
-    branches: [zc-04/staging]  # TEMP: branch test, removed before merge
 
 permissions:
   contents: read
