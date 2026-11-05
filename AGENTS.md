@@ -9,6 +9,10 @@ Work in the independent `texas-rrc-explorer` repository. Its scope is bounded of
 
 Read [README.md](README.md), [SPEC.md](SPEC.md), [SOURCE_PROOF.md](SOURCE_PROOF.md) and [GATES.md](GATES.md) for the current contract and evidence. Preserve raw source bytes, original identifiers, missing-versus-zero distinctions, dictionary/QC/provenance, old artifact versions and disclosed source limitations. Use direct Node checks; an acquisition or export run that changes files needs scope in the authorized brief.
 
+## Task tracker
+
+Work is tracked publicly in [GitHub Issues](https://github.com/thaiphi/texas-rail-sync/issues): one issue per requirement row in [docs/requirements.md](docs/requirements.md) (`RRC-xx`, labelled `requirement`), and the open AI Dev Tools Zoomcamp work (`ZC-xx`, labelled `course`) in the [Zoomcamp final project milestone](https://github.com/thaiphi/texas-rail-sync/milestone/1). Before starting work, find or create its issue and work to that issue's acceptance criteria. Every brief names the issue, every PR references it (`Closes #<n>` when it completes the issue), and evidence is recorded on the issue before it is closed. `docs/requirements.md` stays the detailed evidence record; keep the two in step.
+
 ## Coordination and delegation
 
 Read and explicitly apply [the shared delegation workflow](../phi-analytics/docs/swd-intelligence-lab/agent-workflow.md) before delegation. This entrypoint adopts those rules; the sibling portfolio's AGENTS.md is not automatically inherited.
