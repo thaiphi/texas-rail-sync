@@ -19,6 +19,10 @@ What "dev" means here: for the website, Lovable's editor preview, which follows 
 
 `deploy-prod` never runs `supabase db push`. The guest migration in `supabase/migrations` is deliberately not applied to production (guest collection stays off, D7). Database changes to production remain a separate, explicit owner action.
 
+## Observability deviation (ZC-05)
+
+Production is not observed. It is a Supabase Edge Function with no collector, and hosted collection is off (D7), so traces, logs and metrics come only from local Docker, `npm start`, CI (the `observability` workflow) and Codespaces. For the same reason "build once, promote the same image" does not apply: the Docker image runs locally, while production deploys the function. See [Observability in the README](../README.md#observability-zc-05).
+
 ## Rollback
 
 Run **deploy-prod** again with the previous good commit (each run's summary names the commit it deployed). For the website, restore the previous version in Lovable's history and Publish.

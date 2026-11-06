@@ -1,0 +1,99 @@
+# Proves the telemetry round trip (ZC-05, issue #41): Grafana otel-lgtm starts, a success and a forced-failure
+# fixture collect export OTLP, and the traces, logs, metrics, dashboard and alert rule are read back through
+# Grafana as the anonymous Viewer (GET only). No live RRC request is made.
+name: observability
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: observability-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  observability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install from the lockfile
+        run: npm ci
+
+      - name: Create the app network the observability setup joins
+        run: docker network create swd-app
+
+      - name: Start Grafana otel-lgtm
+        run: docker compose -f observability/compose.yaml up -d
+
+      - name: Wait for Grafana and the OTLP/HTTP receiver
+        run: |
+          for i in $(seq 1 60); do
+            grafana=$(curl -fsS http://127.0.0.1:3000/api/health 2>/dev/null) || grafana=""
+            otlp=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:4318/v1/traces -H 'content-type: application/json' -d '{}' || true)
+            if [ -n "$grafana" ] && [ "$otlp" = 200 ]; then echo "$grafana"; echo "OTLP $otlp after $((i*2)) s"; exit 0; fi
+            sleep 2
+          done
+          echo "Grafana: '$grafana'  OTLP: '$otlp' after 120 s"
+          exit 1
+
+      - name: Fixture collects (success and forced failure) exporting OTLP
+        env:
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://127.0.0.1:4318
+          OTEL_SERVICE_VERSION: ${{ github.sha }}
+          DEPLOYMENT_ENVIRONMENT: ci
+        run: node scripts/collect-fixture.mjs --both --out observability-fixture.json
+
+      - name: Read the signals back through Grafana
+        run: node observability/collect-evidence.mjs --in observability-fixture.json --out observability-evidence.json
+
+      - name: Evidence summary
+        if: always()
+        run: |
+          {
+            echo "### Observability evidence"
+            echo
+            if [ -f observability-evidence.json ]; then
+              jq -r '"Overall: \(if .ok then "ok" else "FAILED" end) after \(.attempts) attempt(s), \(.elapsedMs) ms"' observability-evidence.json
+              echo
+              echo "| check | result | detail |"
+              echo "|---|---|---|"
+              jq -r '.checks[] | "| `\(.name)` | \(if .ok then "ok" else "FAIL" end) | \(.detail | gsub("\\|"; "/")) |"' observability-evidence.json
+            else
+              echo "No evidence file was written."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: observability-evidence
+          path: |
+            observability-fixture.json
+            observability-evidence.json
+          if-no-files-found: warn
+
+      - name: Diagnostics and logs on failure
+        if: failure()
+        run: |
+          echo "--- fixture"; cat observability-fixture.json 2>/dev/null || echo "(none)"
+          echo "--- evidence diagnostics"; jq '.diagnostics' observability-evidence.json 2>/dev/null || echo "(none)"
+          echo "--- metric names via the Prometheus proxy"
+          curl -sS 'http://127.0.0.1:3000/api/datasources/proxy/uid/prometheus/api/v1/label/__name__/values' | head -c 4000; echo
+          echo "--- otel-lgtm logs"
+          docker compose -f observability/compose.yaml logs --no-color --tail 200
+
+      - name: Stop
+        if: always()
+        run: docker compose -f observability/compose.yaml down --volumes

@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: "Texas RRC Explorer"
+    type: file
+    folder: Explorer
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /otel-lgtm/explorer-dashboards
+      foldersFromFilesStructure: false

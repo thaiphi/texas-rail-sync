@@ -16,6 +16,10 @@ import {isIP} from 'node:net';
 import {connectRunIndex} from '../src/runIndex.mjs';
 import {mkdir} from 'node:fs/promises';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
+// ZC-05: optional OTLP telemetry (built-ins only); the server receives one instance or null (everything off).
+import {telemetryFromEnv} from './telemetry.mjs';
+// A disabled (no-op) instance is handed to the server as null, so every route takes the telemetry-off path.
+export const serverTelemetry=telemetry=>telemetry?.enabled?telemetry:null;
 // E12-lite watched official RRC documents (local only, D7): routes exist only when watchRoot is given.
 import {readWatchList,writeWatchList,readVerifiedCopy} from '../src/watchStore.mjs';
 import {checkWatchedDocuments} from '../src/watchCheck.mjs';
@@ -33,12 +37,83 @@ export function trustedAddressList(value){
 const plainAddress=address=>String(address??'').replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i,'');
 export const isSameOriginWrite=({address,port,host,origin,trusted=LOOPBACK})=>trusted.some(item=>plainAddress(item)===plainAddress(address))&&[`127.0.0.1:${port}`,`localhost:${port}`,`[::1]:${port}`].includes(host)&&origin===`http://${host}`;
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.csv':'text/csv; charset=utf-8','.pdf':'application/pdf'};
-export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root,trustedAddresses=LOOPBACK,runIndex=null,onCheckError=()=>{},watchRenameFile}={}){
+export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=resolve(root,'lookups'),sourceRoot=resolve(root,'collected-sources'),outputRoot=resolve(root,'artifacts'),fetchImpl=fetch,testFixture=false,appToken=null,watchRoot=null,repoRoot=root,trustedAddresses=LOOPBACK,runIndex=null,onCheckError=()=>{},watchRenameFile,telemetry=null}={}){
  // watchRoot switches the /api/watch* routes on; the store resolves watched-documents/ under repoRoot.
  if(watchRoot!==null&&resolve(watchRoot)!==resolve(repoRoot,'watched-documents'))throw Error('watchRoot must be <repoRoot>/watched-documents');
  let collecting=false,lookingUp=false,watchBusy=false,running=null,lastRun=null;
  // Codes whose own message may reach the client; anything else is reported with a generic message.
  const ALLOWED_CODES=['SOURCE_INVALID','SOURCE_SCOPE_MISMATCH','SOURCE_PROVENANCE_CONFLICT','SOURCE_HASH_MISMATCH','HTTP_ERROR','SOURCE_THROTTLED','SOURCE_LIMIT','SOURCE_ROW_LIMIT','REQUEST_INVALID','REQUEST_LIMIT','ORIGIN_FORBIDDEN','LOOKUP_BUSY','COLLECTION_BUSY','WATCH_ADDRESS_INVALID','WATCH_DUPLICATE','WATCH_BUSY','WATCH_LIST_INVALID','WATCH_LIST_MISSING','WATCH_LIST_BUSY','WATCH_CHECK_EXISTS'];
+ // ZC-05 telemetry. Null keeps every route exactly as before. Spans/logs/metrics carry only allowlisted keys and
+ // existing error codes (never a well identifier, artifact id, URL, query, header, token or message). All export
+ // work runs after the response is written, inside try/catch, and is never awaited by a request.
+ const quiet=fn=>{if(!telemetry)return null;try{return fn()??null;}catch{return null;}};
+ const clientCode=error=>ALLOWED_CODES.includes(error?.code)?error.code:'REQUEST_FAILED';
+ const REJECTED_LOOKUP_CODES=['REQUEST_INVALID','REQUEST_LIMIT','ORIGIN_FORBIDDEN','LOOKUP_BUSY'];
+ const COLLECT_STAGES=['load','normalize-qc','export'];
+ const timeOf=value=>{const ms=Date.parse(value);return Number.isFinite(ms)?ms:undefined;};
+ const severityOf=outcome=>outcome==='succeeded'?'INFO':outcome==='rejected'?'WARN':'ERROR';
+ // Source-fetch observer (src/sourceFetch.mjs): one source.fetch child span and one rrc_source_fetch count per attempt.
+ function fetchObserver(parent){
+  if(!telemetry||!parent)return null;
+  return event=>{quiet(()=>{
+   const attributes={'source.name':String(event.name),'server.address':String(event.serverAddress),app_token_used:event.appTokenUsed===true};
+   if(Number.isInteger(event.httpStatus))attributes['http.response.status_code']=event.httpStatus;
+   if(typeof event.code==='string')attributes['error.code']=event.code;
+   telemetry.startSpan('source.fetch',{parent,startMs:event.startMs,attributes}).end({outcome:event.outcome,endMs:event.endMs});
+   telemetry.count('rrc_source_fetch',{source_name:String(event.name),outcome:event.outcome});
+  });};
+ }
+ const startRoot=(name,route)=>quiet(()=>{const startMs=Date.now();return {startMs,done:false,started:false,load:null,root:telemetry.startSpan(name,{kind:'server',startMs,attributes:{'http.route':route,test_fixture:testFixture}})};});
+ // One collect = one trace: root collect, stage spans rebuilt from the run record, logs on the root, metrics once.
+ function finishCollect(trace,{status,record=null,error=null}){
+  if(!trace||trace.done)return;trace.done=true;
+  quiet(()=>{
+   const {root}=trace,run=record?{'run.id':record.runId}:{};
+   let outcome='rejected',stage='request',code=clientCode(error);
+   if(record){
+    outcome=status===201?'succeeded':'failed';stage='none';code='none';
+    for(const id of COLLECT_STAGES){
+     const events=record.events.filter(event=>event.stage===id),terminal=events.find(event=>['succeeded','failed'].includes(event.status));
+     if(!terminal)continue;// skipped (or never run): no span
+     const running=events.find(event=>event.status==='running'),failed=terminal.status==='failed';
+     const errorCode=failed&&typeof terminal.error?.code==='string'?terminal.error.code:null,attributes={stage:id,...(errorCode?{'error.code':errorCode}:{})};
+     const span=id==='load'&&trace.load?trace.load:telemetry.startSpan(id,{parent:root,startMs:timeOf(running?.timestamp??terminal.timestamp)});
+     if(running)span.setStartTime(timeOf(running.timestamp));
+     span.end({outcome:terminal.status,endMs:timeOf(terminal.timestamp),attributes});
+     telemetry.log(root,{severity:failed?'ERROR':'INFO',body:failed?'stage failed':'stage succeeded',attributes:{...run,...attributes,outcome:terminal.status}});
+     if(failed&&stage==='none'){stage=id;code=errorCode??clientCode(error);}
+    }
+    if(outcome==='failed'&&code==='none')code=clientCode(error);
+   }
+   const endMs=Date.now();
+   telemetry.log(root,{severity:severityOf(outcome),body:'run finished',attributes:{...run,outcome,stage,'error.code':code}});
+   root.end({outcome,endMs,attributes:{...run,'http.response.status_code':status,...(code!=='none'?{'error.code':code}:{})}});
+   telemetry.count('rrc_collect_runs',{outcome,stage,error_code:code});
+   telemetry.observe('rrc_collect_duration',{outcome},Math.max(0,endMs-trace.startMs)/1000);
+   telemetry.sendTrace(root.traceId);
+  });
+ }
+ function finishLookup(trace,{status,lookupId=null,error=null}){
+  if(!trace||trace.done)return;trace.done=true;
+  quiet(()=>{
+   const code=error?clientCode(error):null,outcome=!error?'succeeded':!trace.started||REJECTED_LOOKUP_CODES.includes(code)?'rejected':'failed';
+   const attributes={...(typeof lookupId==='string'?{'lookup.id':lookupId}:{}),...(code?{'error.code':code}:{})};
+   telemetry.log(trace.root,{severity:severityOf(outcome),body:'lookup finished',attributes:{...attributes,outcome}});
+   trace.root.end({outcome,attributes:{...attributes,'http.response.status_code':status}});
+   telemetry.sendTrace(trace.root.traceId);
+  });
+ }
+ // The artifact id never enters telemetry: the route is recorded as its template.
+ function finishHandoff(trace,status){
+  if(!trace||trace.done)return;trace.done=true;
+  quiet(()=>{
+   const outcome=status===200?'succeeded':'failed',attributes={outcome,'http.response.status_code':status};
+   telemetry.log(trace.root,{severity:severityOf(outcome),body:'package served',attributes});
+   trace.root.end({outcome,attributes});
+   telemetry.count('rrc_handoff_packages',{outcome});
+   telemetry.sendTrace(trace.root.traceId);
+  });
+ }
  const apiError=(status,code,message)=>Object.assign(Error(message),{status,code});
  const send=(res,status,data,head=false)=>{const bytes=Buffer.from(JSON.stringify(data));res.writeHead(status,{'content-type':'application/json; charset=utf-8','content-length':bytes.length,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(head?undefined:bytes);};
  async function readBody(req){
@@ -81,9 +156,12 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   runs.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)||b.runId.localeCompare(a.runId));return {runs,unavailableRecords};
  }
  // Refreshes the optional Postgres index from the files; an index failure never fails a request.
- async function refreshIndex(){
+ // parent: the collect root span; index.refresh is its child and is sent in its own sendTrace when it settles.
+ async function refreshIndex(parent=null){
   if(!runIndex)return;
-  try{await runIndex.sync({runs:(await listRuns()).runs,versions:await listVersions()});}catch(error){console.error(`run index: ${error.code??'SYNC_FAILED'}`);}
+  const span=parent?quiet(()=>telemetry.startSpan('index.refresh',{parent})):null;let outcome='succeeded';
+  try{await runIndex.sync({runs:(await listRuns()).runs,versions:await listVersions()});}catch(error){outcome='failed';console.error(`run index: ${error.code??'SYNC_FAILED'}`);}
+  if(span)quiet(()=>{span.end({outcome});telemetry.sendTrace(span.traceId);});
  }
  // One watch write or check at a time; the list is re-read from disk on every request, never cached.
  const WATCH_FIELDS={check:[],add:['url','name','kind'],stop:['id'],rewatch:['id'],edit:['id','name','kind'],review:['id','note'],note:['id','changeId','note']};
@@ -158,28 +236,40 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
   throw Error('Unknown copy');
  }
   const server=createServer(async(req,res)=>{
+  let handoff=null;
   try{
    const url=new URL(req.url,'http://localhost'),path=decodeURIComponent(url.pathname);
    const watchAction=watchRoot!==null&&req.method==='POST'?/^\/api\/watch\/([a-z]+)$/.exec(path)?.[1]:undefined;
    if(req.method==='POST'&&(['/api/lookup','/api/collect'].includes(path)||watchAction)){
+    // Roots start before the guards so a refused request is still one trace (outcome rejected).
+    const collectTrace=path==='/api/collect'?startRoot('collect','/api/collect'):null;
+    if(collectTrace)quiet(()=>telemetry.log(collectTrace.root,{body:'collect started',attributes:{test_fixture:testFixture}}));
+    const lookupTrace=path==='/api/lookup'?startRoot('lookup','/api/lookup'):null;
+    let collected=null;
     try{
      guardWrite(req);const body=await readBody(req);
      if(watchAction){await watchPost(watchAction,body,res);return;}
      if(path==='/api/lookup'){
       if(lookingUp)throw apiError(409,'LOOKUP_BUSY','One lookup is already active');lookingUp=true;
-      try{const result=await performLookup({request:body,lookupRoot,fetchImpl,testFixture,appToken});send(res,200,result);}finally{lookingUp=false;}return;
+      try{if(lookupTrace)lookupTrace.started=true;const result=await performLookup({request:body,lookupRoot,fetchImpl,testFixture,appToken,observer:fetchObserver(lookupTrace?.root)});send(res,200,result);finishLookup(lookupTrace,{status:200,lookupId:result.lookupId});}finally{lookingUp=false;}return;
      }
      if(Object.keys(body).some(key=>!['lookupId','sourceRecordKey','startMonth','endMonth'].includes(key)))throw apiError(400,'REQUEST_INVALID','Unsupported collection request field');
      if(collecting)throw apiError(409,'COLLECTION_BUSY','One collection is already active');collecting=true;
      try{
       const selection=await loadSelection({lookupRoot,lookupId:body.lookupId,sourceRecordKey:body.sourceRecordKey}),scope=boundedRelationScope(selection.row.uic_number,body.startMonth,body.endMonth,selection.row.api_no);
       await mkdir(sourceRoot,{recursive:true});const id=randomUUID(),artifactId=`rrc-${new Date().toISOString().slice(0,10)}-uic${scope.monthlyUic}-${id}`;
-      const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture,appToken});
+      // load exists before the snapshot runs, so each fetch becomes its source.fetch child as it happens.
+      if(collectTrace)collectTrace.load=quiet(()=>telemetry.startSpan('load',{parent:collectTrace.root,attributes:{stage:'load'}}));
+      const result=await collectPublicSnapshot({sourceDir:resolve(sourceRoot,id),artifactId,outputRoot,runRoot,scope,selection,fetchImpl,testFixture,appToken,observer:fetchObserver(collectTrace?.load)});
+      collected=result;
       const pins=JSON.parse(result.files['version-pins.json']);send(res,201,{artifactId,version:pins,run:result.record,scope:result.manifest.scope,realHistoryStatus:result.manifest.real_history_status});
-     }finally{collecting=false;void refreshIndex();}return;
+      finishCollect(collectTrace,{status:201,record:result.record});
+     }finally{collecting=false;void refreshIndex(collectTrace?.root??null);}return;
     }catch(error){
      const status=error.status??WATCH_STATUS[error.code]??(error.record?502:error.code==='HTTP_ERROR'?502:error.code==='SOURCE_THROTTLED'?503:400),allowed=ALLOWED_CODES;
-     const recognized=allowed.includes(error.code);send(res,status,{error:{code:recognized?error.code:'REQUEST_FAILED',message:error.record?'Collection did not complete; inspect retained run evidence.':recognized?error.message:'Requested source evidence is unavailable or invalid.'},...(error.record?{run:error.record}: {}),...(error.code==='WATCH_DUPLICATE'&&typeof error.existingId==='string'?{existingId:error.existingId}:{})});return;
+     const recognized=allowed.includes(error.code);send(res,status,{error:{code:recognized?error.code:'REQUEST_FAILED',message:error.record?'Collection did not complete; inspect retained run evidence.':recognized?error.message:'Requested source evidence is unavailable or invalid.'},...(error.record?{run:error.record}: {}),...(error.code==='WATCH_DUPLICATE'&&typeof error.existingId==='string'?{existingId:error.existingId}:{})});
+     // A run record means the collection ran (failed); none means it was refused before a run existed (rejected).
+     finishCollect(collectTrace,{status,record:error.record??collected?.record??null,error});finishLookup(lookupTrace,{status,error});return;
     }
    }
    if(!['GET','HEAD'].includes(req.method))throw Error('Forbidden');
@@ -191,8 +281,10 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    }
    const archiveRoute=/^\/api\/versions\/([a-z0-9][a-z0-9._-]{0,127})\/download$/i.exec(path);
    if(archiveRoute){
+    // A HEAD probe transfers no package: it is neither traced nor counted.
+    if(req.method!=='HEAD')handoff=startRoot('handoff.package','/api/versions/{id}/download');
     const id=archiveRoute[1],pins=(await listVersions()).find(version=>version.artifactId===id);if(!pins)throw Error('Unavailable public version');
-    const bytes=await buildVersionArchive({directory:resolve(outputRoot,id),pins});res.writeHead(200,{'content-type':'application/x-tar','content-length':bytes.length,'content-disposition':`attachment; filename="${id}.tar"`,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(req.method==='HEAD'?undefined:bytes);return;
+    const bytes=await buildVersionArchive({directory:resolve(outputRoot,id),pins});res.writeHead(200,{'content-type':'application/x-tar','content-length':bytes.length,'content-disposition':`attachment; filename="${id}.tar"`,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(req.method==='HEAD'?undefined:bytes);finishHandoff(handoff,200);return;
    }
    if(watchRoot!==null&&(path==='/api/watch'||path.startsWith('/api/watch/'))){
     const copyRoute=/^\/api\/watch\/copy\/([0-9a-f]{12})\/([0-9a-f]{64})$/.exec(path);
@@ -226,14 +318,18 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    }
    Object.assign(headers,{'content-length':bytes.length,'cache-control':'no-cache','x-content-type-options':'nosniff'});
    res.writeHead(200,headers);res.end(req.method==='HEAD'?undefined:bytes);
-  }catch{res.writeHead(404,{'content-type':'text/plain'});res.end('File not found');}
+  }catch{res.writeHead(404,{'content-type':'text/plain'});res.end('File not found');finishHandoff(handoff,404);}
  });
  server.refreshIndex=refreshIndex;return server;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  const port=Number(process.argv[2]??process.env.PORT??4174),host=process.env.TRRC_LISTEN_HOST?.trim()||'127.0.0.1';
  const runIndex=process.env.DATABASE_URL?await connectRunIndex({connectionString:process.env.DATABASE_URL}):null;
- const server=createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root,trustedAddresses:trustedAddressList(process.env.TRRC_TRUSTED_REMOTE_ADDRESSES),runIndex});
+ // One telemetry instance per process, a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set. The server receives the
+ // instance when enabled and null otherwise; the instance itself is kept for shutdown() on SIGTERM/SIGINT.
+ const telemetry=telemetryFromEnv();
+ const server=createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root,trustedAddresses:trustedAddressList(process.env.TRRC_TRUSTED_REMOTE_ADDRESSES),runIndex,telemetry:serverTelemetry(telemetry)});
+ for(const signal of ['SIGTERM','SIGINT'])process.once(signal,async()=>{try{await telemetry.shutdown();}catch{}process.exit(0);});
  if(!['127.0.0.1','::1','localhost'].includes(host))console.warn(`Listening on ${host}: publish this port on the host's loopback only (see docker-compose.yml).`);
  server.listen(port,host,()=>{console.log(`Texas RRC Explorer: http://127.0.0.1:${port}${host==='127.0.0.1'?'':` (listening on ${host})`}${runIndex?' · run index: Postgres':''}`);server.refreshIndex();});
 }
