@@ -70,5 +70,5 @@ Exact span and metric names before ingest (the frozen names are the ingested one
 ## Acceptance (mirrors issue #41, as amended)
 
 - CI, green: from one fixture collect, one trace ID is found in Tempo (spans for `collect` and its stages) and in Loki (log lines). The collections counter in Prometheus counts the run, and a forced failure increments `outcome=failed` with its stage and error code. The dashboard and alert rule exist via provisioning. The evidence JSON is uploaded as a workflow artifact.
-- The privacy test passes. A collect with the collector down returns 201 and the full suite still passes. `deploy-dev` stays green, with no change to the Edge Function bundle.
+- The privacy test passes. A collect with the collector down returns 201 and the full suite still passes. `deploy-dev` stays green; the Edge Function bundle changes only by the unused optional `observer` parameter (see Builder-check answers).
 - The README documents: how to start observability, what is collected and what never is, the deviations, and the Codespace demo steps. A screenshot from a real Codespace collect is attached to #41.

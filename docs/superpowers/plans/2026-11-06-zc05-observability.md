@@ -135,6 +135,7 @@
   - `fixtureNetwork({fail=null}={}) → async (url)=>Response`. It serves `raw/` files exactly like `network()` in `test/bounded-collection.test.mjs`. With `fail:'qq2j-f2zm'`, monthly requests return 503, which gives a `load` failure with `HTTP_ERROR`;
   - `FIXTURE_LOOKUP = {kind:'api', value:'38910201'}`;
   - `FIXTURE_MONTHS = {startMonth:'2024-01', endMonth:'2026-04'}`.
+- Span lineage: create the root span and the `load` span BEFORE calling `collectPublicSnapshot` (and the `lookup` root before `performLookup`), so observer events can become `source.fetch` children of `load` as they arrive. When the run finishes, set `load`'s start/end from the record's events and create `normalize-qc`/`export` from the record.
 - Signal mapping (later tasks and the dashboard rely on these names):
   - **Collect trace:** root span `collect` (kind server, `http.route:'/api/collect'`).
     - Children: `load`, `normalize-qc`, `export`, built from `record.events`. Each runs from the `running` event's timestamp to its terminal event. Attributes: `stage`, `outcome`, `error.code` (from the event's `safeError` code) when failed. `skipped` stages produce no span.
@@ -231,7 +232,7 @@
 - [ ] **Step 2:** Run `node --test test/observability-files.test.mjs`. Expected: FAIL.
 - [ ] **Step 3:** Write the files.
   - Pin `grafana/otel-lgtm` to the newest release tag older than 14 days; check it exists with `docker manifest inspect grafana/otel-lgtm:<tag>` or the Docker Hub tags API.
-  - Find the image's Grafana provisioning directory and datasource UIDs in that tag's source (the `grafana/docker-otel-lgtm` repo at that tag). Mount the provisioning files there, and set `GF_PATHS_PROVISIONING` explicitly if the image allows it.
+  - Find the image's Grafana provisioning directory and datasource UIDs in that tag's source (the `grafana/docker-otel-lgtm` repo at that tag). Mount only into that directory's `dashboards/` and `alerting/` subfolders (single-file or subfolder mounts). Do NOT change `GF_PATHS_PROVISIONING`: otel-lgtm provisions its own datasources there, and moving it drops them.
   - Record the datasource UIDs you used in a comment at the top of `compose.yaml`.
 - [ ] **Step 4:** Run `node --test test/observability-files.test.mjs`, then `npm test`. Expected: PASS.
 
@@ -253,7 +254,7 @@
   - Tempo: `/api/datasources/proxy/uid/<tempo uid>/api/traces/<traceId>`, for each mode;
   - Loki: `/api/datasources/proxy/uid/<loki uid>/loki/api/v1/query_range` with `{service_name="explorer"} | trace_id="<traceId>"`;
   - Prometheus: `/api/datasources/proxy/uid/<prom uid>/api/v1/query` for `rrc_collect_runs_total`, and separately for the alert expression;
-  - `/api/v1/provisioning/alert-rules/explorer-collect-failed`;
+  - `/api/prometheus/grafana/api/v1/rules` (Viewer-readable; look for the rule UID or title `Explorer collection failed`; the `/api/v1/provisioning/...` API needs Admin, and ZC-07's responder will also be a Viewer);
   - `/api/search?type=dash-db&query=` (look for UID `explorer-collect`).
 - Checks:
   - `trace:success` has spans `collect`, `load`, `normalize-qc`, `export`;
