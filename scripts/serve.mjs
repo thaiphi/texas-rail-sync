@@ -18,6 +18,8 @@ import {mkdir} from 'node:fs/promises';
 import {buildVersionArchive} from '../src/versionArchive.mjs';
 // ZC-05: optional OTLP telemetry (built-ins only); the server receives one instance or null (everything off).
 import {telemetryFromEnv} from './telemetry.mjs';
+// A disabled (no-op) instance is handed to the server as null, so every route takes the telemetry-off path.
+export const serverTelemetry=telemetry=>telemetry?.enabled?telemetry:null;
 // E12-lite watched official RRC documents (local only, D7): routes exist only when watchRoot is given.
 import {readWatchList,writeWatchList,readVerifiedCopy} from '../src/watchStore.mjs';
 import {checkWatchedDocuments} from '../src/watchCheck.mjs';
@@ -279,7 +281,8 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
    }
    const archiveRoute=/^\/api\/versions\/([a-z0-9][a-z0-9._-]{0,127})\/download$/i.exec(path);
    if(archiveRoute){
-    handoff=startRoot('handoff.package','/api/versions/{id}/download');
+    // A HEAD probe transfers no package: it is neither traced nor counted.
+    if(req.method!=='HEAD')handoff=startRoot('handoff.package','/api/versions/{id}/download');
     const id=archiveRoute[1],pins=(await listVersions()).find(version=>version.artifactId===id);if(!pins)throw Error('Unavailable public version');
     const bytes=await buildVersionArchive({directory:resolve(outputRoot,id),pins});res.writeHead(200,{'content-type':'application/x-tar','content-length':bytes.length,'content-disposition':`attachment; filename="${id}.tar"`,'cache-control':'no-store','x-content-type-options':'nosniff'});res.end(req.method==='HEAD'?undefined:bytes);finishHandoff(handoff,200);return;
    }
@@ -322,9 +325,10 @@ export function createExplorerServer({runRoot=resolve(root,'runs'),lookupRoot=re
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  const port=Number(process.argv[2]??process.env.PORT??4174),host=process.env.TRRC_LISTEN_HOST?.trim()||'127.0.0.1';
  const runIndex=process.env.DATABASE_URL?await connectRunIndex({connectionString:process.env.DATABASE_URL}):null;
- // One telemetry instance per process; a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set. Flushed on SIGTERM/SIGINT.
+ // One telemetry instance per process, a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set. The server receives the
+ // instance when enabled and null otherwise; the instance itself is kept for shutdown() on SIGTERM/SIGINT.
  const telemetry=telemetryFromEnv();
- const server=createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root,trustedAddresses:trustedAddressList(process.env.TRRC_TRUSTED_REMOTE_ADDRESSES),runIndex,telemetry});
+ const server=createExplorerServer({appToken:process.env.TRRC_SOCRATA_APP_TOKEN?.trim()||null,watchRoot:resolve(root,'watched-documents'),repoRoot:root,trustedAddresses:trustedAddressList(process.env.TRRC_TRUSTED_REMOTE_ADDRESSES),runIndex,telemetry:serverTelemetry(telemetry)});
  for(const signal of ['SIGTERM','SIGINT'])process.once(signal,async()=>{try{await telemetry.shutdown();}catch{}process.exit(0);});
  if(!['127.0.0.1','::1','localhost'].includes(host))console.warn(`Listening on ${host}: publish this port on the host's loopback only (see docker-compose.yml).`);
  server.listen(port,host,()=>{console.log(`Texas RRC Explorer: http://127.0.0.1:${port}${host==='127.0.0.1'?'':` (listening on ${host})`}${runIndex?' · run index: Postgres':''}`);server.refreshIndex();});

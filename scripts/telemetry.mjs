@@ -33,7 +33,7 @@ function anyValue(value){
  if(typeof value==='boolean')return {boolValue:value};
  if(typeof value==='number'){
   if(!Number.isFinite(value))return null;
-  return Number.isInteger(value)?{intValue:String(value)}:{doubleValue:value};
+  return Number.isSafeInteger(value)?{intValue:String(value)}:{doubleValue:value};
  }
  if(typeof value==='bigint')return {intValue:value.toString()};
  return null;
@@ -83,7 +83,11 @@ export function createTelemetry({endpoint,serviceVersion,environment,fetchImpl=f
   try{
    const body=JSON.stringify(payload);
    promise=Promise.resolve(fetchImpl(`${base}${path}`,{method:'POST',headers:{'content-type':'application/json'},body,signal:AbortSignal.timeout(SEND_TIMEOUT_MS)}))
-    .then(response=>{if(response&&response.ok===false)warnOnce();},warnOnce);
+    .then(response=>{
+     if(response&&response.ok===false)warnOnce();
+     // Release the unread body; cancel() may throw or reject, and neither may escape.
+     try{Promise.resolve(response?.body?.cancel?.()).catch(()=>{});}catch{}
+    },warnOnce);
   }catch{warnOnce();return Promise.resolve();}
   inflight.add(promise);
   promise.finally(()=>inflight.delete(promise)).catch(()=>{});
@@ -157,7 +161,7 @@ export function createTelemetry({endpoint,serviceVersion,environment,fetchImpl=f
  // name+labels -> {name, labels, value} (sum) or {name, labels, count, sum, buckets} (histogram); never reset.
  const series=new Map();
  function count(name,labels={},value=1){
-  if(INSTRUMENTS[name]?.type!=='sum'||!Number.isFinite(value))return;
+  if(INSTRUMENTS[name]?.type!=='sum'||!Number.isSafeInteger(value)||value<0)return;
   const clean=filtered(labels,METRIC_LABEL_KEYS),key=labelKey(name,clean);
   const entry=series.get(key)??{name,labels:clean,value:0};
   entry.value+=value;series.set(key,entry);

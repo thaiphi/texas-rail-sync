@@ -3,7 +3,7 @@
 // collect produces real telemetry (one trace, logs, metrics) without any RRC call. Runs from a repo
 // checkout only: the fixture network reads raw/ and test/fixtures/.
 //   node scripts/collect-fixture.mjs [--fail | --both] [--out <file>]
-// Telemetry is a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set; then traceId is null in the output.
+// Telemetry is a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set; without it, traceId is null in the output.
 import {mkdir,mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';

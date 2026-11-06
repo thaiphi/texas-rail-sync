@@ -1,5 +1,5 @@
 // ZC-05 Task 3 privacy gate: every exported body (traces, logs, metrics) after a successful collect, a
-// failed collect, a lookup and a download carries no well identifier, artifact id, URL/query, header,
+// failed collect, a cross-origin and an invalid-body collect, a lookup and a download carries no well identifier, artifact id, URL/query, header,
 // token or free text, and only allowlisted keys. ID and time fields are excluded by key, never scanned,
 // so a random hex trace/span ID with a long digit run cannot trip the digit-run rule.
 import test from 'node:test';
@@ -59,6 +59,12 @@ test('telemetry bodies carry no identifier, token, URL or unlisted key',async t=
   const response=await post('/api/collect',{lookupId:found.lookupId,sourceRecordKey:found.candidates[0].sourceRecordKey,...FIXTURE_MONTHS});
   await response.arrayBuffer();statuses.push(response.status);
  }
+ // Rejected requests: a cross-origin collect and a body carrying a well identifier.
+ const crossOrigin=await fetch(base+'/api/collect',{method:'POST',headers:{origin:'http://evil.example','content-type':'application/json'},body:JSON.stringify({uic:'000020838'})});
+ await crossOrigin.arrayBuffer();
+ const invalid=await post('/api/collect',{uic:'000020838'});
+ const invalidBody=await invalid.json();
+ assert.equal(crossOrigin.status,403);assert.equal(invalid.status,400);assert.equal(invalidBody.error.code,'REQUEST_INVALID');
  const download=await fetch(`${downloadBase}/api/versions/${pinnedId}/download`);await download.arrayBuffer();
  assert.deepEqual(statuses,[201,502]);
  await telemetry.shutdown();
@@ -67,6 +73,9 @@ test('telemetry bodies carry no identifier, token, URL or unlisted key',async t=
  assert.deepEqual([...kinds].sort(),['/v1/logs','/v1/metrics','/v1/traces']);
  const spans=calls.filter(c=>c.url.endsWith('/v1/traces')).flatMap(c=>c.body.resourceSpans.flatMap(r=>r.scopeSpans.flatMap(s=>s.spans)));
  for(const name of ['collect','load','normalize-qc','export','source.fetch','lookup','handoff.package'])assert.ok(spans.some(s=>s.name===name),name);
+ const rejectedStatuses=spans.filter(s=>s.name==='collect'&&s.attributes.some(x=>x.key==='outcome'&&x.value.stringValue==='rejected'))
+  .map(s=>Number(s.attributes.find(x=>x.key==='http.response.status_code')?.value.intValue)).sort();
+ assert.deepEqual(rejectedStatuses,[400,403],'both rejected collects are in the scanned telemetry');
 
  for(const call of calls){
   const where=new URL(call.url).pathname,text=JSON.stringify(strip(call.body));

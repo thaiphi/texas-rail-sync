@@ -90,7 +90,7 @@ docker compose up -d explorer
 
 ### What is collected
 
-- **Traces:** `collect` with child spans `load` (with one `source.fetch` per source file), `normalize-qc`, `export` and `index.refresh`; `lookup` with its `source.fetch` spans; `handoff.package` when Analytics downloads a dataset.
+- **Traces:** `collect` with child spans `load` (with one `source.fetch` per source file), `normalize-qc`, `export` and `index.refresh` (only when the Postgres run index is configured, e.g. in Docker); `lookup` with its `source.fetch` spans; `handoff.package` when Analytics downloads a dataset.
 - **Logs** (each with `trace_id` and `span_id`): `collect started`, `stage succeeded` / `stage failed`, `run finished` (run ID, outcome, failed stage, error code), `lookup finished`, `package served`.
 - **Metrics** (Prometheus names): `rrc_collect_runs_total{outcome,stage,error_code}`, `rrc_collect_duration_seconds` (histogram), `rrc_source_fetch_total{source_name,outcome}`, `rrc_handoff_packages_total{outcome}`.
 - **Allowed attributes** (anything else is dropped by the sender): `run.id`, `lookup.id`, `transfer.id`, `stage`, `outcome`, `error.code`, `source.name`, `server.address`, `row.count`, `test_fixture`, `app_token_used`, `http.route`, `http.response.status_code`. Metric labels: `stage`, `outcome`, `error_code`, `source_name`.

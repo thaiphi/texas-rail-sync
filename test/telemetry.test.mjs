@@ -271,3 +271,40 @@ test('telemetryFromEnv',()=>{
  const fr=attrs(d.calls[0].body.resourceSpans[0].resource.attributes);
  assert.equal(fr['service.version'],'0.1.0');assert.equal(fr['deployment.environment.name'],'local');
 });
+
+test('count ignores values that are not safe non-negative integers',async()=>{
+ const {calls,tel}=make();
+ tel.count('rrc_collect_runs',{outcome:'succeeded'},2);
+ for(const bad of [1.5,-1,Number.MAX_SAFE_INTEGER+2,NaN,Infinity,'3'])tel.count('rrc_collect_runs',{outcome:'succeeded'},bad);
+ await tel.flushMetrics();
+ const [point]=calls[0].body.resourceMetrics[0].scopeMetrics[0].metrics[0].sum.dataPoints;
+ assert.equal(point.asInt,'2');assert.match(point.asInt,/^\d+$/);
+});
+
+test('numbers outside the safe integer range export as doubleValue',()=>{
+ const {calls,tel}=make();
+ const span=tel.startSpan('collect',{attributes:{'row.count':1e21}});
+ span.setAttributes({'http.response.status_code':200});span.end();tel.sendTrace(span.traceId);
+ const list=calls[0].body.resourceSpans[0].scopeSpans[0].spans[0].attributes;
+ const rows=list.find(a=>a.key==='row.count').value;
+ assert.deepEqual(rows,{doubleValue:1e21});
+ assert.deepEqual(list.find(a=>a.key==='http.response.status_code').value,{intValue:'200'});
+});
+
+test('a successful export releases the response body without unhandled rejections',async t=>{
+ const unhandled=[],onUnhandled=e=>unhandled.push(e);process.on('unhandledRejection',onUnhandled);
+ t.after(()=>process.off('unhandledRejection',onUnhandled));
+ let cancelled=0;
+ const responses=[
+  {ok:true,body:{cancel(){cancelled++;return Promise.resolve();}}},
+  {ok:true,body:{cancel(){cancelled++;return Promise.reject(Error('cancel failed'));}}},
+  {ok:true,body:{cancel(){cancelled++;throw Error('cancel threw');}}},
+  {ok:true,body:null},
+ ];
+ const warnings=[];let i=0;
+ const tel=createTelemetry({endpoint:'http://c:4318',fetchImpl:()=>Promise.resolve(responses[i++]),now:clock(),warn:w=>warnings.push(w)});
+ for(let n=0;n<responses.length;n++){const span=tel.startSpan('collect');span.end();tel.sendTrace(span.traceId);}
+ await tel.shutdown();
+ await new Promise(r=>setImmediate(r));
+ assert.equal(cancelled,3);assert.deepEqual(unhandled,[]);assert.deepEqual(warnings,[]);
+});

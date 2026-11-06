@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import {mkdir,mkdtemp,rm,readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {createExplorerServer} from '../scripts/serve.mjs';
-import {createTelemetry} from '../scripts/telemetry.mjs';
+import {createExplorerServer,serverTelemetry} from '../scripts/serve.mjs';
+import {createTelemetry,telemetryFromEnv} from '../scripts/telemetry.mjs';
 import {fixtureNetwork,FIXTURE_LOOKUP,FIXTURE_MONTHS} from '../scripts/fixture-network.mjs';
 const root=new URL('../',import.meta.url),rootPath=fileURLToPath(root);
 const pinnedId=JSON.parse(await readFile(new URL('public/artifact-integrity.json',root))).artifactId;
@@ -184,4 +184,26 @@ test('index refresh is a child of the collect root, sent in its own export',asyn
  assert.ok(refresh,'index.refresh exported before shutdown');
  assert.equal(refresh.traceId,rootSpan.traceId);assert.equal(refresh.parentSpanId,rootSpan.spanId);assert.equal(attrs(refresh.attributes).outcome,'succeeded');
  await telemetry.shutdown();
+});
+
+test('production off path hands the server null',async()=>{
+ const off=telemetryFromEnv({});
+ assert.equal(off.enabled,false);assert.equal(serverTelemetry(off),null);
+ assert.equal(serverTelemetry(null),null);assert.equal(serverTelemetry(undefined),null);
+ const on=telemetryWith(capture().fetchImpl);
+ assert.equal(serverTelemetry(on),on);
+ await on.shutdown();
+});
+
+test('a HEAD download does not count as a handoff package',async t=>{
+ const cap=capture(),telemetry=telemetryWith(cap.fetchImpl);
+ const env=await setup(t,{telemetry,outputRoot:resolve(rootPath,'artifacts')});
+ const head=await fetch(`${env.base}/api/versions/${pinnedId}/download`,{method:'HEAD'});
+ assert.equal(head.status,200);
+ const get=await fetch(`${env.base}/api/versions/${pinnedId}/download`);await get.arrayBuffer();
+ assert.equal(get.status,200);
+ await telemetry.shutdown();
+ assert.equal(metricValue(cap.calls,'rrc_handoff_packages',{outcome:'succeeded'}),1,'only the GET counts');
+ assert.equal(spansOf(cap.calls).filter(s=>s.name==='handoff.package').length,1);
+ assert.equal(logsOf(cap.calls).filter(l=>l.body.stringValue==='package served').length,1);
 });
