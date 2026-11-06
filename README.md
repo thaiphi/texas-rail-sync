@@ -62,6 +62,69 @@ Analytics is built from its own repository's Dockerfile at a pinned commit (see 
 
 Dev and production deploys, rollback and the one-time owner setup are in [docs/deployment.md](docs/deployment.md).
 
+## Observability (ZC-05)
+
+One Explorer well collection (`POST /api/collect`) sends traces, structured logs and metrics that share a trace ID to Grafana ([design](docs/superpowers/specs/2026-11-06-zc05-observability-design.md), issue #41). It uses no extra packages: `scripts/telemetry.mjs` sends OTLP/HTTP JSON with Node built-ins. Telemetry is off unless `OTEL_EXPORTER_OTLP_ENDPOINT` is set, and a collector that is down never fails or slows a collection.
+
+### Start it
+
+Start the app first, then Grafana ([grafana/otel-lgtm](observability/compose.yaml) `0.37.0`, about 2 GB):
+
+```
+docker compose up --build -d
+docker compose -f observability/compose.yaml up -d
+```
+
+Point the Explorer container at Grafana: set the variable in your shell and recreate Explorer (`docker-compose.yml` passes it through):
+
+```
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://lgtm:4318      # PowerShell: $env:OTEL_EXPORTER_OTLP_ENDPOINT="http://lgtm:4318"
+docker compose up -d explorer
+```
+
+- Grafana: http://127.0.0.1:3000 (anonymous, read-only Viewer). Dashboard **Explorer: well collection** (`/d/explorer-collect`); alert rule **Explorer collection failed** in folder Explorer.
+- For `npm start` outside Docker, use `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318`.
+- The app compose file creates the `swd-app` network with a fixed subnet. Run `docker network create swd-app` **only** to start Grafana without the app (as CI does). If you create it by hand before the app, it lacks that subnet, and Explorer's write guard no longer matches the gateway.
+- Optional: `OTEL_SERVICE_VERSION` (default: the `package.json` version) and `DEPLOYMENT_ENVIRONMENT` (default `local`).
+- Stop with `docker compose -f observability/compose.yaml down`.
+
+### What is collected
+
+- **Traces:** `collect` with child spans `load` (with one `source.fetch` per source file), `normalize-qc`, `export` and `index.refresh`; `lookup` with its `source.fetch` spans; `handoff.package` when Analytics downloads a dataset.
+- **Logs** (each with `trace_id` and `span_id`): `collect started`, `stage succeeded` / `stage failed`, `run finished` (run ID, outcome, failed stage, error code), `lookup finished`, `package served`.
+- **Metrics** (Prometheus names): `rrc_collect_runs_total{outcome,stage,error_code}`, `rrc_collect_duration_seconds` (histogram), `rrc_source_fetch_total{source_name,outcome}`, `rrc_handoff_packages_total{outcome}`.
+- **Allowed attributes** (anything else is dropped by the sender): `run.id`, `lookup.id`, `transfer.id`, `stage`, `outcome`, `error.code`, `source.name`, `server.address`, `row.count`, `test_fixture`, `app_token_used`, `http.route`, `http.response.status_code`. Metric labels: `stage`, `outcome`, `error_code`, `source_name`.
+- **On every signal:** `service.name=explorer`, `service.version`, `deployment.environment.name`.
+
+### What is never collected
+
+Well identifiers (UIC, API number), dataset `artifactId`s, URLs or query strings, `$where`, request headers, the Socrata token, and free-text error messages. Errors appear only as the existing error codes. A privacy test checks every exported payload. Health checks, static files and watch routes are not traced.
+
+### Deviations
+
+- Production (the Supabase Edge Function) is not observed, and hosted collection is off (D7). Telemetry covers local Docker, `npm start`, CI and Codespaces.
+- "Build once, promote the same image" does not apply: production is an Edge Function, not this image.
+- No exemplars (metric-to-trace links). The trace ID is on every span and log; metrics share the `stage`/`outcome`/`error_code` labels; the `run finished` log ties each counted run to its trace.
+- The trace across the handoff into Analytics is deferred (#54).
+
+### CI proof
+
+The `observability` workflow (`.github/workflows/observability.yml`) starts Grafana, runs a success and a forced-failure fixture collect with no network (`node scripts/collect-fixture.mjs --both`), and reads everything back through Grafana as the Viewer (`observability/collect-evidence.mjs`). Its 9 checks: traces, logs and metrics for both runs, the alert expression, and the provisioned dashboard and alert rule. The `observability-evidence` artifact holds the JSON.
+
+The Loki lookup by trace ID relies on otel-lgtm `0.37.0` storing `trace_id` as structured metadata. Re-run the `observability` workflow when bumping the image tag.
+
+### Codespace demo
+
+1. Open a GitHub Codespace on this repository.
+2. Run the commands in [Start it](#start-it).
+3. Open Explorer (port 4391), look up a well and run one real collection.
+4. In Grafana, open the dashboard, then **Explore → Tempo** to see the `collect` trace and its logs.
+5. Force a failure: `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318 node scripts/collect-fixture.mjs --fail`. The failed counter rises and the alert fires within about a minute.
+
+### On call
+
+The on-call responder (ZC-07) is tracked in #43. The alert fires when `rrc_collect_runs_total{outcome="failed"}` is higher than it was 5 minutes earlier. After an Explorer restart the counter starts again from zero, so for up to 5 minutes the alert can miss a failure.
+
 ## Run
 
 ```powershell
