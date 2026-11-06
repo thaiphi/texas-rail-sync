@@ -31,6 +31,7 @@
 - **Unchanged:** `record.json`, the evidence package, the ADRs and `Dockerfile`. `docker compose up --build` still starts only the app, and `compose-smoke` keeps its checks.
 - **Observability setup:** `grafana/otel-lgtm` with an exact pinned tag (never `latest`). Ports bind to `127.0.0.1` only: Grafana on 3000, OTLP/HTTP on 4318. Anonymous Viewer access.
 - **The app network** in `docker-compose.yml` gets `name: swd-app`; its subnet and gateway are unchanged.
+- **Time-box (owner ruling 2):** if Task 6 can't show all three signals in Grafana within half a day of Task 2 starting, stop and report. The fallback (official OTel Node packages, manual spans) is a recorded ruling with a gate update, never a silent switch.
 - **Commits:**
   - end each message with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`;
   - workers never stage, commit or push; the main session does;
@@ -164,7 +165,7 @@
   - `collector down`: telemetry endpoint `http://127.0.0.1:1`, real `fetch`. The collect returns 201, `warn` is called at most once, and there are no unhandled rejections (register `process.on('unhandledRejection')` and assert it stays unset).
   - `collector hangs`: the telemetry `fetchImpl` never resolves, and the collect returns 201 within 5 s.
   - `no telemetry, no change`: a server without `telemetry` returns the same status and response keys as before.
-  - `download is traced without the artifact id`: `GET /api/versions/<pinned id>/download` gives a `handoff.package` span whose attributes do not contain the ID.
+  - `download is traced without the artifact id`: `GET /api/versions/<pinned id>/download` (ID from `public/artifact-integrity.json`; with a temp `outputRoot` it may 404, which is fine) gives one `handoff.package` span whose `outcome` matches the status (`succeeded` for 200, `failed` otherwise) and whose attributes do not contain the ID.
 - [ ] **Step 2:** Write the failing test `test/telemetry-privacy.test.mjs`.
   - Setup: a capturing telemetry, a fixture app token `appToken:'fixture-token-not-real'` (passed into `createExplorerServer`), and a success collect, a failed collect, a lookup and a download.
   - On every captured request body, assert:
