@@ -115,11 +115,12 @@ The Loki lookup by trace ID relies on otel-lgtm `0.37.0` storing `trace_id` as s
 
 ### Codespace demo
 
-1. Open a GitHub Codespace on this repository.
-2. Run the commands in [Start it](#start-it).
-3. Open Explorer (port 4391), look up a well and run one real collection.
-4. In Grafana, open the dashboard, then **Explore → Tempo** to see the `collect` trace and its logs.
-5. Force a failure: `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318 node scripts/collect-fixture.mjs --fail`. The failed counter rises and the alert fires within about a minute.
+1. Open a GitHub Codespace on this repository. Check `node --version` (24 or higher) and `docker --version` there.
+2. In the Codespace, run the commands in [Start it](#start-it).
+3. From a terminal on your own machine, forward the ports with the same numbers: `gh codespace ports forward 4391:4391 4290:4290 3000:3000` (add `-c <codespace-name>` to pick one). VS Code desktop connected to the Codespace also works if it keeps the same local port numbers.
+4. In your local browser, open Explorer at http://127.0.0.1:4391, look up a well and run one real collection. Analytics is at http://127.0.0.1:4290 and Grafana at http://127.0.0.1:3000. The port numbers must stay the same, because Explorer's write guard and the Analytics handoff check exact loopback origins. The Codespaces browser preview URLs (`*.app.github.dev`) are refused for writes on purpose.
+5. In Grafana, open the dashboard, then **Explore → Tempo** to see the `collect` trace and its logs.
+6. Back in the Codespace, force a failure: `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318 node scripts/collect-fixture.mjs --fail`. The failed counter rises and the alert fires within a minute or two.
 
 ### On call
 
