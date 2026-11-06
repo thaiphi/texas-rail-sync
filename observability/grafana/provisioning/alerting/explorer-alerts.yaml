@@ -1,0 +1,68 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: explorer-collect
+    folder: Explorer
+    interval: 10s
+    rules:
+      - uid: explorer-collect-failed
+        title: Explorer collection failed
+        condition: C
+        data:
+          # A: failed collections that are new in the last 5 minutes. The offset-5m sum with `or vector(0)` makes a
+          # brand-new failed series count too (plain increase() misses it). Empty result means no new failure.
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              refId: A
+              datasource:
+                type: prometheus
+                uid: prometheus
+              expr: 'sum(rrc_collect_runs_total{outcome="failed"}) - (sum(rrc_collect_runs_total{outcome="failed"} offset 5m) or vector(0)) > 0'
+              instant: true
+              range: false
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              refId: B
+              datasource:
+                type: __expr__
+                uid: __expr__
+              type: reduce
+              expression: A
+              reducer: last
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              refId: C
+              datasource:
+                type: __expr__
+                uid: __expr__
+              type: threshold
+              expression: B
+              conditions:
+                - evaluator:
+                    type: gt
+                    params:
+                      - 0
+              intervalMs: 1000
+              maxDataPoints: 43200
+        dashboardUid: explorer-collect
+        noDataState: OK      # no new failure returns an empty vector, which is healthy
+        execErrState: Error
+        for: 30s
+        labels:
+          service: explorer
+          journey: collect
+        annotations:
+          summary: An Explorer well collection failed in the last 5 minutes (outcome=failed; rejected requests are not counted).
+          runbook_url: https://github.com/thaiphi/texas-rail-sync/blob/main/README.md#on-call
+          dashboard_url: http://127.0.0.1:3000/d/explorer-collect

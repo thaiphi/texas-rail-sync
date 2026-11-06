@@ -1,0 +1,36 @@
+# Explorer observability (ZC-05, issue #41): one grafana/otel-lgtm container (OTel Collector, Prometheus, Tempo, Loki, Grafana).
+#   Start the app first (`docker compose up --build -d`, which creates the `swd-app` network), then:
+#   docker compose -f observability/compose.yaml up -d
+#   Grafana  http://127.0.0.1:3000   anonymous Viewer (read-only)
+#   OTLP     http://127.0.0.1:4318   OTLP/HTTP; inside swd-app the Explorer container sends to http://lgtm:4318
+#
+# Image grafana/otel-lgtm:0.37.0 (released 2026-10-16; Grafana v13.2.3). Its own datasources, read from
+#   https://raw.githubusercontent.com/grafana/docker-otel-lgtm/v0.37.0/docker/grafana-datasources.yaml
+# have these UIDs, used by the dashboard and the alert rule:
+#   Prometheus uid: prometheus    Tempo uid: tempo    Loki uid: loki    (Pyroscope uid: pyroscope, unused)
+# The image provisions Grafana from /otel-lgtm/grafana/conf/provisioning (see its docker/Dockerfile and run-grafana.sh).
+# GF_PATHS_PROVISIONING stays unset: moving it would drop those datasources. We add single files to its
+# dashboards/ and alerting/ subfolders only, so the image's own files there stay visible.
+name: swd-observability
+
+services:
+  lgtm:
+    image: grafana/otel-lgtm:0.37.0
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      # The image defaults anonymous users to Admin; Viewer is the read-only path ZC-07 uses.
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    ports:
+      - "127.0.0.1:3000:3000"   # Grafana
+      - "127.0.0.1:4318:4318"   # OTLP/HTTP
+    volumes:
+      - ./grafana/provisioning/dashboards/explorer.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/explorer.yaml:ro
+      - ./grafana/provisioning/alerting/explorer-alerts.yaml:/otel-lgtm/grafana/conf/provisioning/alerting/explorer-alerts.yaml:ro
+      - ./grafana/dashboards:/otel-lgtm/explorer-dashboards:ro
+    restart: unless-stopped
+    networks: [app]
+
+networks:
+  app:
+    name: swd-app
+    external: true

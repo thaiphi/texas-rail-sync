@@ -31,6 +31,9 @@ services:
       TRRC_TRUSTED_REMOTE_ADDRESSES: ${SWD_GATEWAY:-172.30.0.1}   # the app network's gateway: where published-port traffic arrives from
       DATABASE_URL: postgres://explorer:explorer-dev-only@db:5432/explorer
       TRRC_SOCRATA_APP_TOKEN: ${TRRC_SOCRATA_APP_TOKEN:-}   # optional; read from your shell, never written to a file
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}   # empty = telemetry off; http://lgtm:4318 with observability/compose.yaml
+      OTEL_SERVICE_VERSION: ${OTEL_SERVICE_VERSION:-}
+      DEPLOYMENT_ENVIRONMENT: ${DEPLOYMENT_ENVIRONMENT:-local}
     restart: unless-stopped
     ports:
       - "127.0.0.1:4391:4391"
@@ -51,6 +54,8 @@ services:
 
 networks:
   app:
+    # Fixed name so observability/compose.yaml can join it as an external network.
+    name: swd-app
     ipam:
       config:
         # Override both if this range is already used on your machine or VPN, e.g. SWD_SUBNET=172.31.9.0/24 SWD_GATEWAY=172.31.9.1
