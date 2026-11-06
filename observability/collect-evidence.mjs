@@ -97,11 +97,14 @@ export function checkEvidence({fixture,tempo,loki,prometheus,alert,provisioning}
  const alertValues=promVector(alert).map(({value})=>value);
  checks.push(check('alert-expr',alertValues.some(value=>value>0),alertValues.length?`values ${alertValues.join(', ')}`:'empty result'));
  const dashboards=list(provisioning?.dashboards);
- checks.push(check('provisioned:dashboard',dashboards.some(item=>item?.uid===DASHBOARD_UID),
-  `${dashboards.length} dashboard(s); looking for uid ${DASHBOARD_UID}`));
+ const dashboard=dashboards.find(item=>item?.uid===DASHBOARD_UID);
+ checks.push(check('provisioned:dashboard',dashboard,dashboard?`found uid ${DASHBOARD_UID} (${JSON.stringify(dashboard.title??null)}) among ${dashboards.length} dashboard(s)`
+  :`${dashboards.length} dashboard(s); none has uid ${DASHBOARD_UID}`));
  const rules=isObject(provisioning?.rules)?list(provisioning.rules.data?.groups).flatMap(group=>list(group?.rules)):[];
  const rule=rules.find(item=>item?.uid===ALERT_UID||item?.name===ALERT_TITLE);
- checks.push(check('provisioned:alert',rule,rule?`rule "${rule.name}" state ${rule.state??'unknown'}`:`${rules.length} rule(s); none is ${ALERT_UID} / "${ALERT_TITLE}"`));
+ const ruleQuery=typeof rule?.query==='string'&&rule.query?`; query ${rule.query.length>300?rule.query.slice(0,300)+'...':rule.query}`:'';
+ checks.push(check('provisioned:alert',rule,rule?`rule "${rule.name}" state ${rule.state??'unknown'}, health ${rule.health??'unknown'}${ruleQuery}`
+  :`${rules.length} rule(s); none is ${ALERT_UID} / "${ALERT_TITLE}"`));
  return {ok:checks.every(item=>item.ok),checks};
 }
 

@@ -107,7 +107,14 @@ test('missing or error responses fail their checks instead of throwing',()=>{
 
 test('alert-expr needs a value above zero; provisioned checks match uid or title',()=>{
  assert.deepEqual(failedNames(checkEvidence(inputs({alert:vector([[{},0]])}))),['alert-expr']);
- assert.deepEqual(failedNames(checkEvidence(inputs({provisioning:{dashboards:dashboards('other'),rules:rules()}}))),['provisioned:dashboard']);
+ const missingDashboard=checkEvidence(inputs({provisioning:{dashboards:dashboards('other'),rules:rules()}}));
+ assert.deepEqual(failedNames(missingDashboard),['provisioned:dashboard']);
+ assert.equal(byName(missingDashboard)['provisioned:dashboard'].detail,'1 dashboard(s); none has uid explorer-collect');
+ const found=byName(checkEvidence(inputs()));
+ assert.equal(found['provisioned:dashboard'].detail,'found uid explorer-collect ("Explorer collect") among 1 dashboard(s)');
+ assert.equal(found['provisioned:alert'].detail,'rule "Explorer collection failed" state firing, health ok');
+ const withQuery=byName(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules({uid:'explorer-collect-failed',name:'Explorer collection failed',query:'sum(x) > 0'})}})));
+ assert.equal(withQuery['provisioned:alert'].detail,'rule "Explorer collection failed" state firing, health ok; query sum(x) > 0');
  assert.deepEqual(failedNames(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules(null)}}))),['provisioned:alert']);
  // Older rule payloads have no uid; the title is enough.
  assert.deepEqual(failedNames(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules({name:'Explorer collection failed'})}}))),[]);
@@ -178,6 +185,12 @@ test('parseArgs reads --in, --out, --grafana and --timeout',()=>{
  assert.deepEqual(parseArgs(['--in','a','--out','b','--grafana','http://g:3000/','--timeout','30']),{in:'a',out:'b',grafana:'http://g:3000',timeoutMs:30000});
  assert.throws(()=>parseArgs(['--out','b']),/--in/);
  assert.throws(()=>parseArgs(['--in','a','--bogus']),/Unknown/);
+});
+
+test('alert-expr queries exactly the provisioned rule expression (no stale copy)',()=>{
+ const rule=readFileSync(new URL('../observability/grafana/provisioning/alerting/explorer-alerts.yaml',import.meta.url),'utf8');
+ const exprs=[...rule.matchAll(/^\s*expr:\s*'([^']*)'\s*$/gm)].map(match=>match[1]);
+ assert.deepEqual(exprs,[QUERIES.alertExpr]);
 });
 
 test('the evidence CLI source never writes: no POST, no remote write, no auth header',()=>{
