@@ -21,7 +21,17 @@ export function parseRetryAfter(value){
  const at=Date.parse(text);return Number.isFinite(at)?Math.max(0,at-Date.now()):null;
 }
 const sendsToken=(target,appToken)=>{if(typeof appToken!=='string'||!appToken)return false;try{return new URL(target.url).origin===SOCRATA_ORIGIN;}catch{return false;}};
-export async function fetchSource(target,{fetchImpl=fetch,testFixture=false,onResponse=null,timeoutMs=30000,appToken=null}={}){
+// observer is optional: called once per attempt with {name,serverAddress,outcome,httpStatus,code,
+// appTokenUsed,startMs,endMs} (never the URL, query or token); a throwing observer is ignored.
+const hostOf=url=>{try{return new URL(url).hostname;}catch{return null;}};
+export async function fetchSource(target,{observer=null,...options}={}){
+ if(typeof observer!=='function')return fetchOnce(target,options);
+ const startMs=Date.now(),{onResponse=null}=options;let httpStatus=null;
+ const report=(outcome,code)=>{try{observer({name:target?.name,serverAddress:hostOf(target?.url),outcome,httpStatus,code,appTokenUsed:sendsToken(target,options.appToken),startMs,endMs:Date.now()});}catch{}};
+ try{const result=await fetchOnce(target,{...options,onResponse:status=>{httpStatus=status;onResponse?.(status);}});report('succeeded',null);return result;}
+ catch(error){report(error?.code==='SOURCE_THROTTLED'?'throttled':'failed',typeof error?.code==='string'?error.code:null);throw error;}
+}
+async function fetchOnce(target,{fetchImpl=fetch,testFixture=false,onResponse=null,timeoutMs=30000,appToken=null}={}){
  if(fetchImpl!==fetch&&!testFixture)throw failure('SOURCE_INVALID','Injected responses require fixture mode');
  const tokenUsed=sendsToken(target,appToken),init={signal:AbortSignal.timeout(timeoutMs),redirect:'error',...(tokenUsed?{headers:{'X-App-Token':appToken}}:{})};
  let response;try{response=await fetchImpl(target.url,init);}

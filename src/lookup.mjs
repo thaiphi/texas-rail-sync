@@ -17,13 +17,13 @@ export function inspectRows(rows,request){
  const capped=rows.length===25,counts=new Map();for(const row of rows)counts.set(row.uic_number,(counts.get(row.uic_number)??0)+1);
  return {status:capped?'cap_reached':rows.length?'ready':'empty',candidates:rows.map((row,index)=>({sourceRecordKey:`lookup:${index+1}`,ordinal:index+1,...Object.fromEntries(candidateFields.map(key=>[key,row[key]??''])),selectable:!capped&&/^\d{9}$/.test(row.uic_number)&&counts.get(row.uic_number)===1,reason:capped?'Candidate cap reached':counts.get(row.uic_number)>1?'Duplicate UIC parent identity':!/^\d{9}$/.test(row.uic_number)?'Invalid UIC identity':null}))};
 }
-export async function performLookup({request,lookupRoot,fetchImpl=fetch,testFixture=false,appToken=null,wait=undefined}){
+export async function performLookup({request,lookupRoot,fetchImpl=fetch,testFixture=false,appToken=null,wait=undefined,observer=null}){
  const target=lookupTarget(request),lookupId=randomUUID(),directory=resolve(lookupRoot,lookupId);
  await mkdir(lookupRoot,{recursive:true});await mkdir(directory);
  const evidence={schemaVersion:2,lookupId,request,testFixture,status:'running',files:{}};
  try{
   for(const item of [{name:'lookup-metadata.json',url:'https://data.texas.gov/api/views/givw-z9t4.json'},target]){
-   const {body,metadata}=await fetchSourceWithThrottleRetry(item,{fetchImpl,testFixture,appToken,wait}),sidecar=item.name.replace(/\.[^.]+$/,'')+'.source.json',metaBytes=Buffer.from(JSON.stringify(metadata,null,2)+'\n');
+   const {body,metadata}=await fetchSourceWithThrottleRetry(item,{fetchImpl,testFixture,appToken,wait,observer}),sidecar=item.name.replace(/\.[^.]+$/,'')+'.source.json',metaBytes=Buffer.from(JSON.stringify(metadata,null,2)+'\n');
    await writeFile(resolve(directory,item.name),body,{flag:'wx'});await writeFile(resolve(directory,sidecar),metaBytes,{flag:'wx'});
    evidence.files[item.name]=sha256(body);evidence.files[sidecar]=sha256(metaBytes);
   }

@@ -8,7 +8,7 @@ import {acquisitionTargets,targetsForScope,collectionScope,isBounded,versionLabe
 import {sourceCount} from './exportCore.mjs';
 export {acquisitionTargets} from './sources.mjs';
 const failure=(code,message)=>Object.assign(Error(message),{code});
-export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null,appToken=null,wait=undefined}={}){
+export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=resolve(repositoryRoot,'artifacts'),runRoot=resolve(repositoryRoot,'runs'),fetchImpl=fetch,testFixture=false,scope=collectionScope,selection=null,appToken=null,wait=undefined,observer=null}={}){
  if(fetchImpl!==fetch&&!testFixture)throw Error('Injected network responses require explicit test-fixture mode');
  // v2, v3, v4 and v5 share the bounded acquisition marker (schemaVersion 2); labels follow the query version.
  const dynamic=isBounded(scope);
@@ -35,7 +35,7 @@ export async function collectPublicSnapshot({sourceDir,artifactId,outputRoot=res
   for(const target of targets){
    const request={url:target.url,name:target.name,status:'running'};evidence.requests.push(request);
    try{
-   const {body,metadata}=await fetchSourceWithThrottleRetry(target,{fetchImpl,testFixture,appToken,wait,onResponse:status=>{request.httpStatus=status;}});
+   const {body,metadata}=await fetchSourceWithThrottleRetry(target,{fetchImpl,testFixture,appToken,wait,observer,onResponse:status=>{request.httpStatus=status;}});
    await writeFile(resolve(sourceDir,target.name),body,{flag:'wx'});
    const metadataName=target.name.replace(/\.[^.]+$/,'')+'.source.json';
    await writeFile(resolve(sourceDir,metadataName),JSON.stringify(metadata,null,2)+'\n',{flag:'wx'});
