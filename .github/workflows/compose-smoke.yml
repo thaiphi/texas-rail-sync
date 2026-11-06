@@ -56,10 +56,15 @@ jobs:
           test "$(docker compose ps --format '{{.Service}} {{.State}}' | grep '^explorer ' | awk '{print $2}')" = running
           test "$(docker inspect --format '{{.RestartCount}}' $(docker compose ps -q explorer))" = 0
 
-      - name: Analytics is up on the handoff origin
+      - name: Analytics is up on the handoff origin and read-only
         run: |
-          curl -fsS http://127.0.0.1:4290/ | head -c 400
-          curl -fsS -o /dev/null http://127.0.0.1:4290/
+          curl -fsS http://127.0.0.1:4290/ | head -c 400; echo
+          for path in / /dist/pressureReconciliation.js /output/pdf/swd-technical-exhibit.pdf; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:4290$path"); echo "$path $code"; test "$code" = 200
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:4290/); echo "POST / $code"; test "$code" = 405
+          test "$(docker inspect --format '{{.State.Health.Status}}' $(docker compose ps -q analytics))" = healthy
+          test "$(docker compose exec -T analytics id -un)" = node
 
       - name: Logs on failure
         if: failure()

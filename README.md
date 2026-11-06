@@ -56,6 +56,8 @@ docker compose up --build
 - Stop with `docker compose down`. Add `--volumes` to also drop the index.
 - Collections made inside the container (new runs, versions and source folders) live in the container only. They survive `docker compose stop`/`start` and restarts, but are lost when the container is rebuilt or removed (`up --build`, `down`). The datasets shipped in this repository are always present. Run Explorer directly with `npm start` to keep new collections in your checkout.
 
+Analytics is built from its own repository's Dockerfile at a pinned commit (see `docker-compose.yml`), so building needs internet access.
+
 `.github/workflows/compose-smoke.yml` starts the same stack on every pull request. Run every test suite with `npm run test:all`.
 
 Dev and production deploys, rollback and the one-time owner setup are in [docs/deployment.md](docs/deployment.md).
