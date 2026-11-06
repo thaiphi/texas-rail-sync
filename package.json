@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "build:artifact": "node scripts/export.mjs",
     "test:ui": "vitest run",
+    "test:all": "npm test && npm run test:ui",
     "start": "node scripts/serve.mjs"
   },
   "overrides": {

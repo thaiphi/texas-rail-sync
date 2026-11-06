@@ -54,8 +54,9 @@ docker compose up --build
 - Postgres keeps an index of collection runs and dataset versions. It is shown on **Collection history** and at `/api/health`. The files in this repository stay the record.
 - Optional: export `TRRC_SOCRATA_APP_TOKEN` in your shell first. It is passed through and never written to a file.
 - Stop with `docker compose down`. Add `--volumes` to also drop the index.
+- Collections made inside the container (new runs, versions and source folders) live in the container only. They survive `docker compose stop`/`start` and restarts, but are lost when the container is rebuilt or removed (`up --build`, `down`). The datasets shipped in this repository are always present. Run Explorer directly with `npm start` to keep new collections in your checkout.
 
-`.github/workflows/compose-smoke.yml` starts the same stack on every pull request.
+`.github/workflows/compose-smoke.yml` starts the same stack on every pull request. Run every test suite with `npm run test:all`.
 
 Dev and production deploys, rollback and the one-time owner setup are in [docs/deployment.md](docs/deployment.md).
 

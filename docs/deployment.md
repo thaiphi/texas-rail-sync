@@ -9,6 +9,8 @@ Explorer runs in three places. Owner decision 2026-11-05: no second hosted Supab
 | Analytics | Lovable project connected to `thaiphi/well-injection-insights` `main`; published at https://swdinjectionanalytics.lovable.app. A static browser app (calculations run in the browser) that uses Supabase `phxiqnsebqaalvkanljb` only for a read-only health check. Locally it runs in the same Docker system | Dev: Lovable editor preview follows `main` automatically. Production: manual Lovable **Publish** by the owner. No separate staging |
 | Production | Website on Lovable; `trrc-explorer` Edge Function and the frozen archive in Supabase project `phxiqnsebqaalvkanljb` | **By hand**: `deploy-prod` workflow, then Lovable **Publish** |
 
+What "dev" means here: for the website, Lovable's editor preview, which follows `main` automatically; for the backend function, the throwaway Supabase replica, which exists only while the `deploy-dev` job runs.
+
 ## Pipeline
 
 1. Pull request: `ci` runs the Node suite with a Postgres service and the vitest suite; `compose-smoke` starts the whole Docker system.
