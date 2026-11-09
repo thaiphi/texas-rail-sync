@@ -2,8 +2,9 @@
 // one collect against an in-process Explorer server (127.0.0.1:0) on the canned fixture network, so the
 // collect produces real telemetry (one trace, logs, metrics) without any RRC call. Runs from a repo
 // checkout only: the fixture network reads raw/ and test/fixtures/.
-//   node scripts/collect-fixture.mjs [--fail | --both] [--out <file>]
-// Telemetry is a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is set; without it, traceId is null in the output.
+//   node scripts/collect-fixture.mjs [--fail | --both] [--out <file>] [--endpoint <otlp-url>]
+// Telemetry is a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT (or --endpoint, which wins) is set; without it, traceId is null.
+// `npm run alert:trigger` is `--fail --endpoint http://127.0.0.1:4318`: one failed collect for the alert demo (ZC-06).
 import {mkdir,mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
@@ -64,21 +65,24 @@ export async function runFixtureCollects({modes=['success'],telemetry,roots,work
 }
 
 export function parseArgs(argv){
- let modes=['success'],out=null;
+ let modes=['success'],out=null,endpoint=null;
  for(let i=0;i<argv.length;i++){
   const arg=argv[i];
   if(arg==='--fail')modes=['failed'];
   else if(arg==='--both')modes=['success','failed'];
   else if(arg==='--out'){out=argv[++i];if(!out)throw Error('--out needs a file path');}
+  else if(arg==='--endpoint'){endpoint=argv[++i];if(!endpoint||endpoint.startsWith('--'))throw Error('--endpoint needs a URL');}
   else throw Error(`Unknown argument: ${arg}`);
  }
- return {modes,out};
+ return {modes,out,endpoint};
 }
 
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
- const {telemetry,roots}=createFixtureTelemetry();
+ let options;
+ try{options=parseArgs(process.argv.slice(2));}catch(error){console.error(`collect-fixture: ${error.message}`);process.exit(1);}
+ const {modes,out,endpoint}=options;
+ const {telemetry,roots}=createFixtureTelemetry(endpoint?{...process.env,OTEL_EXPORTER_OTLP_ENDPOINT:endpoint}:process.env);
  try{
-  const {modes,out}=parseArgs(process.argv.slice(2));
   const results=await runFixtureCollects({modes,telemetry,roots});
   const json=JSON.stringify(results,null,1);
   console.log(json);

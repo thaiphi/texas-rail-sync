@@ -16,7 +16,9 @@
     "build:artifact": "node scripts/export.mjs",
     "test:ui": "vitest run",
     "test:all": "npm test && npm run test:ui",
-    "start": "node scripts/serve.mjs"
+    "start": "node scripts/serve.mjs",
+    "alert:receiver": "node scripts/alert-receiver.mjs",
+    "alert:trigger": "node scripts/collect-fixture.mjs --fail --endpoint http://127.0.0.1:4318"
   },
   "overrides": {
     "rolldown": "1.2.1"
