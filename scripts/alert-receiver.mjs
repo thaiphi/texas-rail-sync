@@ -3,7 +3,8 @@
 // Each accepted body is saved verbatim as one JSON file; ZC-07 (#43) hangs the responder agent on `onAlert`.
 //   node scripts/alert-receiver.mjs [--port 8001] [--bind 127.0.0.1] [--out tmp/alerts]
 // The bearer token is ALERT_WEBHOOK_TOKEN (default: the local-only placeholder that observability/compose.yaml also uses).
-// Loopback is enough on Docker Desktop; Linux Docker (CI, Codespaces) needs --bind 0.0.0.0 to be reached from the container.
+// Loopback is enough on Docker Desktop; Linux Docker (CI, Codespaces) needs --bind 0.0.0.0 to be reached from the container,
+// and then refuses to start with the published default token: set your own ALERT_WEBHOOK_TOKEN for Grafana and the receiver.
 import {createServer} from 'node:http';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
@@ -13,6 +14,7 @@ import {timingSafeEqual} from 'node:crypto';
 export const DEFAULT_TOKEN='explorer-local-alert-token';
 const root=fileURLToPath(new URL('..',import.meta.url));
 const STATUSES=new Set(['firing','resolved']);
+const LOOPBACK=new Set(['127.0.0.1','::1','localhost']);
 
 const send=(response,status,body)=>{
  response.writeHead(status,{'content-type':'application/json','cache-control':'no-store'});
@@ -39,11 +41,12 @@ export function createAlertReceiver({token=DEFAULT_TOKEN,outDir=resolve(root,'tm
   request.on('data',chunk=>{
    if(tooLarge)return;
    size+=chunk.length;
-   if(size>maxBytes){tooLarge=true;chunks.length=0;return;}
+   // Answer at once and stop reading, so an endless body cannot keep the connection busy.
+   if(size>maxBytes){tooLarge=true;chunks.length=0;response.setHeader('connection','close');send(response,413,{error:'body too large'});request.unpipe?.();request.pause();return;}
    chunks.push(chunk);
   });
   request.on('end',async()=>{
-   if(tooLarge)return send(response,413,{error:'body too large'});
+   if(tooLarge)return;
    let body;
    try{body=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{return send(response,400,{error:'invalid JSON'});}
    const status=STATUSES.has(body?.status)?body.status:'unknown';
@@ -75,6 +78,8 @@ export function parseArgs(argv,env=process.env){
   else if(arg==='--out')options.outDir=resolve(need());
   else throw Error(`Unknown argument: ${arg}`);
  }
+ if(!LOOPBACK.has(options.bind)&&options.token===DEFAULT_TOKEN)
+  throw Error(`--bind ${options.bind} reaches beyond this machine: set your own ALERT_WEBHOOK_TOKEN (for Grafana too) instead of the published default`);
  return options;
 }
 

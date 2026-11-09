@@ -83,9 +83,23 @@ test('CLI defaults: loopback, port 8001, tmp/alerts, local token; flags override
  assert.equal(defaults.bind,'127.0.0.1');assert.equal(defaults.port,8001);
  assert.match(defaults.outDir.replace(/\\/g,'/'),/\/tmp\/alerts$/);
  assert.equal(defaults.token,DEFAULT_TOKEN);assert.equal(DEFAULT_TOKEN,'explorer-local-alert-token');
+ assert.throws(()=>parseArgs(['--bind','0.0.0.0'],{}),/ALERT_WEBHOOK_TOKEN/,'non-loopback bind refuses the published token');
+ assert.equal(parseArgs(['--bind','::1'],{}).bind,'::1');
  const custom=parseArgs(['--bind','0.0.0.0','--port','9001','--out','x/y'],{ALERT_WEBHOOK_TOKEN:'own'});
  assert.equal(custom.bind,'0.0.0.0');assert.equal(custom.port,9001);assert.equal(custom.token,'own');
  assert.match(custom.outDir.replace(/\\/g,'/'),/\/x\/y$/);
  assert.throws(()=>parseArgs(['--port','abc'],{}),/--port/);
  assert.throws(()=>parseArgs(['--nope'],{}),/Unknown argument/);
+});
+
+test('an oversized body is refused without waiting for the rest of it',async t=>{
+ const {base,outDir}=await start(t,{maxBytes:100});
+ const {request}=await import('node:http');
+ const status=await new Promise((done,fail)=>{
+  const req=request(base+'/alerts',{method:'POST',headers:{authorization:`Bearer ${TOKEN}`,'content-type':'application/json'}},res=>{res.resume();done(res.statusCode);});
+  req.on('error',error=>error.code==='ECONNRESET'||error.code==='EPIPE'?done('reset'):fail(error));
+  req.write('x'.repeat(500));// never ended: the answer must not wait for the end of the body
+ });
+ assert.equal(status,413);
+ assert.deepEqual(await readdir(outDir),[]);
 });

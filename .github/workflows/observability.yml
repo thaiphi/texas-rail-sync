@@ -35,6 +35,13 @@ jobs:
       - name: Create the app network the observability setup joins
         run: docker network create swd-app
 
+      # Grafana (compose) and the receiver share this token; the receiver refuses the published default on 0.0.0.0.
+      - name: Generate a per-run alert webhook token
+        run: |
+          token=$(openssl rand -hex 16)
+          echo "::add-mask::$token"
+          echo "ALERT_WEBHOOK_TOKEN=$token" >> "$GITHUB_ENV"
+
       - name: Start Grafana otel-lgtm
         run: docker compose -f observability/compose.yaml up -d
 

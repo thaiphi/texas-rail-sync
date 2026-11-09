@@ -249,3 +249,21 @@ test('ZC-06: collectEvidence reads the saved webhooks each attempt',async()=>{
  assert.equal(evidence.attempts,2);
  assert.equal(evidence.webhooks.length,1);
 });
+
+test('ZC-06: readAlertsDir skips files saved before sinceMs and unparseable files',async()=>{
+ const {mkdtemp,writeFile,utimes,rm}=await import('node:fs/promises');
+ const {tmpdir}=await import('node:os');const {join}=await import('node:path');
+ const {readAlertsDir}=await import('../observability/collect-evidence.mjs');
+ const dir=await mkdtemp(join(tmpdir(),'alerts-'));
+ try{
+  await writeFile(join(dir,'old-firing.json'),JSON.stringify(webhook('firing')));
+  const old=new Date(Date.now()-3600_000);await utimes(join(dir,'old-firing.json'),old,old);
+  await writeFile(join(dir,'new-resolved.json'),JSON.stringify(webhook('resolved')));
+  await writeFile(join(dir,'broken.json'),'{');
+  await writeFile(join(dir,'notes.txt'),'x');
+  assert.equal((await readAlertsDir(dir)).length,2);
+  const recent=await readAlertsDir(dir,Date.now()-60_000);
+  assert.deepEqual(recent.map(body=>body.status),['resolved']);
+  assert.equal(await readAlertsDir(join(dir,'missing')),null);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});

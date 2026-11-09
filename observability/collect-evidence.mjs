@@ -6,7 +6,7 @@
 //     [--timeout 180] [--alerts-dir tmp/alerts] [--min-failed 1]
 // <fixture.json> is the output of `node scripts/collect-fixture.mjs --both --out <file>`. Polls until every check passes
 // or the timeout ends, writes the evidence JSON either way and exits 0 (all ok) or 1.
-import {readFile,readdir,writeFile} from 'node:fs/promises';
+import {readFile,readdir,stat,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 
@@ -152,11 +152,13 @@ async function fetchAll(fetchImpl,grafana,fixture,now=Date.now()){
  const entries=await Promise.all(Object.entries(requests).map(async([key,[path,params]])=>[key,await getJson(fetchImpl,grafana,path,params)]));
  return Object.fromEntries(entries);
 }
-// Every *.json file the receiver saved, parsed (unparseable files are skipped); null if the folder cannot be read.
-export async function readAlertsDir(dir){
+// Every *.json file the receiver saved at or after sinceMs, parsed (unparseable files are skipped); null if the folder
+// cannot be read. sinceMs keeps a firing file from an earlier local demo from passing for this run.
+export async function readAlertsDir(dir,sinceMs=0){
  try{
   const names=(await readdir(dir)).filter(name=>name.endsWith('.json')).sort();
-  const bodies=await Promise.all(names.map(async name=>{try{return JSON.parse(await readFile(join(dir,name),'utf8'));}catch{return null;}}));
+  const bodies=await Promise.all(names.map(async name=>{
+   try{const file=join(dir,name);if((await stat(file)).mtimeMs<sinceMs)return null;return JSON.parse(await readFile(file,'utf8'));}catch{return null;}}));
   return bodies.filter(Boolean);
  }catch{return null;}
 }
@@ -174,7 +176,7 @@ const rawOf=responses=>Object.fromEntries(Object.entries(responses).map(([key,{u
 // Polls every intervalMs until every check passes or timeoutMs elapses. On failure it adds diagnostics:
 // the metric names Prometheus ingested, a sample of any Loki stream, and the first and last raw bodies (trimmed).
 export async function collectEvidence({fixture,grafana='http://127.0.0.1:3000',timeoutMs=180000,intervalMs=3000,fetchImpl=fetch,log=console.log,
- alertsDir='tmp/alerts',readAlerts=()=>readAlertsDir(alertsDir),minFailed=1}){
+ alertsDir='tmp/alerts',alertsSinceMs=0,readAlerts=()=>readAlertsDir(alertsDir,alertsSinceMs),minFailed=1}){
  grafana=String(grafana).replace(/\/+$/,'');
  const started=Date.now();
  let attempts=0,first=null,last=null,result=null,webhooks=null;
@@ -227,7 +229,10 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).hr
  try{
   const options=parseArgs(process.argv.slice(2));
   const fixture=JSON.parse(await readFile(options.in,'utf8'));
-  const evidence=await collectEvidence({fixture,grafana:options.grafana,timeoutMs:options.timeoutMs,alertsDir:options.alertsDir,minFailed:options.minFailed});
+  // The fixture file is written after its collects, and the alert needs at least 40 s more to fire, so a webhook
+  // saved more than 10 s before that file belongs to an earlier run.
+  const alertsSinceMs=(await stat(options.in)).mtimeMs-10_000;
+  const evidence=await collectEvidence({fixture,grafana:options.grafana,timeoutMs:options.timeoutMs,alertsDir:options.alertsDir,alertsSinceMs,minFailed:options.minFailed});
   await writeFile(options.out,JSON.stringify(evidence,null,1)+'\n');
   for(const item of evidence.checks)console.log(`${item.ok?'ok  ':'FAIL'} ${item.name}: ${item.detail}`);
   if(evidence.diagnostics)console.log('diagnostics:\n'+JSON.stringify(evidence.diagnostics,null,1));

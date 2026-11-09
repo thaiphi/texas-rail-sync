@@ -120,7 +120,14 @@ The Loki lookup by trace ID relies on otel-lgtm `0.37.0` storing `trace_id` as s
 3. From a terminal on your own machine, forward the ports with the same numbers: `gh codespace ports forward 4391:4391 4290:4290 3000:3000` (add `-c <codespace-name>` to pick one). VS Code desktop connected to the Codespace also works if it keeps the same local port numbers.
 4. In your local browser, open Explorer at http://127.0.0.1:4391, look up a well and run one real collection. Analytics is at http://127.0.0.1:4290 and Grafana at http://127.0.0.1:3000. The port numbers must stay the same, because Explorer's write guard and the Analytics handoff check exact loopback origins. The Codespaces browser preview URLs (`*.app.github.dev`) are refused for writes on purpose.
 5. In Grafana, open the dashboard, then **Explore → Tempo** to see the `collect` trace and its logs.
-6. Back in the Codespace, start the receiver in a second terminal with `npm run alert:receiver -- --bind 0.0.0.0` (Codespaces run Linux Docker, where Grafana reaches the host on a non-loopback address), then force a failure with `npm run alert:trigger`. See [On call](#on-call).
+6. Back in the Codespace, force a failure and watch the alert arrive. Codespaces run Linux Docker, where Grafana reaches the host on a non-loopback address, so give Grafana and the receiver a token of your own first:
+   ```
+   export ALERT_WEBHOOK_TOKEN=$(openssl rand -hex 16)
+   docker compose -f observability/compose.yaml up -d --force-recreate
+   npm run alert:receiver -- --bind 0.0.0.0     # leave running; in a second terminal (same token exported):
+   npm run alert:trigger
+   ```
+   See [On call](#on-call).
 
 ### On call
 
@@ -136,8 +143,9 @@ npm run alert:trigger         # terminal 2: one forced-failure fixture collect, 
 - About 45 seconds later the rule shows **Firing** in Grafana (Alerting → Alert rules) and the receiver prints `firing Explorer collection failed -> tmp/alerts/...-firing.json`. That file is Grafana's webhook body: labels, summary, runbook and dashboard links, and start time.
 - About 5 minutes after the last failure the rule returns to Normal and the receiver saves a `-resolved.json` body within 30 seconds.
 - A second failure while the rule is still firing keeps it firing; it does not send a new webhook (repeats come after 1 hour). For a clean retake, wait for the resolved message first.
-- Docker Desktop (Windows, macOS) reaches a receiver on 127.0.0.1. On Linux Docker (CI, Codespaces) add `-- --bind 0.0.0.0`; Windows may ask to allow Node through the firewall only in that case, and private networks are enough.
-- The token is `ALERT_WEBHOOK_TOKEN` for both Grafana (`observability/compose.yaml`) and the receiver. Its default, `explorer-local-alert-token`, is a local-only placeholder, not a secret. Set your own in both places before binding beyond loopback. Grafana reads the alerting files at start, so recreate it after a change: `docker compose -f observability/compose.yaml up -d --force-recreate`.
+- Docker Desktop (Windows, macOS) reaches a receiver on 127.0.0.1. On Linux Docker (CI, Codespaces) add `-- --bind 0.0.0.0`.
+- The token is `ALERT_WEBHOOK_TOKEN` for both Grafana (`observability/compose.yaml`) and the receiver. Its default, `explorer-local-alert-token`, is a local-only placeholder, not a secret, so the receiver refuses to start with it on any address other than loopback. Set your own in both places first, as in the [Codespace demo](#codespace-demo); CI generates one per run.
+- `collect-evidence.mjs` counts only webhook files saved after its fixture file, so a firing file from an earlier demo cannot pass for a new run. Grafana reads the alerting files at start, so recreate it after a change: `docker compose -f observability/compose.yaml up -d --force-recreate`.
 
 ## Run
 
