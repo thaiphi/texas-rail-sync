@@ -94,7 +94,7 @@ docker compose up -d explorer
 - **Logs** (each with `trace_id` and `span_id`): `collect started`, `stage succeeded` / `stage failed`, `run finished` (run ID, outcome, failed stage, error code), `lookup finished`, `package served`.
 - **Metrics** (Prometheus names): `rrc_collect_runs_total{outcome,stage,error_code}`, `rrc_collect_duration_seconds` (histogram), `rrc_source_fetch_total{source_name,outcome}`, `rrc_handoff_packages_total{outcome}`.
 - **Allowed attributes** (anything else is dropped by the sender): `run.id`, `lookup.id`, `transfer.id`, `stage`, `outcome`, `error.code`, `source.name`, `server.address`, `row.count`, `test_fixture`, `app_token_used`, `http.route`, `http.response.status_code`. Metric labels: `stage`, `outcome`, `error_code`, `source_name`.
-- **On every signal:** `service.name=explorer`, `service.version`, `deployment.environment.name`.
+- **On every signal:** `service.name=explorer`, `service.version`, `deployment.environment.name`, and a random `service.instance.id` per process (Prometheus label `instance`), so each process counts in its own series.
 
 ### What is never collected
 
@@ -109,7 +109,7 @@ Well identifiers (UIC, API number), dataset `artifactId`s, URLs or query strings
 
 ### CI proof
 
-The `observability` workflow (`.github/workflows/observability.yml`) starts Grafana, runs a success and a forced-failure fixture collect with no network (`node scripts/collect-fixture.mjs --both`), and reads everything back through Grafana as the Viewer (`observability/collect-evidence.mjs`). Its 9 checks: traces, logs and metrics for both runs, the alert expression, and the provisioned dashboard and alert rule. The `observability-evidence` artifact holds the JSON.
+The `observability` workflow (`.github/workflows/observability.yml`) starts Grafana and the alert receiver, runs a success and a forced-failure fixture collect with no network (`node scripts/collect-fixture.mjs --both`) plus a second failure in a new process, and reads everything back through Grafana as the Viewer (`observability/collect-evidence.mjs`). Its 11 checks: traces and logs for both runs, the success and failure metrics (2 failures, one series per process), the alert expression, the provisioned dashboard and alert rule, the rule in state firing, and Grafana's firing webhook saved by the receiver. The `observability-evidence` artifact holds the JSON, the saved webhook bodies and the receiver log.
 
 The Loki lookup by trace ID relies on otel-lgtm `0.37.0` storing `trace_id` as structured metadata. Re-run the `observability` workflow when bumping the image tag.
 
@@ -120,11 +120,24 @@ The Loki lookup by trace ID relies on otel-lgtm `0.37.0` storing `trace_id` as s
 3. From a terminal on your own machine, forward the ports with the same numbers: `gh codespace ports forward 4391:4391 4290:4290 3000:3000` (add `-c <codespace-name>` to pick one). VS Code desktop connected to the Codespace also works if it keeps the same local port numbers.
 4. In your local browser, open Explorer at http://127.0.0.1:4391, look up a well and run one real collection. Analytics is at http://127.0.0.1:4290 and Grafana at http://127.0.0.1:3000. The port numbers must stay the same, because Explorer's write guard and the Analytics handoff check exact loopback origins. The Codespaces browser preview URLs (`*.app.github.dev`) are refused for writes on purpose.
 5. In Grafana, open the dashboard, then **Explore → Tempo** to see the `collect` trace and its logs.
-6. Back in the Codespace, force a failure: `OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318 node scripts/collect-fixture.mjs --fail`. The failed counter rises and the alert fires within a minute or two.
+6. Back in the Codespace, start the receiver in a second terminal with `npm run alert:receiver -- --bind 0.0.0.0` (Codespaces run Linux Docker, where Grafana reaches the host on a non-loopback address), then force a failure with `npm run alert:trigger`. See [On call](#on-call).
 
 ### On call
 
-The on-call responder (ZC-07) is tracked in #43. The alert fires when `rrc_collect_runs_total{outcome="failed"}` is higher than it was 5 minutes earlier. After an Explorer restart the counter starts again from zero, so for up to 5 minutes the alert can miss a failure.
+**Alert (ZC-06, issue #42).** The Grafana rule **Explorer collection failed** fires when a well collection has failed in the last 5 minutes (`rrc_collect_runs_total{outcome="failed"}` rose, or a new process reported a failure). That is a failure the user sees, not a resource graph; rejected requests (bad input, wrong origin) do not count. Grafana sends that rule, and only that rule, to the local responder's webhook, `POST http://host.docker.internal:8001/alerts` with a bearer token. The responder itself (ZC-07) is tracked in #43.
+
+Trigger it on demand, with Grafana running ([Start it](#start-it)):
+
+```
+npm run alert:receiver        # terminal 1: listens on 127.0.0.1:8001 and saves each alert to tmp/alerts/
+npm run alert:trigger         # terminal 2: one forced-failure fixture collect, no network
+```
+
+- About 45 seconds later the rule shows **Firing** in Grafana (Alerting → Alert rules) and the receiver prints `firing Explorer collection failed -> tmp/alerts/...-firing.json`. That file is Grafana's webhook body: labels, summary, runbook and dashboard links, and start time.
+- About 5 minutes after the last failure the rule returns to Normal and the receiver saves a `-resolved.json` body within 30 seconds.
+- A second failure while the rule is still firing keeps it firing; it does not send a new webhook (repeats come after 1 hour). For a clean retake, wait for the resolved message first.
+- Docker Desktop (Windows, macOS) reaches a receiver on 127.0.0.1. On Linux Docker (CI, Codespaces) add `-- --bind 0.0.0.0`; Windows may ask to allow Node through the firewall only in that case, and private networks are enough.
+- The token is `ALERT_WEBHOOK_TOKEN` for both Grafana (`observability/compose.yaml`) and the receiver. Its default, `explorer-local-alert-token`, is a local-only placeholder, not a secret. Set your own in both places before binding beyond loopback. Grafana reads the alerting files at start, so recreate it after a change: `docker compose -f observability/compose.yaml up -d --force-recreate`.
 
 ## Run
 
