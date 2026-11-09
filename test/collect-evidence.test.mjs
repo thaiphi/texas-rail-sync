@@ -31,6 +31,9 @@ const rules=(rule={uid:'explorer-collect-failed',name:'Explorer collection faile
  {name:'explorer-collect',file:'Explorer',rules:rule?[{...rule,state:'firing',health:'ok',type:'alerting'}]:[]}]}});
 const dashboards=(uid='explorer-collect')=>[{id:1,uid,title:'Explorer collect',type:'dash-db',url:`/d/${uid}/explorer-collect`}];
 
+// Grafana webhook bodies as saved by scripts/alert-receiver.mjs (ZC-06).
+const webhook=(status='firing',alertname='Explorer collection failed')=>({receiver:'explorer-responder',status,
+ alerts:[{status,labels:{alertname,service:'explorer',journey:'collect'},annotations:{summary:'s'},fingerprint:'f'}]});
 const inputs=(overrides={})=>({
  fixture:fixture(),
  tempo:{success:tempoBatches([span('collect'),span('load'),span('normalize-qc'),span('export'),span('source.fetch')]),
@@ -39,6 +42,7 @@ const inputs=(overrides={})=>({
  prometheus:runsMetric(),
  alert:vector([[{},1]]),
  provisioning:{dashboards:dashboards(),rules:rules()},
+ webhooks:[webhook('firing')],
  ...overrides,
 });
 const byName=result=>Object.fromEntries(result.checks.map(check=>[check.name,check]));
@@ -49,7 +53,7 @@ test('all signals present gives ok:true with every named check',()=>{
  assert.deepEqual(failedNames(result),[]);
  assert.equal(result.ok,true);
  assert.deepEqual(result.checks.map(check=>check.name),['trace:success','trace:failed','logs:success','logs:failed',
-  'metric:succeeded','metric:failed','alert-expr','provisioned:dashboard','provisioned:alert']);
+  'metric:succeeded','metric:failed','alert-expr','provisioned:dashboard','provisioned:alert','alert:firing','webhook:received']);
  for(const check of result.checks)assert.equal(typeof check.detail,'string');
 });
 
@@ -101,7 +105,7 @@ test('missing or error responses fail their checks instead of throwing',()=>{
   alert:vector([]),provisioning:{dashboards:null,rules:{status:'success',data:{groups:[]}}}});
  assert.equal(result.ok,false);
  assert.deepEqual(failedNames(result),['trace:success','trace:failed','logs:success','logs:failed','metric:succeeded','metric:failed',
-  'alert-expr','provisioned:dashboard','provisioned:alert']);
+  'alert-expr','provisioned:dashboard','provisioned:alert','alert:firing','webhook:received']);
  assert.equal(checkEvidence({}).ok,false);
 });
 
@@ -115,7 +119,7 @@ test('alert-expr needs a value above zero; provisioned checks match uid or title
  assert.equal(found['provisioned:alert'].detail,'rule "Explorer collection failed" state firing, health ok');
  const withQuery=byName(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules({uid:'explorer-collect-failed',name:'Explorer collection failed',query:'sum(x) > 0'})}})));
  assert.equal(withQuery['provisioned:alert'].detail,'rule "Explorer collection failed" state firing, health ok; query sum(x) > 0');
- assert.deepEqual(failedNames(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules(null)}}))),['provisioned:alert']);
+ assert.deepEqual(failedNames(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules(null)}}))),['provisioned:alert','alert:firing'],'no rule: neither provisioned nor firing');
  // Older rule payloads have no uid; the title is enough.
  assert.deepEqual(failedNames(checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:rules({name:'Explorer collection failed'})}}))),[]);
 });
@@ -139,7 +143,7 @@ test('collectEvidence uses GET only, no auth header, the allowed Grafana paths, 
   const body=answers(url);
   return {status:body?200:404,ok:!!body,text:async()=>body?JSON.stringify(body):'trace not found'};
  };
- const evidence=await collectEvidence({fixture:fixture(),grafana:'http://127.0.0.1:3000',timeoutMs:5000,intervalMs:1,fetchImpl,log:()=>{}});
+ const evidence=await collectEvidence({fixture:fixture(),grafana:'http://127.0.0.1:3000',timeoutMs:5000,intervalMs:1,fetchImpl,readAlerts:async()=>[webhook('firing')],log:()=>{}});
  assert.equal(evidence.ok,true,JSON.stringify(evidence.checks));
  assert.equal(evidence.attempts,2);
  for(const {url,init} of calls){
@@ -173,16 +177,18 @@ test('collectEvidence times out with ok:false, keeps checks and gathers diagnost
  const evidence=await collectEvidence({fixture:fixture(),grafana:'http://127.0.0.1:3000',timeoutMs:20,intervalMs:5,fetchImpl,log:()=>{}});
  assert.equal(evidence.ok,false);
  assert.ok(evidence.attempts>=1);
- assert.equal(evidence.checks.length,9);
+ assert.equal(evidence.checks.length,11);
  assert.deepEqual(evidence.diagnostics.metricNames.body.data,['rrc_collect_runs_total','target_info']);
  const raw=Object.values(evidence.diagnostics.firstResponses);
  assert.ok(raw.length>0);
  for(const entry of raw)assert.ok(entry.text.length<=1200,'raw bodies are trimmed');
 });
 
-test('parseArgs reads --in, --out, --grafana and --timeout',()=>{
- assert.deepEqual(parseArgs(['--in','a.json','--out','b.json']),{in:'a.json',out:'b.json',grafana:'http://127.0.0.1:3000',timeoutMs:90000});
- assert.deepEqual(parseArgs(['--in','a','--out','b','--grafana','http://g:3000/','--timeout','30']),{in:'a',out:'b',grafana:'http://g:3000',timeoutMs:30000});
+test('parseArgs reads --in, --out, --grafana, --timeout, --alerts-dir and --min-failed',()=>{
+ assert.deepEqual(parseArgs(['--in','a.json','--out','b.json']),{in:'a.json',out:'b.json',grafana:'http://127.0.0.1:3000',timeoutMs:180000,alertsDir:'tmp/alerts',minFailed:1});
+ assert.deepEqual(parseArgs(['--in','a','--out','b','--grafana','http://g:3000/','--timeout','30','--alerts-dir','x','--min-failed','2']),
+  {in:'a',out:'b',grafana:'http://g:3000',timeoutMs:30000,alertsDir:'x',minFailed:2});
+ assert.throws(()=>parseArgs(['--in','a','--out','b','--min-failed','0']),/--min-failed/);
  assert.throws(()=>parseArgs(['--out','b']),/--in/);
  assert.throws(()=>parseArgs(['--in','a','--bogus']),/Unknown/);
 });
@@ -199,4 +205,47 @@ test('the evidence CLI source never writes: no POST, no remote write, no auth he
  assert.doesNotMatch(source,/\/api\/v1\/write/);
  assert.doesNotMatch(source,/\/api\/v1\/provisioning/);
  assert.doesNotMatch(source,/authorization/i);
+});
+
+test('ZC-06: no webhook, only a resolved one, or another alert fails webhook:received only',()=>{
+ for(const webhooks of [null,[],[webhook('resolved')],[webhook('firing','DatasourceNoData')],[{status:'firing',alerts:'bad'}]]){
+  const result=checkEvidence(inputs({webhooks}));
+  assert.deepEqual(failedNames(result),['webhook:received'],JSON.stringify(webhooks));
+ }
+ const ok=checkEvidence(inputs({webhooks:[webhook('resolved'),webhook('firing')]}));
+ assert.deepEqual(failedNames(ok),[]);
+ assert.match(byName(ok)['webhook:received'].detail,/1 firing/);
+});
+
+test('ZC-06: a rule that is pending or inactive fails alert:firing only',()=>{
+ for(const state of ['pending','inactive','normal']){
+  const body=rules();body.data.groups[0].rules[0].state=state;
+  const result=checkEvidence(inputs({provisioning:{dashboards:dashboards(),rules:body}}));
+  assert.deepEqual(failedNames(result),['alert:firing'],state);
+  assert.match(byName(result)['alert:firing'].detail,new RegExp(state));
+ }
+});
+
+test('ZC-06: minFailed 2 needs two failed processes (two series), not one overwritten counter',()=>{
+ assert.deepEqual(failedNames(checkEvidence({...inputs(),minFailed:2})),['metric:failed']);
+ const two=runsMetric([[{__name__:'rrc_collect_runs_total',job:'explorer',instance:'b',outcome:'failed',stage:'load',error_code:'HTTP_ERROR'},1]]);
+ assert.deepEqual(failedNames(checkEvidence({...inputs({prometheus:two}),minFailed:2})),[]);
+});
+
+test('ZC-06: collectEvidence reads the saved webhooks each attempt',async()=>{
+ let reads=0;
+ const fetchImpl=async url=>{
+  const path=new URL(url).pathname,query=new URL(url).searchParams.get('query');
+  const i=inputs();
+  const body=path.includes('/tempo/')?(path.endsWith(SUCCESS_TRACE)?i.tempo.success:i.tempo.failed)
+   :path.includes('query_range')?(query.includes(SUCCESS_TRACE)?i.loki.success:i.loki.failed)
+   :path.endsWith('/api/v1/query')?(query===QUERIES.alertExpr?i.alert:i.prometheus)
+   :path.endsWith('/rules')?i.provisioning.rules:i.provisioning.dashboards;
+  return {status:200,ok:true,text:async()=>JSON.stringify(body)};
+ };
+ const readAlerts=async()=>++reads<2?[]:[webhook('firing')];
+ const evidence=await collectEvidence({fixture:fixture(),timeoutMs:5000,intervalMs:1,fetchImpl,readAlerts,log:()=>{}});
+ assert.equal(evidence.ok,true,JSON.stringify(evidence.checks));
+ assert.equal(evidence.attempts,2);
+ assert.equal(evidence.webhooks.length,1);
 });
