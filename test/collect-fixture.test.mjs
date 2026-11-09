@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdir,readdir} from 'node:fs/promises';
-import {createFixtureTelemetry,runFixtureCollects} from '../scripts/collect-fixture.mjs';
+import {createFixtureTelemetry,runFixtureCollects,parseArgs} from '../scripts/collect-fixture.mjs';
 const tmp=new URL('../tmp/',import.meta.url);
 const listTmp=async()=>{await mkdir(tmp,{recursive:true});return new Set(await readdir(tmp));};
 
@@ -30,4 +30,13 @@ test('no endpoint: no-op telemetry still runs and reports outcomes',async()=>{
  const [result]=await runFixtureCollects({modes:['success'],telemetry,roots});
  await telemetry.shutdown();
  assert.equal(result.outcome,'succeeded');assert.equal(result.traceId,null);
+});
+
+// ZC-06: `npm run alert:trigger` passes the endpoint as a flag, because `VAR=x node ...` fails in npm scripts on Windows.
+test('parseArgs: modes, --out and --endpoint',()=>{
+ assert.deepEqual(parseArgs([]),{modes:['success'],out:null,endpoint:null});
+ assert.deepEqual(parseArgs(['--fail','--endpoint','http://127.0.0.1:4318']),{modes:['failed'],out:null,endpoint:'http://127.0.0.1:4318'});
+ assert.deepEqual(parseArgs(['--both','--out','f.json']).modes,['success','failed']);
+ assert.throws(()=>parseArgs(['--endpoint']),/--endpoint needs a URL/);
+ assert.throws(()=>parseArgs(['--endpoint','--fail']),/--endpoint needs a URL/);
 });

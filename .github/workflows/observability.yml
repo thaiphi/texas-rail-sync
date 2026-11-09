@@ -1,6 +1,7 @@
 # Proves the telemetry round trip (ZC-05, issue #41): Grafana otel-lgtm starts, a success and a forced-failure
 # fixture collect export OTLP, and the traces, logs, metrics, dashboard and alert rule are read back through
 # Grafana as the anonymous Viewer (GET only). No live RRC request is made.
+# ZC-06 (issue #42): the alert then fires and Grafana's webhook reaches the local responder receiver.
 name: observability
 
 on:
@@ -34,6 +35,13 @@ jobs:
       - name: Create the app network the observability setup joins
         run: docker network create swd-app
 
+      # Grafana (compose) and the receiver share this token; the receiver refuses the published default on 0.0.0.0.
+      - name: Generate a per-run alert webhook token
+        run: |
+          token=$(openssl rand -hex 16)
+          echo "::add-mask::$token"
+          echo "ALERT_WEBHOOK_TOKEN=$token" >> "$GITHUB_ENV"
+
       - name: Start Grafana otel-lgtm
         run: docker compose -f observability/compose.yaml up -d
 
@@ -48,15 +56,30 @@ jobs:
           echo "Grafana: '$grafana'  OTLP: '$otlp' after 120 s"
           exit 1
 
-      - name: Fixture collects (success and forced failure) exporting OTLP
+      # Grafana reaches the host as host.docker.internal (extra_hosts in observability/compose.yaml); on Linux that
+      # address is not loopback, hence --bind 0.0.0.0. Output goes to a file, or the background job holds the step open.
+      - name: Start the alert receiver (local on-call responder)
+        run: |
+          nohup node scripts/alert-receiver.mjs --bind 0.0.0.0 --out tmp/alerts > alert-receiver.log 2>&1 &
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:8001/health; then echo; exit 0; fi
+            sleep 1
+          done
+          cat alert-receiver.log
+          exit 1
+
+      # Two failing processes: with service.instance.id each is its own series, so the failed count reaches 2.
+      - name: Fixture collects (success and forced failure, then a second failure) exporting OTLP
         env:
           OTEL_EXPORTER_OTLP_ENDPOINT: http://127.0.0.1:4318
           OTEL_SERVICE_VERSION: ${{ github.sha }}
           DEPLOYMENT_ENVIRONMENT: ci
-        run: node scripts/collect-fixture.mjs --both --out observability-fixture.json
+        run: |
+          node scripts/collect-fixture.mjs --both --out observability-fixture.json
+          node scripts/collect-fixture.mjs --fail --out observability-fixture-second-failure.json
 
-      - name: Read the signals back through Grafana
-        run: node observability/collect-evidence.mjs --in observability-fixture.json --out observability-evidence.json
+      - name: Read the signals back through Grafana and wait for the alert webhook
+        run: node observability/collect-evidence.mjs --in observability-fixture.json --out observability-evidence.json --alerts-dir tmp/alerts --min-failed 2
 
       - name: Evidence summary
         if: always()
@@ -81,7 +104,10 @@ jobs:
           name: observability-evidence
           path: |
             observability-fixture.json
+            observability-fixture-second-failure.json
             observability-evidence.json
+            alert-receiver.log
+            tmp/alerts/
           if-no-files-found: warn
 
       - name: Diagnostics and logs on failure
@@ -89,6 +115,9 @@ jobs:
         run: |
           echo "--- fixture"; cat observability-fixture.json 2>/dev/null || echo "(none)"
           echo "--- evidence diagnostics"; jq '.diagnostics' observability-evidence.json 2>/dev/null || echo "(none)"
+          echo "--- alert receiver"; cat alert-receiver.log 2>/dev/null || echo "(none)"; ls -la tmp/alerts 2>/dev/null || true
+          echo "--- alert rules (state)"
+          curl -sS 'http://127.0.0.1:3000/api/prometheus/grafana/api/v1/rules' | head -c 4000; echo
           echo "--- metric names via the Prometheus proxy"
           curl -sS 'http://127.0.0.1:3000/api/datasources/proxy/uid/prometheus/api/v1/label/__name__/values' | head -c 4000; echo
           echo "--- otel-lgtm logs"

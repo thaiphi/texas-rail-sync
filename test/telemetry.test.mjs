@@ -308,3 +308,14 @@ test('a successful export releases the response body without unhandled rejection
  await new Promise(r=>setImmediate(r));
  assert.equal(cancelled,3);assert.deepEqual(unhandled,[]);assert.deepEqual(warnings,[]);
 });
+
+// ZC-06: each process is its own Prometheus series (instance label), so a second failure in another process
+// adds a series instead of overwriting the first one's counter.
+test('resource carries exactly four keys, with a fresh service.instance.id per telemetry instance',()=>{
+ const resourceOf=()=>{const {calls,tel}=make();const s=tel.startSpan('x');s.end();tel.sendTrace(s.traceId);return calls[0].body.resourceSpans[0].resource.attributes;};
+ const a=resourceOf(),b=resourceOf();
+ assert.deepEqual(a.map(({key})=>key).sort(),['deployment.environment.name','service.instance.id','service.name','service.version']);
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+ assert.match(attrs(a)['service.instance.id'],UUID);
+ assert.notEqual(attrs(a)['service.instance.id'],attrs(b)['service.instance.id']);
+});

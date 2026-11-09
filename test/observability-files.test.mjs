@@ -7,8 +7,10 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const read = (rel) => readFileSync(root + rel, 'utf8');
 
-const ALERT_EXPR =
-  'sum(rrc_collect_runs_total{outcome="failed"}) - (sum(rrc_collect_runs_total{outcome="failed"} offset 5m) or vector(0)) > 0';
+const F = 'rrc_collect_runs_total{outcome="failed"}';
+// ZC-06: per series (one per process since service.instance.id): the rise over 5 minutes, or the whole value for a series
+// that is new in that window. Summed, so the rule has one alert instance; empty means no new failure.
+const ALERT_EXPR = `sum((${F} - ${F} offset 5m) > 0 or (${F} unless ${F} offset 5m))`;
 const DASHBOARD_METRICS = new Set([
   'rrc_collect_runs_total',
   'rrc_collect_duration_seconds_bucket',
@@ -30,6 +32,9 @@ test('observability compose pins otel-lgtm, binds loopback only, Viewer anonymou
   assert.match(compose, /GF_AUTH_ANONYMOUS_ORG_ROLE:\s*"?Viewer"?\s*$/m);
   assert.match(compose, /external:\s*true/);
   assert.match(compose, /name:\s*swd-app\s*$/m);
+  // ZC-06: Linux Docker (CI, Codespaces) needs this for http://host.docker.internal; Docker Desktop has it built in.
+  assert.match(compose, /^\s*-\s*"?host\.docker\.internal:host-gateway"?\s*$/m);
+  assert.match(compose, /ALERT_WEBHOOK_TOKEN:\s*\$\{ALERT_WEBHOOK_TOKEN:-explorer-local-alert-token\}/);
   assert.doesNotMatch(compose, /^\s*GF_PATHS_PROVISIONING:/m, "never move the image provisioning path");
   for (const uid of ['prometheus', 'tempo', 'loki']) assert.match(compose, new RegExp(`^#.*\\b${uid}\\b`, 'm'));
 });
@@ -81,4 +86,22 @@ test('app compose names its network swd-app and keeps subnet, gateway; passes te
   assert.ok(compose.includes('OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}'));
   assert.ok(compose.includes('OTEL_SERVICE_VERSION: ${OTEL_SERVICE_VERSION:-}'));
   assert.ok(compose.includes('DEPLOYMENT_ENVIRONMENT: ${DEPLOYMENT_ENVIRONMENT:-local}'));
+});
+
+test('alert routes only itself to the local responder webhook, quickly and once (ZC-06)', () => {
+  const alert = read('observability/grafana/provisioning/alerting/explorer-alerts.yaml');
+  assert.doesNotMatch(alert, /^policies:/m, 'a policies block would replace the whole notification tree');
+  assert.match(alert, /^contactPoints:/m);
+  assert.match(alert, /name:\s*explorer-responder\s*$/m);
+  assert.match(alert, /type:\s*webhook\s*$/m);
+  assert.match(alert, /url:\s*http:\/\/host\.docker\.internal:8001\/alerts\s*$/m);
+  assert.match(alert, /authorization_scheme:\s*Bearer\s*$/m);
+  assert.match(alert, /authorization_credentials:\s*\$ALERT_WEBHOOK_TOKEN\s*$/m);
+  assert.match(alert, /disableResolveMessage:\s*false\s*$/m);
+  const settings = alert.match(/notification_settings:\r?\n((?:[ ]{10,}\S.*\r?\n)+)/)?.[1] ?? '';
+  assert.ok(settings, 'rule has a notification_settings block');
+  assert.match(settings, /receiver:\s*explorer-responder\s*$/m);
+  assert.match(settings, /group_wait:\s*5s\s*$/m);
+  assert.match(settings, /group_interval:\s*30s\s*$/m);
+  assert.match(settings, /repeat_interval:\s*1h\s*$/m);
 });
