@@ -20,6 +20,9 @@ services:
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       # The image defaults anonymous users to Admin; Viewer is the read-only path ZC-07 uses.
       GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      # ZC-06: bearer token Grafana sends to the local responder (alerting/explorer-alerts.yaml). The default is a
+      # local-only placeholder, not a secret; set your own when the responder listens beyond loopback.
+      ALERT_WEBHOOK_TOKEN: ${ALERT_WEBHOOK_TOKEN:-explorer-local-alert-token}
     ports:
       - "127.0.0.1:3000:3000"   # Grafana
       - "127.0.0.1:4318:4318"   # OTLP/HTTP
@@ -27,6 +30,9 @@ services:
       - ./grafana/provisioning/dashboards/explorer.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/explorer.yaml:ro
       - ./grafana/provisioning/alerting/explorer-alerts.yaml:/otel-lgtm/grafana/conf/provisioning/alerting/explorer-alerts.yaml:ro
       - ./grafana/dashboards:/otel-lgtm/explorer-dashboards:ro
+    # ZC-06: lets Grafana reach the host responder on Linux Docker (CI, Codespaces); Docker Desktop resolves it already.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     networks: [app]
 

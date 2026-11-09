@@ -1,7 +1,7 @@
 // ZC-05: minimal OTLP/HTTP JSON sender (traces, logs, metrics) built on Node built-ins only.
 // Telemetry is a no-op unless an endpoint is configured. It never throws into callers, never awaits a
 // collector on a request path, drops every attribute/label outside the allowlists and warns once per instance.
-import {randomBytes} from 'node:crypto';
+import {randomBytes,randomUUID} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 
 const SPAN_ATTRIBUTE_KEYS=new Set(['run.id','lookup.id','transfer.id','stage','outcome','error.code','source.name','server.address',
@@ -70,6 +70,8 @@ export function createTelemetry({endpoint,serviceVersion,environment,fetchImpl=f
  const resource={attributes:otlpAttributes({
   'service.name':'explorer',
   'service.version':serviceVersion||PACKAGE_VERSION,
+  // ZC-06: one Prometheus series per process (the instance label), so a later process never overwrites an earlier counter.
+  'service.instance.id':randomUUID(),
   'deployment.environment.name':environment||'local',
  })};
  const scope={name:'explorer'};

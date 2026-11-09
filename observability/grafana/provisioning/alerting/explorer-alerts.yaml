@@ -10,8 +10,10 @@ groups:
         title: Explorer collection failed
         condition: C
         data:
-          # A: failed collections that are new in the last 5 minutes. The offset-5m sum with `or vector(0)` makes a
-          # brand-new failed series count too (plain increase() misses it). Empty result means no new failure.
+          # A: failed collections that are new in the last 5 minutes. Each process is its own series (service.instance.id
+          # becomes the instance label). Per series: the rise over 5 minutes, or the whole value of a series that did not
+          # exist 5 minutes ago (plain increase() misses a brand-new series). Summed, so the rule has one alert instance.
+          # Empty result means no new failure.
           - refId: A
             relativeTimeRange:
               from: 600
@@ -22,7 +24,7 @@ groups:
               datasource:
                 type: prometheus
                 uid: prometheus
-              expr: 'sum(rrc_collect_runs_total{outcome="failed"}) - (sum(rrc_collect_runs_total{outcome="failed"} offset 5m) or vector(0)) > 0'
+              expr: 'sum((rrc_collect_runs_total{outcome="failed"} - rrc_collect_runs_total{outcome="failed"} offset 5m) > 0 or (rrc_collect_runs_total{outcome="failed"} unless rrc_collect_runs_total{outcome="failed"} offset 5m))'
               instant: true
               range: false
               intervalMs: 1000
@@ -62,7 +64,30 @@ groups:
         labels:
           service: explorer
           journey: collect
+        # ZC-06: simplified routing sends this rule, and only this rule, to the local responder. The first POST comes about
+        # 5 s after the rule fires; the resolved one within 30 s of recovery; a still-firing alert is resent after 1 h.
+        notification_settings:
+          receiver: explorer-responder
+          group_wait: 5s
+          group_interval: 30s
+          repeat_interval: 1h
         annotations:
           summary: An Explorer well collection failed in the last 5 minutes (outcome=failed; rejected requests are not counted).
           runbook_url: https://github.com/thaiphi/texas-rail-sync/blob/main/README.md#on-call
           dashboard_url: http://127.0.0.1:3000/d/explorer-collect
+
+# ZC-06: the local on-call responder (scripts/alert-receiver.mjs, port 8001 on the host). Grafana runs in a container,
+# so it reaches the host as host.docker.internal (built into Docker Desktop; compose.yaml maps it on Linux).
+# $ALERT_WEBHOOK_TOKEN comes from compose.yaml (Grafana expands environment variables in provisioning files).
+contactPoints:
+  - orgId: 1
+    name: explorer-responder
+    receivers:
+      - uid: explorer-responder-webhook
+        type: webhook
+        disableResolveMessage: false
+        settings:
+          url: http://host.docker.internal:8001/alerts
+          httpMethod: POST
+          authorization_scheme: Bearer
+          authorization_credentials: $ALERT_WEBHOOK_TOKEN

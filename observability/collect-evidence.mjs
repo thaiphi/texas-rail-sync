@@ -14,7 +14,7 @@ export const ALERT_UID='explorer-collect-failed';
 export const ALERT_TITLE='Explorer collection failed';
 export const QUERIES=Object.freeze({
  runs:'rrc_collect_runs_total',
- alertExpr:'sum(rrc_collect_runs_total{outcome="failed"}) - (sum(rrc_collect_runs_total{outcome="failed"} offset 5m) or vector(0)) > 0',
+ alertExpr:'sum((rrc_collect_runs_total{outcome="failed"} - rrc_collect_runs_total{outcome="failed"} offset 5m) > 0 or (rrc_collect_runs_total{outcome="failed"} unless rrc_collect_runs_total{outcome="failed"} offset 5m))',
  // otel-lgtm's Loki indexes service.name as the `service_name` label; trace_id is structured metadata.
  logs:traceId=>`{service_name="explorer"} | trace_id="${traceId}"`,
  // Diagnostics only (same query_range endpoint): any stream, to show the real label and metadata names.
