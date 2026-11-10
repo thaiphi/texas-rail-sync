@@ -118,3 +118,10 @@ test('hosting shell declares guest mode and no longer says collection is unavail
  prepareHosting();const shell=readFileSync(new URL('../tmp/hosting/shell.html',import.meta.url),'utf8');
  assert.match(shell,/<head><meta name="trrc-mode" content="guest">/);assert.doesNotMatch(shell,/not enabled yet/);
 });
+test('hosting banner does not invite guest collection while it is switched off (ZC-08)',()=>{
+ prepareHosting();const shell=readFileSync(new URL('../tmp/hosting/shell.html',import.meta.url),'utf8');
+ assert.doesNotMatch(shell,/collect a small public dataset as a guest/);
+ assert.match(shell,/Collecting new wells is switched off here/);
+ assert.match(shell,/href="#dataset\/rrc-2026-10-09-uic000020838-v1\/records"/);
+ assert.match(shell,/href="https:\/\/github\.com\/thaiphi\/texas-rail-sync#run-the-whole-system-docker"/);
+});

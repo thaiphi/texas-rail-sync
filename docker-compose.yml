@@ -46,7 +46,7 @@ services:
     # Built from Analytics' own repo-root Dockerfile at a pinned commit (node:24.13.0-alpine, non-root, GET/HEAD only,
     # listens on 0.0.0.0:4290, healthcheck on GET /). Bump the SHA to take a newer Analytics main.
     build:
-      context: https://github.com/thaiphi/well-injection-insights.git#23dab995a533a4a97d922a17d7e1989436e9eaa7
+      context: https://github.com/thaiphi/well-injection-insights.git#5ce9cae7ce156d9d5e59bc7811962fd854b6a6fc
     restart: unless-stopped
     ports:
       - "127.0.0.1:4290:4290"

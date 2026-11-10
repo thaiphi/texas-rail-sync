@@ -1,45 +1,79 @@
-# Texas RRC Explorer
+# Texas RRC Explorer + SWD Injection Analytics
 
-## Guest collection status (October 14, 2026)
+One system in two repositories, submitted together for the [AI Dev Tools Zoomcamp](https://github.com/DataTalksClub/ai-dev-tools-zoomcamp/tree/main/project) final project.
 
-Hosted guest collection is built and locally checked (321/321 tests; final review Ready). Its hosted rollout is pending, and it stays off until the Edge flag `TRRC_GUEST_ENABLED` is set. A local official guest collection was opened and downloaded, and its TAR SHA-256 matches the job record. Details: [local guest verification](docs/verification-2026-10-14-guest-local.md). The October 13 notes below remain the record for the read-only release.
+- **Explorer** (this repository, [`thaiphi/texas-rail-sync`](https://github.com/thaiphi/texas-rail-sync)) collects and checks official well records.
+- **Analytics** ([`thaiphi/well-injection-insights`](https://github.com/thaiphi/well-injection-insights)) analyses them.
 
-## Release status (October 13, 2026)
+| Try it | Link |
+|---|---|
+| Live Explorer (browse saved datasets) | https://texasrrcexplorer.lovable.app |
+| Live Analytics (click **Take the guided tour**) | https://swdinjectionanalytics.lovable.app |
+| Demo video (about 5 minutes) | *link added after recording* |
+| Whole system on your computer | [`docker compose up --build`](#run-the-whole-system-docker) |
 
-This is the current state; the dated banners below are historical and superseded where they conflict.
+## The problem
 
-**Delivered:**
-- Local bounded UIC/H-10 collection, normalization/QC, immutable versioned exports and browser inspection (`node scripts/serve.mjs`).
-- Hosted read-only browsing (Lovable preview backed by the private Supabase archive): saved versions, sources, quality reports, recorded runs and byte-identical TAR downloads.
-- Analytics browser handoff.
+Oil wells in Texas bring up large volumes of salt water. It is pumped back underground through disposal wells, and the Railroad Commission of Texas (RRC) regulates every one of them. The RRC publishes the records an engineer needs to judge a disposal well:
+- the permit, with its pressure and volume limits;
+- monthly injection reports (form H-10);
+- pressure tests, casing and plugging records.
 
-Default pin SHA-256 `2bc9bbbe3738d5de1112c2bfd09a094eade796b4285653e19cdb999bc5d0f727` and all raw/artifact/run evidence are unchanged.
+They are spread across separate portals and datasets, with no link between a report and the source it came from. Engineers copy them into spreadsheets by hand. Mistakes are easy, and nobody can later prove which numbers came from where.
 
-**Not in this release: hosted guest collection.** The guest backend is built and locally gated: journal/budget SQL drafts pass 22/22 in disposable PostgreSQL, native Storage passes 8/8 and local Edge probes pass. It is **disabled in production**. The SQL drafts are not applied. The Edge entrypoint does not mount guest routes, and the browser has no guest wiring. Open release blockers are listed in [the storage/admission checkpoint](docs/verification-2026-10-13-storage-admission.md#remaining-release-gaps): hosted secret-key/PostgREST behavior, Free-plan headroom, late-write/orphan cleanup, browser integration and an end-to-end walkthrough.
+## What the system does
 
-**Earlier resumption (October 11):** Lovable MCP authorization is restored. The [working preview](https://f0e9357f-02d2-4f69-8979-05a2e7bda2b3.lovableproject.com/#datasets) shows all three verified dataset versions; original-example records and29 historical runs were inspected. The older `id-preview` address returned503 with unverified origin. Some full production Node runs passed **186/186**, but the latest unmodified-application run is **183/186 PASS,3 FAILED** on publication renameEPERM. A standalone filesystem probe also reproducedEPERM without importing application code; its responsible Windows/sandbox component remains unknown. `node scripts/check-isolated.mjs` preserves every check in a fresh copy. Protected data/pins remain unchanged. Hosted sign-in/collection and release acceptance remain unfinished. See [runtime options requiring a decision](docs/hosted-collection-options-2026-10-11.md), [hosting verification](docs/verification-2026-10-11-lovable-hosting.md) and the [computer migration handover](docs/HANDOVER-2026-10-11.md); older checkpoint summaries below are historical.
+1. **Find a well.** In Explorer, enter a well's 9-digit UIC number or 8-digit API number. Explorer looks it up in the official RRC inventory and shows the candidates; you choose one.
+2. **Collect.** Choose 1–36 reporting months. Explorer downloads the official records, keeps the original bytes, converts them into clean tables and runs quality checks. A missing month stays missing; it is never turned into a zero.
+3. **Review.** Each collection becomes a new, unchangeable dataset version with its sources, quality report and data dictionary. Earlier versions are never overwritten.
+4. **Hand over.** **Downloads → Use in Injection Analytics** sends the whole version to Analytics in the browser. Analytics checks every file hash before showing anything and waits for you to confirm.
+5. **Analyse.** Analytics shows the injection history and screens the pressures. For each month, it estimates the pressure at the bottom of the well from the reported surface pressure, then compares it with the regulatory and permit limits (**WHP/BHP reconciliation**). It also compares planned water volumes with injection capacity.
 
-**Lovable browsing integration (October 11):** Lovable's original TanStack hosting configuration now wraps the preserved Explorer interface. Saved public versions, sources, quality reports, recorded runs and downloads use the verified Supabase backend; collection/sign-in remain unavailable in the hosted preview and local collection still works. Build, type-check and changed-file lint pass; full isolated tests pass **185/185**. See [hosting evidence and remaining collection work](docs/verification-2026-10-11-lovable-hosting.md). `build` now builds the website; the previous artifact-export command is preserved as `build:artifact` and `node scripts/export.mjs`.
+**Expected behaviour:**
+- Every number can be traced to its official source file and hash.
+- Bad or unexpected source data is quarantined and shown, never silently fixed.
+- A failed collection is recorded with the stage and error code where it failed. It fires an alert, and an AI on-call agent investigates (see [On call](#on-call)).
+- Results are screening estimates for education, not a regulatory or engineering approval.
 
-**Latest hosted-backend checkpoint (October 11):** The private Supabase archive now has a tested read-only adapter for versions, recorded runs, original evidence and byte-identical TAR downloads. The final isolated suite passes **169/169** with normal user access; no filesystem permissions were changed. Independent review found no material defect in this checkpoint. The hosted UI, authorization and live collection are not connected or deployed. See [checkpoint evidence and remaining release work](docs/verification-2026-10-11-hosted-adapter.md). Earlier sandbox failures below are historical.
+**What runs where:**
+- **Live sites:** you browse saved datasets in Explorer and use Analytics. Collecting new wells is switched off there on purpose: public collection needs abuse limits and cost controls that are not finished.
+- **Your computer (Docker):** the whole flow runs, including live collection, the handoff, and monitoring.
 
-**Latest bounded handoff repair:** Four sender validation defects are fixed and independently reviewed; focused checks pass84/84. The full isolated suite still fails37 checks under existing filesystem/socket restrictions. Quarantined-record handoff requires matching Analytics eligibility changes and remains unresolved within the Explorer-only edit boundary. See [repair evidence and dependencies](docs/verification-2026-10-11-bounded-handoff-fixes.md). No dataset, pin, deployment or permission changes were made.
+```
+ RRC open data ──► Explorer ──(hash-checked package, in the browser)──► Analytics
+                   │  Node server + browser UI          browser app: calculations run locally
+                   ├─ Postgres: index of runs and dataset versions
+                   └─ OpenTelemetry ──► Grafana (traces, logs, metrics) ──► alert ──► on-call agent
+```
 
-**October11 producer checkpoint:** Downloads adds **Use in Injection Analytics** for the configured local apps. It transfers the complete verified version to a new receiver window for validation and explicit session confirmation; existing downloads and default pins remain unchanged. Producer tests pass55/55 and independent production review passed, while coordinated browser acceptance remains pending. See [transport contract](docs/adr/003-local-analytics-browser-handoff.md) and [current evidence/limitations](docs/verification-2026-10-11-analytics-handoff.md).
+## For reviewers: where each criterion is shown
 
-**Watched documents (RRC-18, 2026-11-04):** **Watched documents** lists official RRC manuals, guidance, forms and announcement pages. **Check now** (local only, owner-pressed, no scheduler) fetches each once, keeps write-once copies and flags changes until you mark them reviewed; cited UIC manual pages in **Sources** open the saved PDF at that page. See [the live proof](docs/verification-2026-11-04-e12-lite.md).
+| Criterion | Where to look |
+|---|---|
+| Problem description | This page: [The problem](#the-problem), [What the system does](#what-the-system-does) |
+| Product specification | [SPEC.md](SPEC.md) (Explorer contract), [requirements](docs/requirements.md), [Analytics product spec](https://github.com/thaiphi/well-injection-insights/blob/main/swd-injection-analytics/product-spec.md). Public tracker: [Zoomcamp milestone](https://github.com/thaiphi/texas-rail-sync/milestone/1) and [all issues](https://github.com/thaiphi/texas-rail-sync/issues). Each issue has acceptance criteria, and agents post their evidence on it before closing, for example [#43](https://github.com/thaiphi/texas-rail-sync/issues/43). |
+| Agent team | [docs/agent-team.md](docs/agent-team.md) (roles, who may do what, how work flows) and [docs/agent-workflow.md](docs/agent-workflow.md) (delegation rules). Project agent and skill: [`.claude/agents/`](.claude/agents/), [`.claude/skills/`](.claude/skills/) |
+| Context management | [AGENTS.md](AGENTS.md), with a docs map pointing to process, team, decisions ([docs/adr/](docs/adr/)), designs and plans ([docs/superpowers/](docs/superpowers/)) |
+| Application | Browser UI ([`public/`](public/)), Node backend ([`scripts/serve.mjs`](scripts/serve.mjs)) and Postgres run index ([`src/runIndex.mjs`](src/runIndex.mjs)), started together by [one command](#run-the-whole-system-docker) |
+| Testing | `npm run test:all`: Node unit and integration tests (including a real Postgres test and end-to-end collection fixtures) plus the browser UI tests (vitest). [CI](.github/workflows/ci.yml) runs them on every pull request. |
+| Containerization | [`docker-compose.yml`](docker-compose.yml): Explorer, Analytics and Postgres, with one command. [compose-smoke](.github/workflows/compose-smoke.yml) starts it on every pull request. |
+| Deployment | The two live sites above. Details: [docs/deployment.md](docs/deployment.md) |
+| CI/CD | See [CI/CD](#cicd) below |
+| Observability | [Observability](#observability-zc-05): traces, structured logs and metrics sharing one trace ID, in Grafana |
+| Alerting on user impact | [On call](#on-call): **Explorer collection failed** fires when a user's collection fails, not on CPU |
+| On-call agent | [On-call agent](#on-call-agent-zc-07). The recorded run is in [docs/evidence/zc-07-2026-11-10/](docs/evidence/zc-07-2026-11-10/RUN.md): alert → agent diagnosis → [fix PR #59](https://github.com/thaiphi/texas-rail-sync/pull/59) |
 
-**Latest navigation:** Start in **Find & collect**, enter an exact nine-digit UIC or eight-digit source API, choose a candidate, confirm 1–36 inclusive reporting months, and collect. Progress belongs to this request; live sub-stage events are unavailable. Use **Open this dataset** when the result is ready. **My datasets** opens preserved versions without changing the default pin. Inside a dataset, use **Overview / Records / Data quality / Sources / Downloads / Collection details**. **Collection history** inspects independent recorded runs, including failures; **Help** explains coverage and the Analytics handoff. Times display in your browser timezone. See the [feature matrix](docs/feature-preservation-2026-10-10.md), [current redesign evidence and limitations](docs/verification-2026-10-10-navigation-redesign.md), and [screenshot gallery](docs/screenshots-2026-10-10-navigation-redesign.md). Earlier navigation descriptions below are historical.
+## CI/CD
 
-A dependency-free Node 24 acquisition/parser/export and browser inspection app for a bounded official UIC/H-10 slice. This is a separate SWD Intelligence Lab application. No deployment or statewide coverage is claimed.
+| Stage | When | What it does |
+|---|---|---|
+| [`ci`](.github/workflows/ci.yml), [`compose-smoke`](.github/workflows/compose-smoke.yml), [`observability`](.github/workflows/observability.yml) | Every pull request | All tests with a Postgres service; the whole Docker system; the telemetry and alert path |
+| [`deploy-dev`](.github/workflows/deploy-dev.yml) | Automatically, after `ci` passes on `main` | Deploys that commit to a dev copy of the backend and checks it ([example run](https://github.com/thaiphi/texas-rail-sync/actions/runs/42765315871)) |
+| [`deploy-prod`](.github/workflows/deploy-prod.yml) | By hand, with the owner's approval | Deploys a commit from `main` that passed its tests to production, then checks the live site. Rollback: run it again with the previous good commit. |
 
-**Latest integrity repairs:** Fixture classification now survives early replay failures; successful normalization requires both named output hashes/counts; direct artifact construction rejects values or source projections that differ from privately retained loaded evidence. The full suite passes 103/103 and fresh independent adversarial review passes 47/47. Both public versions, source/history files, UI and consumer pins remain unchanged. See [repair evidence](docs/verification-2026-10-10-integrity-fixes.md) and [independent review](docs/review-2026-10-10-integrity-fixes.md). These results close the three reported defects only.
+**What "dev" is here.** The dev environment is a complete Supabase copy (database, API gateway and function runtime) that the `deploy-dev` job starts inside GitHub Actions. It deploys there, checks the result and is removed when the job ends. This was a deliberate choice: a second permanent Supabase project would add cost and lock-in for a portfolio project. Each run's log is the record of the dev deploy. Analytics is a static site that Lovable rebuilds from `main`; its production release is a manual Publish.
 
-**October 10 update:** The local website now supports real, bounded collection. In Workflow, enter an exact nine-digit UIC or eight-digit source API, inspect and explicitly select a candidate, then collect an inclusive window of 1–36 months. Each successful collection preserves sources, selection and retrieval evidence in a new immutable version and records the actual three-stage run. In Exports / history, select that version and download its complete verified TAR archive for Analytics. Version selection never changes the default pins. The live proof collected one inventory row and 28 public reports for UIC 000020838, January 2024–April 2026. See [current acceptance evidence](docs/verification-2026-10-10-acceptance.md), [bounded contract](docs/adr/002-bounded-well-selection.md) and [visual comparison](docs/visual-comparison-2026-10-10.md). Historical sections below describe the original pinned sample and earlier checks.
-
-**Purpose:** Demonstrate reservoir-engineering and disposal/injection-well analysis skill and knowledge through reproducible engineering calculations and source-backed technical records.
-
-**Deadline:** Before October 14, 2026; delivery must be complete before that date.
+Analytics has its own CI in [its repository](https://github.com/thaiphi/well-injection-insights/actions).
 
 ## Run the whole system (Docker)
 
@@ -215,7 +249,7 @@ The fixed collection map shows source loading/preservation, normalization/linkag
 
 Actual terminal run records are preserved at `runs/<run-id>/record.json`; GET/HEAD `/api/runs` and `/api/runs/<run-id>` expose validated records. Demonstration fixtures cannot enter actual history. Each invocation has separate event IDs and times; failure records retain prior successes and downstream skips. Records are written at completion, so an interrupted process may leave no history; this is not continuous live monitoring. A history-write failure makes the CLI exit unsuccessfully even if artifact export completed, and does not invent an export failure or acknowledgement. Follow the printed diagnostic before relying on history availability.
 
-Pressure means public reported injection pressure in source psi. Calendar-day rates are calculated, not observed daily rates. Permit maxima are regulatory constraints, not sustainable capacity. ODP does not provide annulus fields or original H-10 document revision identities. No GIS, permitting, LLM, credentials or synthetic public records are included. Portfolio and deployment destinations are not configured because no verified destination was supplied.
+Pressure means public reported injection pressure in source psi. Calendar-day rates are calculated, not observed daily rates. Permit maxima are regulatory constraints, not sustainable capacity. ODP does not provide annulus fields or original H-10 document revision identities. No GIS, permitting, LLM, credentials or synthetic public records are included. The live deployments are listed at the [top of this page](#texas-rrc-explorer--swd-injection-analytics).
 
 ## License
 
