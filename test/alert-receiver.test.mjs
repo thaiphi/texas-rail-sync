@@ -92,6 +92,24 @@ test('CLI defaults: loopback, port 8001, tmp/alerts, local token; flags override
  assert.throws(()=>parseArgs(['--nope'],{}),/Unknown argument/);
 });
 
+test('parseArgs --respond sets respond and keeps defaults',()=>{
+ const options=parseArgs(['--respond'],{});
+ assert.equal(options.respond,true);
+ assert.match(options.workdir.replace(/\\/g,'/'),/\/tmp\/oncall-demo$/);
+ assert.equal(options.port,8001);assert.equal(options.bind,'127.0.0.1');assert.equal(options.token,DEFAULT_TOKEN);
+ assert.match(parseArgs(['--respond','--workdir','a/b'],{}).workdir.replace(/\\/g,'/'),/\/a\/b$/);
+});
+
+test('parseArgs without --respond has respond false',()=>{
+ assert.equal(parseArgs([],{}).respond,false);
+ assert.equal(parseArgs(['--port','9001'],{}).respond,false);
+});
+
+test('--workdir needs a value',()=>{
+ assert.throws(()=>parseArgs(['--workdir'],{}),/--workdir needs a value/);
+ assert.throws(()=>parseArgs(['--workdir','--respond'],{}),/--workdir needs a value/);
+});
+
 test('an oversized body is refused without waiting for the rest of it',async t=>{
  const {base,outDir}=await start(t,{maxBytes:100});
  const {request}=await import('node:http');

@@ -32,4 +32,6 @@ Use this repository's verified absolute Git root in every seven-field brief; map
 
 Main retains coordination, integration, Git and final verification, checks root/target paths before separately authorized staging or committing, and relays useful results/blockers promptly. Workers never stage, commit or push, revert other edits or spawn helpers. These are procedural safeguards; no scheduler or hook enforcement is established.
 
+Project subagents live in `.claude/agents/` and project skills in `.claude/skills/`; they are plain Markdown, so any agent tool can read them. The `on-call-engineer` subagent (ZC-07) is the one exception to "Workers never stage, commit or push", limited as [docs/agent-team.md](docs/agent-team.md) states: it commits and pushes only its `oncall-fix/*` branch, opens a PR into an `oncall-demo/*` branch and never merges. The generic process skills (brainstorming, writing plans, subagent-driven development) come from the superpowers Claude Code plugin, not from this repository.
+
 Keep `docs/agent-workflow.md` in step with the sibling workflow when either changes; continue independent authorized work without silently dropping these safeguards.

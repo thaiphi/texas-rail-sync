@@ -1,7 +1,10 @@
 // ZC-06 (issue #42): the local on-call responder's webhook receiver. Grafana's `explorer-responder` contact point
 // (observability/grafana/provisioning/alerting/explorer-alerts.yaml) POSTs each firing and resolved alert to /alerts.
-// Each accepted body is saved verbatim as one JSON file; ZC-07 (#43) hangs the responder agent on `onAlert`.
-//   node scripts/alert-receiver.mjs [--port 8001] [--bind 127.0.0.1] [--out tmp/alerts]
+// Each accepted body is saved verbatim as one JSON file.
+//   node scripts/alert-receiver.mjs [--port 8001] [--bind 127.0.0.1] [--out tmp/alerts] [--respond [--workdir tmp/oncall-demo]]
+// ZC-07 (issue #43): --respond hangs the on-call responder (scripts/oncall/responder.mjs) on `onAlert`, so a firing
+// "Explorer collection failed" alert starts headless Claude Code in the demo worktree (--workdir); its runs go to tmp/oncall.
+// Without --respond nothing changes: alerts are only saved.
 // The bearer token is ALERT_WEBHOOK_TOKEN (default: the local-only placeholder that observability/compose.yaml also uses).
 // Loopback is enough on Docker Desktop; Linux Docker (CI, Codespaces) needs --bind 0.0.0.0 to be reached from the container,
 // and then refuses to start with the published default token: set your own ALERT_WEBHOOK_TOKEN for Grafana and the receiver.
@@ -10,6 +13,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {timingSafeEqual} from 'node:crypto';
+import {createResponder} from './oncall/responder.mjs';
 
 export const DEFAULT_TOKEN='explorer-local-alert-token';
 const root=fileURLToPath(new URL('..',import.meta.url));
@@ -69,13 +73,15 @@ export function createAlertReceiver({token=DEFAULT_TOKEN,outDir=resolve(root,'tm
 }
 
 export function parseArgs(argv,env=process.env){
- const options={port:8001,bind:'127.0.0.1',outDir:resolve(root,'tmp/alerts'),token:env.ALERT_WEBHOOK_TOKEN||DEFAULT_TOKEN};
+ const options={port:8001,bind:'127.0.0.1',outDir:resolve(root,'tmp/alerts'),token:env.ALERT_WEBHOOK_TOKEN||DEFAULT_TOKEN,respond:false,workdir:resolve(root,'tmp/oncall-demo')};
  for(let i=0;i<argv.length;i++){
   const arg=argv[i],value=argv[i+1];
   const need=()=>{if(value===undefined||value.startsWith('--'))throw Error(`${arg} needs a value`);i++;return value;};
   if(arg==='--port'){const port=Number(need());if(!Number.isInteger(port)||port<0||port>65535)throw Error('--port needs a port number');options.port=port;}
   else if(arg==='--bind')options.bind=need();
   else if(arg==='--out')options.outDir=resolve(need());
+  else if(arg==='--respond')options.respond=true;
+  else if(arg==='--workdir')options.workdir=resolve(need());
   else throw Error(`Unknown argument: ${arg}`);
  }
  if(!LOOPBACK.has(options.bind)&&options.token===DEFAULT_TOKEN)
@@ -86,9 +92,10 @@ export function parseArgs(argv,env=process.env){
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  try{
   const options=parseArgs(process.argv.slice(2));
-  const server=createAlertReceiver({token:options.token,outDir:options.outDir});
+  const onAlert=options.respond?createResponder({workdir:options.workdir,outRoot:resolve(root,'tmp/oncall')}):null;
+  const server=createAlertReceiver({token:options.token,outDir:options.outDir,onAlert});
   server.on('error',error=>{console.error(`alert-receiver: ${error.code??error.message}`);process.exit(1);});
-  server.listen(options.port,options.bind,()=>console.log(`alert-receiver: listening on http://${options.bind}:${options.port}/alerts, saving to ${options.outDir}`));
+  server.listen(options.port,options.bind,()=>console.log(`alert-receiver: listening on http://${options.bind}:${options.port}/alerts, saving to ${options.outDir}`+(options.respond?`, responding in ${options.workdir}`:'')));
   for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(()=>process.exit(0)));
  }catch(error){
   console.error(`alert-receiver: ${error.message}`);process.exitCode=1;

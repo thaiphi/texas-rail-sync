@@ -131,7 +131,7 @@ The Loki lookup by trace ID relies on otel-lgtm `0.37.0` storing `trace_id` as s
 
 ### On call
 
-**Alert (ZC-06, issue #42).** The Grafana rule **Explorer collection failed** fires when a well collection has failed in the last 5 minutes (`rrc_collect_runs_total{outcome="failed"}` rose, or a new process reported a failure). That is a failure the user sees, not a resource graph; rejected requests (bad input, wrong origin) do not count. Grafana sends that rule, and only that rule, to the local responder's webhook, `POST http://host.docker.internal:8001/alerts` with a bearer token. The responder itself (ZC-07) is tracked in #43.
+**Alert (ZC-06, issue #42).** The Grafana rule **Explorer collection failed** fires when a well collection has failed in the last 5 minutes (`rrc_collect_runs_total{outcome="failed"}` rose, or a new process reported a failure). That is a failure the user sees, not a resource graph; rejected requests (bad input, wrong origin) do not count. Grafana sends that rule, and only that rule, to the local responder's webhook, `POST http://host.docker.internal:8001/alerts` with a bearer token. The responder that acts on it is the [on-call agent](#on-call-agent-zc-07) below.
 
 Trigger it on demand, with Grafana running ([Start it](#start-it)):
 
@@ -146,6 +146,31 @@ npm run alert:trigger         # terminal 2: one forced-failure fixture collect, 
 - Docker Desktop (Windows, macOS) reaches a receiver on 127.0.0.1. On Linux Docker (CI, Codespaces) add `-- --bind 0.0.0.0`.
 - The token is `ALERT_WEBHOOK_TOKEN` for both Grafana (`observability/compose.yaml`) and the receiver. Its default, `explorer-local-alert-token`, is a local-only placeholder, not a secret, so the receiver refuses to start with it on any address other than loopback. Set your own in both places first, as in the [Codespace demo](#codespace-demo); CI generates one per run.
 - `collect-evidence.mjs` counts only webhook files saved after its fixture file, so a firing file from an earlier demo cannot pass for a new run. Grafana reads the alerting files at start, so recreate it after a change: `docker compose -f observability/compose.yaml up -d --force-recreate`.
+
+#### On-call agent (ZC-07)
+
+**Responder (ZC-07, issue #43).** When the alert fires, the responder starts Claude Code headless as the [`on-call-engineer`](.claude/agents/on-call-engineer.md) subagent, which follows the [`incident-response`](.claude/skills/incident-response/SKILL.md) skill. `oncall:break` plants a real bug on a demo branch. The agent diagnoses it from the alert and the telemetry, fixes it, and opens a PR with the diagnosis.
+
+Prerequisites: the observability stack running ([Start it](#start-it)), Claude Code installed and logged in, and `gh` logged in for the repository's account (`thaiphi`).
+
+| Step | Command | What happens |
+|---|---|---|
+| 0 | [Start it](#start-it) | Grafana/LGTM running with the ZC-06 alert and contact point |
+| 1 | `npm run oncall:break` | Creates the worktree `tmp/oncall-demo` on a new branch `oncall-demo/<UTC stamp>` from `origin/main`, plants the bug, commits it and pushes the branch (the PR needs a remote base). Refuses if `tmp/oncall-demo` exists. Add `-- --no-push` to keep it local. |
+| 2 | `GH_TOKEN=$(gh auth token -u thaiphi) npm run oncall:responder` (bash), or in PowerShell `$env:GH_TOKEN = gh auth token -u thaiphi; npm run oncall:responder` | The ZC-06 receiver with `--respond`; leave it running |
+| 3 | `npm run oncall:trigger` | One success-mode fixture collect from the demo worktree to `127.0.0.1:4318`, no network. The bug makes it fail for real. |
+| 4 | — | About 45 seconds later the alert fires, the webhook is saved under `tmp/alerts/`, the responder starts Claude and the agent opens the PR |
+| 5 | `npm run oncall:reset` | Removes the demo worktree. The remote demo and fix branches and the PR stay as evidence. |
+
+Why a PR between two throwaway branches: the bug must never reach `main`, so the agent fixes it where it lives, on the demo branch, and the PR diff shows exactly the fix.
+
+- **The agent may** read the repository, run tests and fixture collects, query local Grafana read-only, edit source to fix the bug, commit and push an `oncall-fix/<stamp>` branch cut from the demo branch, and open one PR whose base is the demo branch. If the failure is not a code bug, it writes a report and opens no PR.
+- **The agent may never** merge, push to `main` or force-push, edit the Analytics repository, read `.env`, secrets or tokens, run `gh auth switch` or `gh auth login`, or call the RRC network.
+- The alert resolves on a 5-minute timer; `oncall:verify` is what shows the fix works. After the PR opens, run `npm run oncall:verify` (before `oncall:reset`): it repeats the collect from the demo worktree, now on the agent's fix branch, and Grafana shows a succeeded run.
+- Each run's files land in `tmp/oncall/<stamp>/`: `alert.json` (the webhook), `settings.json` (the agent's permissions), `agent.jsonl` (its full stream-json log) and the agent's `report.md`. The responder ignores resolved webhooks, runs one agent at a time, stops it after 20 minutes, removes `ALERT_WEBHOOK_TOKEN` and `OTEL_*` from its environment, and turns off Claude Code auto memory so the owner's memory never reaches it. Evidence is committed under `docs/evidence/` after the recorded run.
+- Before a recorded run, clear `tmp/oncall/` (for example `Remove-Item -Recurse -Force tmp/oncall`): old run logs hold earlier answers.
+- The demo's own tests are outside `npm test`, in `test/oncall/`; run them with `npm run test:oncall` (CI runs both).
+- Delete old demo branches with `git push origin --delete oncall-demo/<stamp> oncall-fix/<stamp>`.
 
 ## Run
 

@@ -12,13 +12,19 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "node --test test/*.test.mjs",
+    "test:oncall": "node --test test/oncall/*.test.mjs",
     "test:watch": "vitest",
     "build:artifact": "node scripts/export.mjs",
     "test:ui": "vitest run",
     "test:all": "npm test && npm run test:ui",
     "start": "node scripts/serve.mjs",
     "alert:receiver": "node scripts/alert-receiver.mjs",
-    "alert:trigger": "node scripts/collect-fixture.mjs --fail --endpoint http://127.0.0.1:4318"
+    "alert:trigger": "node scripts/collect-fixture.mjs --fail --endpoint http://127.0.0.1:4318",
+    "oncall:break": "node scripts/oncall/demo.mjs break",
+    "oncall:reset": "node scripts/oncall/demo.mjs reset",
+    "oncall:responder": "node scripts/alert-receiver.mjs --respond",
+    "oncall:trigger": "node tmp/oncall-demo/scripts/collect-fixture.mjs --endpoint http://127.0.0.1:4318",
+    "oncall:verify": "node tmp/oncall-demo/scripts/collect-fixture.mjs --endpoint http://127.0.0.1:4318"
   },
   "overrides": {
     "rolldown": "1.2.1"

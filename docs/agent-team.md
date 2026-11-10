@@ -13,6 +13,9 @@ How the AI agents and the owner build Explorer and SWD Injection Analytics toget
 | **Reviewer subagent** | Reviews each task's diff against its brief (spec compliance and quality), then the whole branch before merge | Writes the change it reviews |
 | **Independent design reviewer** (a stronger model, e.g. Fable) | Read-only second opinion on consequential designs, called when the owner asks or a contract changes | Writes code |
 | **Explorer/search subagent** | Read-only searches across many files, returning conclusions | Writes anything |
+| **On-call engineer** (project subagent [`on-call-engineer`](../.claude/agents/on-call-engineer.md), following the [`incident-response`](../.claude/skills/incident-response/SKILL.md) skill) | Woken by the "Explorer collection failed" alert through `npm run oncall:responder`; diagnoses from the alert, local Grafana logs and an offline fixture collection; fixes a code bug on an `oncall-fix/*` branch and opens a PR into the `oncall-demo/*` branch, or writes a remediation report | Never merges, pushes to `main` or force-pushes, edits the Analytics repo, or reads secrets |
+
+The on-call engineer is the only role besides the main session that commits and pushes, and only to its own `oncall-fix/*` branch.
 
 ## How work flows
 

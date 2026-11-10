@@ -46,5 +46,8 @@ jobs:
       - name: Explorer suite (node --test), including the real-Postgres test
         run: npm test
 
+      - name: On-call demo suite (node --test test/oncall), kept out of npm test so the demo tree's npm test holds no answer key
+        run: npm run test:oncall
+
       - name: UI suite (vitest)
         run: npm run test:ui
