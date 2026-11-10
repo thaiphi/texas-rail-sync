@@ -75,3 +75,10 @@ test('AGENTS.md points to the project agents and skills', () => {
   const agents = read('AGENTS.md');
   for (const text of ['.claude/agents/', '.claude/skills/', 'on-call-engineer']) assert.ok(agents.includes(text), `AGENTS.md mentions ${text}`);
 });
+
+test('README documents the on-call agent demo without the answer key', () => {
+  const readme = read('README.md');
+  for (const text of ['npm run oncall:break', 'npm run oncall:responder', 'npm run oncall:trigger', 'npm run oncall:verify', 'npm run oncall:reset', 'GH_TOKEN=$(gh auth token -u'])
+    assert.ok(readme.includes(text), `README mentions ${text}`);
+  for (const key of ['1_000_000', '10_000_000', 'sourceFetch', 'SOURCE_LIMIT', 'Tighten source download cap']) assert.ok(!readme.includes(key), `README must not contain ${key}`);
+});
