@@ -6,9 +6,9 @@ import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {breakDemo,resetDemo} from '../scripts/oncall/demo.mjs';
+import {breakDemo,resetDemo} from '../../scripts/oncall/demo.mjs';
 
-const root=resolve(fileURLToPath(new URL('..',import.meta.url)));
+const root=resolve(fileURLToPath(new URL('../..',import.meta.url)));
 const NOW=new Date('2026-11-09T10:00:00.123Z');
 const STAMP='20261109T100000123Z';
 const BRANCH=`oncall-demo/${STAMP}`;
@@ -57,6 +57,14 @@ test('breakDemo refuses when tmp/oncall-demo exists',async t=>{
  await mkdir(workdir,{recursive:true});
  await assert.rejects(breakDemo({repoRoot,git,npm,now:()=>NOW,log:()=>{}}),/oncall-demo/);
  assert.deepEqual(calls,[]);
+});
+
+test('breakDemo failing part-way rethrows and hints at oncall:reset',async t=>{
+ const {repoRoot,git,npm}=await setup(t);
+ const lines=[];
+ const failingNpm=async(...args)=>{await npm(...args);throw Error('npm ci failed');};
+ await assert.rejects(breakDemo({repoRoot,git,npm:failingNpm,now:()=>NOW,log:line=>lines.push(line)}),/npm ci failed/);
+ assert.ok(lines.some(line=>line.includes('npm run oncall:reset')),lines.join('\n'));
 });
 
 test('resetDemo with no worktree does not throw',async t=>{

@@ -26,11 +26,17 @@ export async function breakDemo({repoRoot=root,git=runGit,npm=runNpm,now=()=>new
  if(existsSync(workdir))throw Error(`${workdir} already exists: run "npm run oncall:reset" first`);
  await git(['fetch','origin','main'],{cwd:repoRoot});
  await git(['worktree','add','-b',branch,workdir,'origin/main'],{cwd:repoRoot});
- await plantInto(workdir);
- await git(['-C',workdir,'commit','-am',PLANT_COMMIT_MESSAGE],{cwd:repoRoot});
- if(push)await git(['-C',workdir,'push','-u','origin',branch],{cwd:repoRoot});
- else log('oncall-demo: --no-push, the branch stays local');
- await npm(['ci','--no-audit','--no-fund'],{cwd:workdir});
+ // From here a failure leaves tmp/oncall-demo behind, and the next break refuses until it is reset.
+ try{
+  await plantInto(workdir);
+  await git(['-C',workdir,'commit','-am',PLANT_COMMIT_MESSAGE],{cwd:repoRoot});
+  if(push)await git(['-C',workdir,'push','-u','origin',branch],{cwd:repoRoot});
+  else log('oncall-demo: --no-push, the branch stays local');
+  await npm(['ci','--no-audit','--no-fund'],{cwd:workdir});
+ }catch(error){
+  log('oncall-demo: break failed part-way; run "npm run oncall:reset" before trying again');
+  throw error;
+ }
  log(`oncall-demo: broken demo ready in ${workdir} on ${branch}`);
  return {branch,workdir};
 }

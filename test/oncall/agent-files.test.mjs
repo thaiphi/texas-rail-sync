@@ -1,12 +1,12 @@
 // ZC-07 Task 4 (issue #43): the on-call engineer subagent, the incident-response skill and the team docs that name them.
-// Text checks only. The agent's permission rules deny it reading test/oncall-*, so the answer-key literals below stay
-// out of its reach.
+// Text checks only. This file lives in test/oncall/, outside `npm test`, and the agent's permission rules deny it
+// reading or running test/oncall/, so the answer-key literals below stay out of its reach.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const root = fileURLToPath(new URL('..', import.meta.url));
+const root = fileURLToPath(new URL('../..', import.meta.url));
 const read = (rel) => readFileSync(root + rel, 'utf8');
 const AGENT = '.claude/agents/on-call-engineer.md';
 const SKILL = '.claude/skills/incident-response/SKILL.md';
@@ -45,7 +45,9 @@ test('on-call engineer agent: frontmatter, procedure and branch names', () => {
 
 test('on-call engineer agent: the Never section names every hard limit', () => {
   const never = section(parse(read(AGENT)).body, 'Never');
-  for (const text of ['merge', 'main', 'force', 'Analytics', '.env', 'gh auth']) assert.ok(never.includes(text), `Never section mentions ${text}`);
+  for (const text of ['merge', 'main', 'force', 'Analytics', '.env', 'gh auth', 'GH_TOKEN']) assert.ok(never.includes(text), `Never section mentions ${text}`);
+  for (const path of ['scripts/oncall/', 'test/oncall/', 'docs/evidence/', '.superpowers/', 'npm run test:oncall']) assert.ok(never.includes(path), `Never section forbids ${path}`);
+  assert.ok(!never.includes('test/oncall-'), 'Never section uses the moved test path test/oncall/');
 });
 
 test('incident-response skill: frontmatter, commands, report and forbidden paths', () => {
@@ -54,7 +56,17 @@ test('incident-response skill: frontmatter, commands, report and forbidden paths
   assert.match(fields.description ?? '', /alert/);
   for (const text of ['scripts/collect-fixture.mjs', 'npm test', 'gh pr create --base', 'report.md', '127.0.0.1:3000'])
     assert.ok(body.includes(text), `skill body mentions ${text}`);
-  for (const path of ['scripts/oncall/', 'docs/evidence/']) assert.ok(body.includes(path), `skill forbids ${path}`);
+  for (const path of ['scripts/oncall/', 'test/oncall/', 'docs/evidence/', '.superpowers/', 'npm run test:oncall']) assert.ok(body.includes(path), `skill forbids ${path}`);
+  assert.ok(!body.includes('test/oncall-'), 'skill uses the moved test path test/oncall/');
+});
+
+test('incident-response skill: history as subjects and scoped diffs, GH_TOKEN already set', () => {
+  const { body } = parse(read(SKILL));
+  assert.ok(section(body, 'Locate the cause').includes('git log --oneline -n 20'), 'step 4 lists commit subjects only');
+  assert.match(section(body, 'Locate the cause'), /git diff \S+ -- <file>/);
+  assert.ok(section(body, 'Ground rules').includes('git log -p'), 'ground rules say git log -p is refused');
+  assert.ok(section(body, 'Ground rules').includes('GH_TOKEN'), 'ground rules say GH_TOKEN is already set');
+  assert.ok(section(body, 'Code bug').includes('GH_TOKEN` is already in your environment'), 'step 5.7 says GH_TOKEN is already set');
 });
 
 test('no answer key in the agent or the skill', () => {
@@ -78,7 +90,7 @@ test('AGENTS.md points to the project agents and skills', () => {
 
 test('README documents the on-call agent demo without the answer key', () => {
   const readme = read('README.md');
-  for (const text of ['npm run oncall:break', 'npm run oncall:responder', 'npm run oncall:trigger', 'npm run oncall:verify', 'npm run oncall:reset', 'GH_TOKEN=$(gh auth token -u'])
+  for (const text of ['npm run oncall:break', 'npm run oncall:responder', 'npm run oncall:trigger', 'npm run oncall:verify', 'npm run oncall:reset', 'GH_TOKEN=$(gh auth token -u', '$env:GH_TOKEN = gh auth token -u thaiphi; npm run oncall:responder', 'npm run test:oncall', 'clear `tmp/oncall/`'])
     assert.ok(readme.includes(text), `README mentions ${text}`);
-  for (const key of ['1_000_000', '10_000_000', 'sourceFetch', 'SOURCE_LIMIT', 'Tighten source download cap']) assert.ok(!readme.includes(key), `README must not contain ${key}`);
+  for (const key of ['1_000_000', '10_000_000', 'sourceFetch', 'SOURCE_LIMIT', 'Tighten source download cap', 'The responder itself (ZC-07) is tracked in #43']) assert.ok(!readme.includes(key), `README must not contain ${key}`);
 });

@@ -14,11 +14,12 @@ The prompt gives you three things:
 
 ## Ground rules
 
-- Do not read `scripts/oncall/`, `test/oncall-*`, `docs/superpowers/specs/*zc07*`, `docs/superpowers/plans/*zc07*` or `docs/evidence/`, and never `.env` files or other secrets. This also applies to searching: scope Grep and Glob to `src/`, `public/`, `scripts/` (excluding `scripts/oncall/`) and `test/` (excluding `test/oncall-*`).
+- Do not read `scripts/oncall/`, `test/oncall/`, `docs/superpowers/specs/*zc07*`, `docs/superpowers/plans/*zc07*`, `docs/evidence/` or `.superpowers/`, in this tree or any parent folder, and never `.env` files or other secrets. This also applies to searching: scope Grep and Glob to `src/`, `public/`, `scripts/` (excluding `scripts/oncall/`) and `test/` (excluding `test/oncall/`). Do not run the tests in `test/oncall/` either (`npm run test:oncall` and `node --test test/oncall/...` are refused); `npm test` is the suite to run.
+- Read history as commit subjects and scoped diffs only (step 4). `git log -p` and `git log --patch` are refused.
 - Grafana is read-only for you: GET requests only, with `curl -s`. Its anonymous access is read-only, so send no credentials.
 - Stay offline: no RRC or other internet calls. The fixture collection reproduces a collection without the network.
 - Use the command spellings below as written. You run with a fixed permission list, and a different spelling may be refused. If a command is refused, do not work around it; note it in your output.
-- Never merge, never push to `main`, never force-push, never run `gh auth`.
+- Never merge, never push to `main`, never force-push, never run `gh auth` (it is refused). `GH_TOKEN` is already in your environment, so `gh` needs no login.
 - Work only in this repository: never read or edit the Analytics repository (`well-injection-insights`) or any other sibling repo.
 
 ## 1. Read the alert
@@ -74,7 +75,7 @@ If the collection succeeds and step 2 showed a failure, the failure was probably
 
 ## 4. Locate the cause
 
-Start from the error code and stage you recorded. Search the code (Grep) for where that error code is raised, read that code and the path the collection takes to reach it, and work out which condition fails and why. Use `git log` and `git diff` to see recent changes to the code you suspect.
+Start from the error code and stage you recorded. Search the code (Grep) for where that error code is raised, read that code and the path the collection takes to reach it, and work out which condition fails and why. To see recent changes, list commit subjects with `git log --oneline -n 20` (or `git log --oneline -n 20 -- <file>` for one file), then diff only the file you suspect, for example `git diff HEAD~1 -- <file>`.
 
 Then run `npm test` and read the failures. They should point at the same code. Do not settle on a cause until the reproduction, the error code and the failing tests agree.
 
@@ -124,7 +125,7 @@ Then run `npm test` and read the failures. They should point at the same code. D
    gh pr create --base <demo branch> --head oncall-fix/<stamp> --title "Fix <short cause>" --body-file <run directory>/pr-body.md
    ```
 
-   If it fails (for example no GitHub token), do not retry with other commands: put the error in `report.md`.
+   `GH_TOKEN` is already in your environment: run the command exactly as written, never with a `gh auth` prefix or a token of your own. If it fails (for example no GitHub token), do not retry with other commands: put the error in `report.md`.
 
 8. Write `report.md` in the run directory: the same sections as the PR body, plus the PR URL.
 

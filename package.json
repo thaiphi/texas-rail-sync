@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "node --test test/*.test.mjs",
+    "test:oncall": "node --test test/oncall/*.test.mjs",
     "test:watch": "vitest",
     "build:artifact": "node scripts/export.mjs",
     "test:ui": "vitest run",

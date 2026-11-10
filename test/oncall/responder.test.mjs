@@ -7,15 +7,19 @@ import {mkdtemp,mkdir,readdir,readFile,rm} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {ALERT_NAME,shouldRespond,agentEnv,agentSettings,buildAgentCommand,agentPrompt,createResponder} from '../scripts/oncall/responder.mjs';
+import {ALERT_NAME,shouldRespond,agentEnv,agentSettings,buildAgentCommand,agentPrompt,createResponder,windowsCommand} from '../../scripts/oncall/responder.mjs';
+
+const WIN=process.platform==='win32';
 
 const payload=(status='firing',alertname=ALERT_NAME)=>({receiver:'explorer-responder',status,
  alerts:[{status,labels:{alertname,service:'explorer',journey:'collect'},startsAt:'2026-11-09T10:00:00Z',fingerprint:'abc123'}]});
 
-// child_process.spawn stand-in: records each call; stdio is ignored; stdin collects the prompt.
+// child_process.spawn stand-in: records each call; stdio is ignored; stdin collects the prompt. On Windows the
+// responder passes one command string and no args array: spawn(command, options).
 function fakeSpawn(){
  const calls=[];
  const spawn=(command,args,options)=>{
+  if(!Array.isArray(args)){options=args;args=undefined;}
   const child=new EventEmitter();
   child.stdin=new PassThrough();child.stderr=new PassThrough();child.killed=[];
   let prompt='';child.stdin.on('data',chunk=>prompt+=chunk);
@@ -48,8 +52,10 @@ test('shouldRespond fires only on a firing collection alert',()=>{
  assert.equal(shouldRespond({status:'firing',alerts:[null]}),false);
 });
 
-test('agentEnv strips the webhook token and OTEL variables',()=>{
- assert.deepEqual(agentEnv({ALERT_WEBHOOK_TOKEN:'x',OTEL_EXPORTER_OTLP_ENDPOINT:'y',OTEL_SERVICE_NAME:'z',GH_TOKEN:'g',PATH:'p'}),{GH_TOKEN:'g',PATH:'p'});
+test('agentEnv strips the webhook token and OTEL variables and turns off auto memory',()=>{
+ assert.deepEqual(agentEnv({ALERT_WEBHOOK_TOKEN:'x',OTEL_EXPORTER_OTLP_ENDPOINT:'y',OTEL_SERVICE_NAME:'z',GH_TOKEN:'g',PATH:'p'}),{GH_TOKEN:'g',PATH:'p',CLAUDE_CODE_DISABLE_AUTO_MEMORY:'1'});
+ // `0` would force auto memory on, so an inherited value must not survive.
+ assert.equal(agentEnv({CLAUDE_CODE_DISABLE_AUTO_MEMORY:'0'}).CLAUDE_CODE_DISABLE_AUTO_MEMORY,'1');
 });
 
 test('buildAgentCommand returns the exact claude arguments',()=>{
@@ -63,13 +69,37 @@ test('agentPrompt names the alert file, the demo branch and the run dir',()=>{
 });
 
 test('agentSettings denies merge, force push and the answer key',()=>{
- const {permissions:{allow,deny}}=agentSettings();
- for(const rule of ['Bash(gh pr merge:*)','Read(./scripts/oncall/**)','Bash(git push --force*)','Bash(git push origin main:*)','Read(./.env*)','Read(./docs/evidence/**)'])assert.ok(deny.includes(rule),rule);
+ const settings=agentSettings(),{permissions:{allow,deny}}=settings;
+ for(const rule of ['Bash(gh pr merge:*)','Read(./scripts/oncall/**)','Bash(git push --force*)','Bash(git push origin main:*)','Read(./.env*)','Read(./docs/evidence/**)',
+  'Read(./test/oncall/**)','Bash(node --test)','Bash(node --test test/oncall*)','Bash(node --test ./test/oncall*)','Bash(npm run test:oncall*)','Bash(*test/oncall*)','Bash(*scripts/oncall*)'])assert.ok(deny.includes(rule),rule);
+ assert.equal(deny.some(rule=>rule.includes('test/oncall-')),false);
+ assert.equal(settings.autoMemoryEnabled,false);
+ assert.ok(allow.includes('Skill(incident-response)'));
  assert.equal(allow.some(rule=>rule.includes('merge')),false);
  // `:*` needs a word boundary, so prefixes ending mid-word must use a bare `*` or they would never match.
  assert.equal([...allow,...deny].some(rule=>/[/-]:\*\)$/.test(rule)),false);
  assert.ok(allow.includes('Bash(git switch -c oncall-fix/*)'));
  assert.ok(allow.includes('Bash(git push -u origin oncall-fix/*)'));
+});
+
+test('agentSettings denies history patches',()=>{
+ const {permissions:{deny}}=agentSettings();
+ for(const rule of ['Bash(git log -p*)','Bash(git log --patch*)','Bash(git log -u*)','Bash(git log * -p*)','Bash(git log * --patch*)'])assert.ok(deny.includes(rule),rule);
+});
+
+test('agentSettings denies the answer key at any depth, but not the run dir',()=>{
+ const {permissions:{deny}}=agentSettings();
+ for(const path of ['scripts/oncall/**','test/oncall/**','.superpowers/**','docs/evidence/**','docs/superpowers/specs/*zc07*','docs/superpowers/plans/*zc07*'])
+  assert.ok(deny.includes(`Read(//**/${path})`),path);
+ // The agent reads alert.json and writes report.md in tmp/oncall/<stamp>/.
+ assert.equal(deny.some(rule=>/tmp\/oncall|\(\/\/\*\*\/oncall/.test(rule)),false);
+});
+
+test('windowsCommand joins one command string with the two paths quoted',()=>{
+ const settingsFile='C:\\r dir\\settings.json',runDir='C:\\r dir';
+ const {command,args}=buildAgentCommand({settingsFile,runDir,maxTurns:60});
+ assert.equal(windowsCommand({command,args,settingsFile,runDir}),
+  `claude -p --agent on-call-engineer --output-format stream-json --verbose --max-turns 60 --permission-mode acceptEdits --settings "${settingsFile}" --add-dir "${runDir}"`);
 });
 
 test('a firing alert starts one agent in the demo worktree',async t=>{
@@ -79,8 +109,16 @@ test('a firing alert starts one agent in the demo worktree',async t=>{
  assert.deepEqual(await respond('/alerts/a.json',payload('firing')),{started:true});
  assert.equal(calls.length,1);
  const [call]=calls;
- assert.equal(call.command,'claude');
+ if(WIN){
+  // One command string and no args array (DEP0190), with the two path arguments quoted.
+  assert.equal(call.args,undefined);
+  assert.match(call.command,/^claude -p --agent on-call-engineer /);
+ }else{
+  assert.equal(call.command,'claude');
+  assert.ok(call.args.includes('on-call-engineer'));
+ }
  assert.equal(call.options.cwd,workdir);
+ assert.equal(call.options.env.CLAUDE_CODE_DISABLE_AUTO_MEMORY,'1');
  assert.equal('ALERT_WEBHOOK_TOKEN' in call.options.env,false);
  assert.equal('OTEL_SERVICE_NAME' in call.options.env,false);
  assert.equal(call.options.shell,process.platform==='win32');
@@ -93,6 +131,7 @@ test('a firing alert starts one agent in the demo worktree',async t=>{
  assert.ok(call.prompt.includes('oncall-demo/20261109T1'));
  assert.deepEqual(JSON.parse(await readFile(join(runDir,'alert.json'),'utf8')),payload('firing'));
  assert.deepEqual(JSON.parse(await readFile(join(runDir,'settings.json'),'utf8')),agentSettings());
+ if(WIN)assert.ok(call.command.includes(`--settings "${join(runDir,'settings.json')}" --add-dir "${runDir}"`),call.command);
  assert.ok(existsSync(join(runDir,'agent.jsonl')));
  call.child.emit('exit',0,null);
 });
@@ -143,6 +182,18 @@ test('timeout kills the agent and releases the lock',async t=>{
  calls[0].child.emit('exit',null,'SIGTERM');
  assert.deepEqual(await respond('/a/3.json',payload()),{started:false,reason:'agent already running'});
  calls[1].child.emit('exit',0,null);
+});
+
+test('on Windows a failed taskkill is logged',{skip:!WIN&&'taskkill runs only on Windows'},async t=>{
+ const killed=[];
+ const execFile=(file,args,done)=>{killed.push([file,...args]);done(Object.assign(new Error('access denied'),{code:5}));};
+ const {spawn,calls}=fakeSpawn();
+ const {respond,logs}=await setup(t,{timeoutMs:20,execFile,spawn:(...args)=>{const child=spawn(...args);child.pid=4242;return child;}});
+ assert.equal((await respond('/a/1.json',payload())).started,true);
+ await new Promise(done=>setTimeout(done,60));
+ assert.deepEqual(killed,[['taskkill','/pid','4242','/T','/F']]);
+ assert.ok(logs.some(line=>/taskkill of agent pid 4242 failed: access denied/.test(line)),logs.join('\n'));
+ calls[0].child.emit('exit',null,'SIGTERM');
 });
 
 test('missing worktree or wrong branch refuses',async t=>{

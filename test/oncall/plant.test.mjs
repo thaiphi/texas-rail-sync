@@ -7,9 +7,9 @@ import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
-import {plantBug,plantInto,PLANT_TARGET} from '../scripts/oncall/plant.mjs';
+import {plantBug,plantInto,PLANT_TARGET} from '../../scripts/oncall/plant.mjs';
 
-const root=resolve(fileURLToPath(new URL('..',import.meta.url)));
+const root=resolve(fileURLToPath(new URL('../..',import.meta.url)));
 const run=promisify(execFile);
 const count=(text,needle)=>text.split(needle).length-1;
 const COPY_PARTS=['src','scripts','public','raw',join('test','fixtures'),'package.json'];
@@ -25,9 +25,18 @@ async function copyRepo(t){
 
 async function collect(dir){
  const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>!key.startsWith('OTEL_')));
- // A failed collect exits 1 by design; the JSON on stdout is still the result.
- const {stdout}=await run(process.execPath,[join(dir,'scripts','collect-fixture.mjs')],{cwd:dir,env}).catch(error=>error);
- return JSON.parse(stdout);
+ let stdout;
+ try{({stdout}=await run(process.execPath,[join(dir,'scripts','collect-fixture.mjs')],{cwd:dir,env,timeout:60_000}));}
+ catch(error){
+  // A failed collect exits non-zero by design and its JSON on stdout is still the result. Anything else (a timeout
+  // kill, a spawn error, no output) is a real failure: rethrow it with the child's stderr.
+  if(typeof error?.code!=='number'||error.killed||!error.stdout){
+   throw Object.assign(new Error(`collect-fixture failed: ${error?.message}\nstderr:\n${error?.stderr??''}`),{cause:error});
+  }
+  stdout=error.stdout;
+ }
+ try{return JSON.parse(stdout);}
+ catch(error){throw new Error(`collect-fixture printed no JSON: ${error.message}\nstdout:\n${stdout}`,{cause:error});}
 }
 
 test('plantBug replaces both byte caps',async()=>{
