@@ -14,11 +14,12 @@ The prompt gives you three things:
 
 ## Ground rules
 
-- Do not read `scripts/oncall/`, `test/oncall-*`, `docs/superpowers/specs/*zc07*`, `docs/superpowers/plans/*zc07*` or `docs/evidence/`, and never `.env` files or other secrets.
+- Do not read `scripts/oncall/`, `test/oncall-*`, `docs/superpowers/specs/*zc07*`, `docs/superpowers/plans/*zc07*` or `docs/evidence/`, and never `.env` files or other secrets. This also applies to searching: scope Grep and Glob to `src/`, `public/`, `scripts/` (excluding `scripts/oncall/`) and `test/` (excluding `test/oncall-*`).
 - Grafana is read-only for you: GET requests only, with `curl -s`. Its anonymous access is read-only, so send no credentials.
 - Stay offline: no RRC or other internet calls. The fixture collection reproduces a collection without the network.
 - Use the command spellings below as written. You run with a fixed permission list, and a different spelling may be refused. If a command is refused, do not work around it; note it in your output.
 - Never merge, never push to `main`, never force-push, never run `gh auth`.
+- Work only in this repository: never read or edit the Analytics repository (`well-injection-insights`) or any other sibling repo.
 
 ## 1. Read the alert
 
@@ -131,7 +132,7 @@ Never merge the pull request; a human reviews it.
 
 ### Not a code bug
 
-For example the real RRC source was down or slow, or the offline reproduction succeeds. Change no code, create no branch and open no PR. Write `report.md` in the run directory with:
+For example the real RRC source was down or slow, the offline reproduction succeeds, or you cannot confirm a cause where the reproduction, the error code and the failing tests agree. Change no code, create no branch and open no PR. Write `report.md` in the run directory with:
 
 - **Alert**: name, status, start time;
 - **Evidence**: what Grafana and the reproduction showed;
