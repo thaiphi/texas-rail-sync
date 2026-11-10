@@ -39,9 +39,9 @@ async function fetchOnce(target,{fetchImpl=fetch,testFixture=false,onResponse=nu
  onResponse?.(response.status);
  if(response.status===429)throw Object.assign(failure('SOURCE_THROTTLED','Official source throttled the request'),{retryAfterMs:parseRetryAfter(response.headers.get('retry-after'))});
  if(!response.ok)throw failure('HTTP_ERROR','Official source request failed');
- if(Number(response.headers.get('content-length'))>10_000_000)throw failure('SOURCE_LIMIT','Source byte cap exceeded');
+ if(Number(response.headers.get('content-length'))>1_000_000)throw failure('SOURCE_LIMIT','Source byte cap exceeded');
  const reader=response.body?.getReader();if(!reader)throw failure('SOURCE_INVALID','Source response body unavailable');
- const chunks=[];let size=0;try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>10_000_000){await reader.cancel();throw failure('SOURCE_LIMIT','Source byte cap exceeded');}chunks.push(Buffer.from(value));}}finally{reader.releaseLock();}
+ const chunks=[];let size=0;try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>1_000_000){await reader.cancel();throw failure('SOURCE_LIMIT','Source byte cap exceeded');}chunks.push(Buffer.from(value));}}finally{reader.releaseLock();}
  const body=Buffer.concat(chunks,size),metadata={url:target.url,retrieved_at:new Date().toISOString(),http_status:response.status,last_modified:response.headers.get('last-modified'),etag:response.headers.get('etag'),sha256:sha256(body),bytes:body.length,testFixture,app_token_used:tokenUsed};
  return {body,metadata};
 }
