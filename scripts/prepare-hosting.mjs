@@ -16,7 +16,7 @@ export function prepareHosting({root=repositoryRoot}={}){
  if(assets!==resolve(root,'tmp','hosting','public'))throw Error('Unsafe generated hosting target');
  rmSync(assets,{recursive:true,force:true});mkdirSync(assets,{recursive:true});
  for(const name of readdirSync(resolve(root,'public')))if(/^[a-z0-9._-]+\.(?:js|css|ico|svg|png)$/i.test(name))copyFileSync(resolve(root,'public',name),resolve(assets,name));
- const html=readFileSync(resolve(root,'public/index.html'),'utf8').replace('<head>','<head><meta name="trrc-mode" content="guest">').replace(/<body([^>]*)>/,'<body$1><p class="notice" role="status">Hosted demo: browse preserved public datasets, or collect a small public dataset as a guest. Guest datasets are private to this browser tab and expire.</p>');
+ const html=readFileSync(resolve(root,'public/index.html'),'utf8').replace('<head>','<head><meta name="trrc-mode" content="guest">').replace(/<body([^>]*)>/,'<body$1><p class="notice" role="status">Live demo: browse saved public datasets, starting with the <a href="#dataset/rrc-2026-10-09-uic000020838-v1/records">example well</a>. Collecting new wells is switched off here; to collect, <a href="https://github.com/thaiphi/texas-rail-sync#run-the-whole-system-docker">run the app locally</a>.</p>');
  writeFileSync(resolve(root,'tmp/hosting/shell.html'),html);
  return assets;
 }
