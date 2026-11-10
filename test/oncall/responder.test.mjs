@@ -76,6 +76,7 @@ test('agentSettings denies merge, force push and the answer key',()=>{
  assert.equal(settings.autoMemoryEnabled,false);
  assert.ok(allow.includes('Skill(incident-response)'));
  assert.equal(allow.some(rule=>rule.includes('merge')),false);
+ assert.ok(allow.includes('Bash(node --test test/*)'));assert.equal(allow.some(rule=>/^Bash\(node --test(:\*)?\)$/.test(rule)),false);
  // `:*` needs a word boundary, so prefixes ending mid-word must use a bare `*` or they would never match.
  assert.equal([...allow,...deny].some(rule=>/[/-]:\*\)$/.test(rule)),false);
  assert.ok(allow.includes('Bash(git switch -c oncall-fix/*)'));
