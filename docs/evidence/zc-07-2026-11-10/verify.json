@@ -1,0 +1,11 @@
+[
+ {
+  "mode": "success",
+  "status": 201,
+  "traceId": "f5d9745e5272cb2d5807cbe9c7695d1e",
+  "runId": "661c0281-79b2-4a7d-ba47-83a0c6dcf3a1",
+  "outcome": "succeeded",
+  "stage": "none",
+  "errorCode": "none"
+ }
+]
