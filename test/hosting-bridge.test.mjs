@@ -122,6 +122,8 @@ test('hosting banner does not invite guest collection while it is switched off (
  prepareHosting();const shell=readFileSync(new URL('../tmp/hosting/shell.html',import.meta.url),'utf8');
  assert.doesNotMatch(shell,/collect a small public dataset as a guest/);
  assert.match(shell,/Collecting new wells is switched off here/);
+ assert.match(shell,/<main id="main" tabindex="-1"><p class="notice" role="status">Live demo/,'banner sits inside main so the fixed sidebar never covers it');
+ assert.doesNotMatch(shell,/<body[^>]*><p class="notice"/);
  assert.match(shell,/href="#dataset\/rrc-2026-10-09-uic000020838-v1\/records"/);
  assert.match(shell,/href="https:\/\/github\.com\/thaiphi\/texas-rail-sync#run-the-whole-system-docker"/);
 });
