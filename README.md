@@ -12,6 +12,17 @@ One system in two repositories, submitted together for the [AI Dev Tools Zoomcam
 | Demo video | *link added after recording* |
 | Whole system on your computer | [`docker compose up --build`](#run-the-whole-system-docker) |
 
+## How the two repositories fit together
+
+![Architecture of Texas RRC Explorer and SWD Injection Analytics](docs/images/system-diagram.png)
+
+- **Explorer** collects official files from the RRC open-data portal (data.texas.gov). It runs load → normalize-QC → export, saves each result as a new dataset version pinned with SHA-256, and indexes runs in Postgres.
+- **The handoff:** **Use in Injection Analytics** opens Analytics and posts the dataset package to it by `postMessage`. Both sides check each other's exact origin.
+- **Analytics** re-hashes every file before using anything. After the engineer confirms the dataset, it runs the capacity, pressure-buildup and nearby-wells calculations and seals each export with SHA-256.
+- **Monitoring:** each collection sends metrics, traces and logs to Grafana. The **Explorer collection failed** alert calls the receiver, which can wake the AI on-call agent.
+
+The [interactive version](docs/system-diagram.html) (download it and open it in a browser) links every box to the source lines it is drawn from. It was made with [Archify](https://github.com/tt-a1i/archify) from [`docs/system-diagram.json`](docs/system-diagram.json), using texas-rail-sync af43517 and well-injection-insights 436c950.
+
 ## The problem
 
 Oil wells in Texas bring up large volumes of salt water. It is pumped back underground through disposal wells, and the Railroad Commission of Texas (RRC) regulates every one of them. The RRC publishes the records an engineer needs to judge a disposal well:
