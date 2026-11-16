@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Texas RRC Explorer + SWD Injection Analytics: one system, two repositories",
+    "output": "docs/system-diagram.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/thaiphi/texas-rail-sync.git",
+      "link_mode": "local-only",
+      "revision": "34b0b05fd7a4ba45100e207a4ddfbacc7cbc78c5"
+    }
+  },
+  "components": [
+    { "id": "engineer", "type": "external", "label": "Engineer", "sublabel": "browser", "pos": [40, 190], "size": [110, 60] },
+    { "id": "rrc", "type": "external", "label": "RRC open data", "sublabel": "data.texas.gov (Socrata)", "pos": [524, 40], "size": [190, 60],
+      "sources": [
+        { "path": "texas-rail-sync/src/sources.mjs", "line": 42, "end_line": 45, "label": "UIC inventory + H-10 monthly" },
+        { "path": "texas-rail-sync/src/sourceFetch.mjs", "line": 11, "end_line": 14, "label": "only https://data.texas.gov" }
+      ] },
+    { "id": "explorer-ui", "type": "frontend", "label": "Explorer UI", "sublabel": "find, collect, review", "pos": [262, 190], "size": [130, 60],
+      "sources": [
+        { "path": "texas-rail-sync/public/app.js", "line": 59, "label": "Use in Injection Analytics" },
+        { "path": "texas-rail-sync/public/analytics-handoff.js", "line": 4, "end_line": 4, "label": "Analytics origin" }
+      ] },
+    { "id": "explorer-server", "type": "backend", "label": "Explorer server", "sublabel": "load → normalize-QC → export", "pos": [524, 190], "size": [190, 60], "tag": ":4391",
+      "sources": [
+        { "path": "texas-rail-sync/scripts/serve.mjs", "line": 238, "end_line": 245, "label": "POST /api/collect" },
+        { "path": "texas-rail-sync/scripts/serve.mjs", "line": 260, "end_line": 268, "label": "collect run" },
+        { "path": "texas-rail-sync/src/acquisition.mjs", "line": 11, "end_line": 38, "label": "fetch official sources" }
+      ] },
+    { "id": "datasets", "type": "database", "label": "Dataset versions", "sublabel": "artifacts/<id>, SHA-256 pins", "pos": [470, 340], "size": [150, 60],
+      "sources": [
+        { "path": "texas-rail-sync/src/pipeline.mjs", "line": 41, "label": "exportArtifact → artifacts/" },
+        { "path": "texas-rail-sync/src/exportCore.mjs", "line": 64, "label": "version-pins.json" }
+      ] },
+    { "id": "postgres", "type": "database", "label": "Postgres", "sublabel": "run + version index", "pos": [640, 340], "size": [130, 60],
+      "sources": [
+        { "path": "texas-rail-sync/docker-compose.yml", "line": 1, "end_line": 4, "label": "index of runs and versions" },
+        { "path": "texas-rail-sync/scripts/serve.mjs", "line": 159, "end_line": 163, "label": "runIndex.sync after collect" }
+      ] },
+    { "id": "lgtm", "type": "cloud", "label": "Grafana LGTM", "sublabel": "metrics, traces, logs", "pos": [836, 190], "size": [140, 60], "tag": "alert rule",
+      "sources": [
+        { "path": "texas-rail-sync/scripts/telemetry.mjs", "line": 143, "end_line": 159, "label": "OTLP logs + traces" },
+        { "path": "texas-rail-sync/observability/compose.yaml", "line": 1, "end_line": 5, "label": "otel-lgtm container" },
+        { "path": "texas-rail-sync/observability/grafana/provisioning/alerting/explorer-alerts.yaml", "line": 9, "end_line": 27, "label": "Explorer collection failed" }
+      ] },
+    { "id": "receiver", "type": "backend", "label": "Alert receiver", "sublabel": "webhook :8001", "pos": [1082, 190], "size": [130, 60],
+      "sources": [
+        { "path": "texas-rail-sync/scripts/alert-receiver.mjs", "line": 1, "end_line": 7, "label": "Grafana contact point" },
+        { "path": "texas-rail-sync/observability/grafana/provisioning/alerting/explorer-alerts.yaml", "line": 85, "end_line": 90, "label": "webhook URL" }
+      ] },
+    { "id": "oncall", "type": "security", "label": "AI on-call agent", "sublabel": "Claude Code subagent", "pos": [1082, 340], "size": [130, 60], "tag": "fix PR",
+      "sources": [
+        { "path": "texas-rail-sync/scripts/oncall/responder.mjs", "line": 1, "end_line": 7, "label": "starts on-call-engineer" },
+        { "path": "texas-rail-sync/scripts/alert-receiver.mjs", "line": 95, "end_line": 98, "label": "--respond" },
+        { "path": "texas-rail-sync/.claude/agents/on-call-engineer.md", "line": 1, "end_line": 30 }
+      ] },
+    { "id": "analytics-ui", "type": "frontend", "label": "Analytics UI", "sublabel": "receives the handoff", "pos": [262, 500], "size": [130, 60], "tag": ":4290",
+      "sources": [
+        { "path": "well-injection-insights/swd-injection-analytics/web/explorer-handoff.mjs", "line": 2, "end_line": 2, "label": "Explorer origin" },
+        { "path": "well-injection-insights/swd-injection-analytics/web/explorer-handoff.mjs", "line": 74, "end_line": 74, "label": "origin + opener check" },
+        { "path": "well-injection-insights/swd-injection-analytics/web/explorer-handoff.mjs", "line": 107, "end_line": 114, "label": "?rrcHandoff listener" }
+      ] },
+    { "id": "verify", "type": "security", "label": "Package verification", "sublabel": "re-hash every file", "pos": [498, 500], "size": [150, 60],
+      "sources": [
+        { "path": "well-injection-insights/swd-injection-analytics/web/explorer-package.mjs", "line": 103, "end_line": 156, "label": "verifyExplorerPackage" },
+        { "path": "well-injection-insights/swd-injection-analytics/web/explorer-receiver.mjs", "line": 1, "end_line": 6, "label": "receiver uses verify" }
+      ] },
+    { "id": "calc", "type": "backend", "label": "Engineering calculations", "sublabel": "capacity · buildup · nearby wells", "pos": [778, 500], "size": [190, 60],
+      "sources": [
+        { "path": "well-injection-insights/swd-injection-analytics/src/disposalCase.ts", "line": 155, "label": "buildDisposalCase" },
+        { "path": "well-injection-insights/swd-injection-analytics/src/transientCase.ts", "line": 215, "label": "buildTransientCase" },
+        { "path": "well-injection-insights/swd-injection-analytics/src/interference.ts", "line": 139, "label": "buildInterference" }
+      ] },
+    { "id": "exports", "type": "database", "label": "Sealed exports", "sublabel": "JSON / CSV + contentSha256", "pos": [1082, 500], "size": [150, 60],
+      "sources": [
+        { "path": "well-injection-insights/swd-injection-analytics/web/transient-buildup.mjs", "line": 250, "label": "sealed result" },
+        { "path": "well-injection-insights/swd-injection-analytics/web/transient-buildup.mjs", "line": 322, "label": "buildup download" },
+        { "path": "well-injection-insights/swd-injection-analytics/web/transient-buildup.mjs", "line": 381, "label": "interference download" }
+      ] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "texas-rail-sync: Texas RRC Explorer (data pipeline)", "wraps": ["explorer-ui", "explorer-server", "datasets", "postgres", "lgtm", "receiver", "oncall"] },
+    { "kind": "region", "label": "well-injection-insights: SWD Injection Analytics (the app)", "wraps": ["analytics-ui", "verify", "calc", "exports"] }
+  ],
+  "connections": [
+    { "id": "engineer-collects", "from": "engineer", "to": "explorer-ui", "label": "find & collect", "variant": "emphasis" },
+    { "id": "ui-calls-server", "from": "explorer-ui", "to": "explorer-server", "label": "POST /api/collect", "variant": "emphasis" },
+    { "id": "server-fetches-rrc", "from": "explorer-server", "to": "rrc", "label": "GET official files" },
+    { "id": "server-writes-versions", "from": "explorer-server", "to": "datasets", "label": "write version" },
+    { "id": "server-indexes-runs", "from": "explorer-server", "to": "postgres", "label": "index runs" },
+    { "id": "server-telemetry", "from": "explorer-server", "to": "lgtm", "label": "OTLP telemetry", "variant": "dashed" },
+    { "id": "alert-webhook", "from": "lgtm", "to": "receiver", "label": "alert webhook", "variant": "dashed" },
+    { "id": "receiver-wakes-agent", "from": "receiver", "to": "oncall", "label": "wake agent" },
+    { "id": "handoff", "from": "explorer-ui", "to": "analytics-ui", "label": "postMessage package", "variant": "security" },
+    { "id": "engineer-confirms", "from": "engineer", "to": "analytics-ui", "label": "confirm dataset" },
+    { "id": "ui-verifies", "from": "analytics-ui", "to": "verify", "label": "package bytes", "variant": "security" },
+    { "id": "verified-to-calc", "from": "verify", "to": "calc", "label": "verified dataset", "variant": "emphasis" },
+    { "id": "calc-exports", "from": "calc", "to": "exports", "label": "seal + download" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "How the two apps connect", "items": [
+      "Explorer opens Analytics with window.open(?rrcHandoff=<id>) and posts the dataset package by postMessage",
+      "Both sides check the exact origin (:4391 ↔ :4290) and the opener window",
+      "Analytics re-hashes every file against the manifest; nothing is used until the engineer confirms"
+    ] },
+    { "dot": "emerald", "title": "Run and deploy", "items": [
+      "docker compose up --build: Postgres, Explorer and Analytics (built from its repo at 444382e)",
+      "Live: both apps on Lovable; Explorer's public reads via the trrc-explorer Supabase Edge Function, collection switched off",
+      "CI on every PR (tests, Compose, observability); deploy-dev after CI on main; deploy-prod is manual, rollback = earlier commit",
+      "Analytics CI runs test and docker on every PR and push to main"
+    ] },
+    { "dot": "rose", "title": "Watching the key journey", "items": [
+      "Each collect is one trace (load, normalize-qc, export) with metrics and logs sharing its trace ID",
+      "Rule 'Explorer collection failed' fires on a failed collect and calls the receiver",
+      "With --respond, the receiver starts the on-call agent, which diagnoses, fixes and opens a PR for review"
+    ] },
+    { "dot": "slate", "title": "Evidence", "items": [
+      "Sources cite a local snapshot of both repositories: texas-rail-sync af43517 and well-injection-insights 436c950"
+    ] }
+  ]
+}
