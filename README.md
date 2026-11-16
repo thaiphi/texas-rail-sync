@@ -9,7 +9,7 @@ One system in two repositories, submitted together for the [AI Dev Tools Zoomcam
 |---|---|
 | Live Explorer (browse saved datasets) | https://texasrrcexplorer.lovable.app |
 | Live Analytics (click **Take the guided tour**) | https://swdinjectionanalytics.lovable.app |
-| Demo video | *link added after recording* |
+| Demo video (2:39, captions, no sound) | https://youtu.be/DkZPR8HyHI4 |
 | Whole system on your computer | [`docker compose up --build`](#run-the-whole-system-docker) |
 
 ## How the two repositories fit together
