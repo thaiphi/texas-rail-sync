@@ -9,7 +9,7 @@ One system in two repositories, submitted together for the [AI Dev Tools Zoomcam
 |---|---|
 | Live Explorer (browse saved datasets) | https://texasrrcexplorer.lovable.app |
 | Live Analytics (click **Take the guided tour**) | https://swdinjectionanalytics.lovable.app |
-| Demo video (about 5 minutes) | *link added after recording* |
+| Demo video | *link added after recording* |
 | Whole system on your computer | [`docker compose up --build`](#run-the-whole-system-docker) |
 
 ## The problem
@@ -46,16 +46,82 @@ They are spread across separate portals and datasets, with no link between a rep
                    └─ OpenTelemetry ──► Grafana (traces, logs, metrics) ──► alert ──► on-call agent
 ```
 
+## SWD Injection Analytics
+
+[SWD Injection Analytics](https://github.com/thaiphi/well-injection-insights) (live at https://swdinjectionanalytics.lovable.app) is the analysis half of the system. Explorer collects and verifies public Texas Railroad Commission data for saltwater-disposal (SWD) wells. Its **Use in Injection Analytics** button hands Analytics a package whose hashes Analytics re-checks before using it.
+
+An engineer uses Analytics to answer: *how much water can my disposal wells take, and how sure am I?* It works through these steps:
+1. **Forecast** produced water, and reconcile the forecast against reported volumes.
+2. **Diagnose** reported H-10 injection history: gaps and zero months, which are never counted as zero injection.
+3. **Estimate** injectivity (J) from test records.
+4. **Reconcile** wellhead and bottomhole pressure.
+5. **Build** a multi-well disposal capacity case.
+6. **Read** "What the case says": history against forecast, uncertainty, and a summary.
+7. **Link** each case well to its reported history ("Wells compared").
+8. **Model** pressure buildup over time for one well from assumed rock. A "Nearby wells" section then ranks offset wells by the pressure each adds.
+
+Every result shows its assumptions and labels each value as reported, assumed or calculated. Exports are sealed with SHA-256 and recomputed when they are verified. These are screening calculations, not permitting or regulatory determinations.
+
+**Where Analytics stands:**
+- The live site is built from `main` at 444382e.
+- Backlog: issues [#1–#9](https://github.com/thaiphi/well-injection-insights/issues?q=is%3Aissue) (ANA-E00 to E07 and E10) are done; only #10 (E11) is open.
+- One command (`npm test` or `node scripts/check-all.mjs`) runs 960 engineering tests and 248 numerical oracle comparisons.
+- [CI](https://github.com/thaiphi/well-injection-insights/blob/main/.github/workflows/ci.yml) runs the `test` and `docker` jobs on every PR and every push to `main`.
+- It is containerized by the repo-root [Dockerfile](https://github.com/thaiphi/well-injection-insights/blob/main/Dockerfile). The Lovable preview is dev and updates from `main`; production is published by hand.
+
+<details>
+<summary>How Analytics meets each criterion</summary>
+
+| Criterion | Evidence in the Analytics repository |
+|---|---|
+| Problem description | [README](https://github.com/thaiphi/well-injection-insights/blob/main/README.md) and the [PRD](https://github.com/thaiphi/well-injection-insights/blob/main/docs/project-2-swd-injection-analytics-expansion-prd.md) |
+| Product spec and public tracker | One approved design per feature in [docs/superpowers/specs/](https://github.com/thaiphi/well-injection-insights/tree/main/docs/superpowers/specs). Issues [#1–#10](https://github.com/thaiphi/well-injection-insights/issues?q=is%3Aissue) (`ANA-E00` to `ANA-E11`); #1–#9 are done. |
+| Agent team | [AGENTS.md](https://github.com/thaiphi/well-injection-insights/blob/main/AGENTS.md) and the roles in [.claude/agents/](https://github.com/thaiphi/well-injection-insights/tree/main/.claude/agents): engineer, QA and reviewer. The main session acts as orchestrator. |
+| Context management | AGENTS.md plus modular docs: [HANDOVER.md](https://github.com/thaiphi/well-injection-insights/blob/main/HANDOVER.md), [migration/README.md](https://github.com/thaiphi/well-injection-insights/blob/main/migration/README.md), and the skills `preservation-layer` and `browser-check` in [.claude/skills/](https://github.com/thaiphi/well-injection-insights/tree/main/.claude/skills) |
+| Application | A browser app with a Lovable/TanStack hosting adapter. Each feature is built design first, then planned, implemented test-first by agents, independently reviewed, browser-checked by QA, and accepted by the owner as a preservation layer. |
+| Testing | `npm test` (or `node scripts/check-all.mjs`) runs the full offline gate: 960 unit and integration tests plus 248 numerical oracle comparisons |
+| Containerization | The repo-root [Dockerfile](https://github.com/thaiphi/well-injection-insights/blob/main/Dockerfile). The whole system runs with [one `docker compose` command](#run-the-whole-system-docker) from this repository. |
+| Deployment | https://swdinjectionanalytics.lovable.app |
+| CI/CD | [CI](https://github.com/thaiphi/well-injection-insights/blob/main/.github/workflows/ci.yml) runs `test` and `docker` on every PR and every push to `main`. Dev updates automatically from `main` (Lovable preview); production is published by hand. Rollback is described in its README. |
+| Observability, alert and on-call agent | On the Explorer side: see [Observability](#observability-zc-05) and [On call](#on-call) |
+
+</details>
+
+<details>
+<summary>Analytics demo walkthrough (about 3 minutes)</summary>
+
+Use only the sample case and fictional data on screen. The sample case uses public TRRC records, with every gap filled by labelled synthetic inputs.
+
+1. **Handoff (30 s).** In Explorer, open a well and press **Use in Injection Analytics**. Analytics opens and shows the package as hash-verified. Nothing is trusted until it is verified.
+2. **Sample case (30 s).** Choose the **Sample case** data source. Open the **Disposal capacity** workspace and calculate. Show the constraints table, the capacity envelope, and **What the case says**: history against forecast and the case summary.
+3. **Wells compared (20 s).** Show the two sample wells. Each has its coverage, its gap months ("a gap is never zero") and its rate check.
+4. **Pressure buildup (50 s).** In **Pressure buildup over time (assumed rock)**:
+   - Pick a well, press **Load fictional example** (labelled "fictional example — not typical values") and choose a closed boundary.
+   - Press **Copy this well's Base forecast allocation**, then **Calculate**.
+   - Show the bottomhole curve against the limit, the first month at the limit, the "of which skin" share, the average rise and the hand-off note.
+   - Change k: the result is withdrawn at once. Calculate again.
+5. **Nearby wells (40 s).** Load two offset packages.
+   - Run is refused until each well is marked connected or not; there is no default.
+   - Type the distances and fill the gap months, then run. Show the three views side by side and the signed ranking.
+   - Set **Pressure as of** to show the limit month and the effect of removing each well.
+6. **Exports (20 s).** Download the JSON and CSV. Every value is labelled, the closing line says it is a screening estimate, and verification recomputes everything from the stored inputs.
+
+**Engineering process (optional, 20 s).** Show one PR, for example [#22](https://github.com/thaiphi/well-injection-insights/pull/22): the design, the plan, a reviewed task per agent, QA evidence, the owner-accepted preservation layer and green CI.
+
+The Explorer-side scenes are in [docs/demo-script.md](docs/demo-script.md).
+
+</details>
+
 ## For reviewers: where each criterion is shown
 
 | Criterion | Where to look |
 |---|---|
 | Problem description | This page: [The problem](#the-problem), [What the system does](#what-the-system-does) |
-| Product specification | [SPEC.md](SPEC.md) (Explorer contract), [requirements](docs/requirements.md), [Analytics product spec](https://github.com/thaiphi/well-injection-insights/blob/main/swd-injection-analytics/product-spec.md). Public tracker: [Zoomcamp milestone](https://github.com/thaiphi/texas-rail-sync/milestone/1) and [all issues](https://github.com/thaiphi/texas-rail-sync/issues). Each issue has acceptance criteria, and agents post their evidence on it before closing, for example [#43](https://github.com/thaiphi/texas-rail-sync/issues/43). |
-| Agent team | [docs/agent-team.md](docs/agent-team.md) (roles, who may do what, how work flows) and [docs/agent-workflow.md](docs/agent-workflow.md) (delegation rules). Project agent and skill: [`.claude/agents/`](.claude/agents/), [`.claude/skills/`](.claude/skills/) |
+| Product specification | [SPEC.md](SPEC.md) (Explorer contract), [requirements](docs/requirements.md), [Analytics product spec](https://github.com/thaiphi/well-injection-insights/blob/main/swd-injection-analytics/product-spec.md) and its [feature designs](https://github.com/thaiphi/well-injection-insights/tree/main/docs/superpowers/specs). Analytics tracker: [issues #1–#10](https://github.com/thaiphi/well-injection-insights/issues?q=is%3Aissue). Public tracker: [Zoomcamp milestone](https://github.com/thaiphi/texas-rail-sync/milestone/1) and [all issues](https://github.com/thaiphi/texas-rail-sync/issues). Each issue has acceptance criteria, and agents post their evidence on it before closing, for example [#43](https://github.com/thaiphi/texas-rail-sync/issues/43). |
+| Agent team | [docs/agent-team.md](docs/agent-team.md) (roles, who may do what, how work flows) and [docs/agent-workflow.md](docs/agent-workflow.md) (delegation rules). Project agent and skill: [`.claude/agents/`](.claude/agents/), [`.claude/skills/`](.claude/skills/). Analytics: [AGENTS.md](https://github.com/thaiphi/well-injection-insights/blob/main/AGENTS.md), with engineer, QA and reviewer roles |
 | Context management | [AGENTS.md](AGENTS.md), with a docs map pointing to process, team, decisions ([docs/adr/](docs/adr/)), designs and plans ([docs/superpowers/](docs/superpowers/)) |
 | Application | Browser UI ([`public/`](public/)), Node backend ([`scripts/serve.mjs`](scripts/serve.mjs)) and Postgres run index ([`src/runIndex.mjs`](src/runIndex.mjs)), started together by [one command](#run-the-whole-system-docker) |
-| Testing | `npm run test:all`: Node unit and integration tests (including a real Postgres test and end-to-end collection fixtures) plus the browser UI tests (vitest). [CI](.github/workflows/ci.yml) runs them on every pull request. |
+| Testing | `npm run test:all`: Node unit and integration tests (including a real Postgres test and end-to-end collection fixtures) plus the browser UI tests (vitest). [CI](.github/workflows/ci.yml) runs them on every pull request. Analytics: `npm test` runs 960 tests and 248 oracle comparisons. |
 | Containerization | [`docker-compose.yml`](docker-compose.yml): Explorer, Analytics and Postgres, with one command. [compose-smoke](.github/workflows/compose-smoke.yml) starts it on every pull request. |
 | Deployment | The two live sites above. Details: [docs/deployment.md](docs/deployment.md) |
 | CI/CD | See [CI/CD](#cicd) below |
@@ -73,7 +139,7 @@ They are spread across separate portals and datasets, with no link between a rep
 
 **What "dev" is here.** The dev environment is a complete Supabase copy (database, API gateway and function runtime) that the `deploy-dev` job starts inside GitHub Actions. It deploys there, checks the result and is removed when the job ends. This was a deliberate choice: a second permanent Supabase project would add cost and lock-in for a portfolio project. Each run's log is the record of the dev deploy. Analytics is a static site that Lovable rebuilds from `main`; its production release is a manual Publish.
 
-Analytics has its own CI in [its repository](https://github.com/thaiphi/well-injection-insights/actions).
+Analytics has its own [CI](https://github.com/thaiphi/well-injection-insights/blob/main/.github/workflows/ci.yml): `test` and `docker` on every pull request and every push to `main`. Its dev is the Lovable preview built from `main`; production is published by hand.
 
 ## Run the whole system (Docker)
 
